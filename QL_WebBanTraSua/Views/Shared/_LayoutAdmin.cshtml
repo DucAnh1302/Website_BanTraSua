@@ -4,10 +4,22 @@
 <head>
     <meta name="viewport" content="width=device-width" />
     <title>@ViewBag.Title</title>
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+
 </head>
 <body>
-    <div>
-        @RenderBody()
+    <div class="row">
+        <div class="col-2">
+            <nav class="nav flex-column">
+                <a class="nav-link active" href="/Admin/Index">DashBoard</a>
+                <a class="nav-link" href="/Admin/QuanLySanPham">Quản lý sản phẩm</a>
+
+            </nav>
+        </div>
+        <div class="col-10">
+            @RenderBody()
+        </div>
     </div>
+    
 </body>
 </html>

@@ -1,0 +1,62 @@
+﻿@using QL_WebBanTraSua.Models;
+@model List<product>
+@{
+    ViewBag.Title = "QuanLySanPham";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<h2>QuanLySanPham</h2>
+
+<table>
+    <tr>
+        <th>
+            Ảnh
+        </th>
+
+        <th>
+            Tên món
+        </th>
+
+        <th>
+            Danh mục
+        </th>
+
+        <th>
+            size
+        </th>
+
+        <th>
+            Giá
+        </th>
+    </tr>
+
+    @foreach (product item in Model)
+    {
+        <tr>
+            <td>
+                @item.image
+            </td>
+
+            <td>
+                @item.name
+            </td>
+
+            <td>
+                @item.category.name
+            </td>
+
+            @foreach (product_variants g in item.product_variants)
+            {
+                <td>
+                    @g.size /
+                </td>
+
+                <td>
+                    @g.price /
+                </td>
+            }
+
+        </tr>
+    }
+
+</table>
