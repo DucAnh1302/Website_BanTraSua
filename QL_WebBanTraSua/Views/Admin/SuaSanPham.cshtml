@@ -38,28 +38,29 @@
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Ảnh hiện tại</label>
+                        <label class="form-label fw-bold">Hình ảnh món nước</label>
                         <div class="d-flex align-items-center gap-3 mb-2">
-                            @if (!string.IsNullOrEmpty(Model.image))
-                            {
-                                string imgPath = Model.image.StartsWith("products/")
-                                    ? Url.Content("~/Content/images/" + Model.image)
-                                    : Url.Content("~/Content/images/products/" + Model.image);
-
-                                <img src="@imgPath" alt="@Model.name" style="width: 80px; height: 80px; object-fit: cover;" class="rounded border shadow-sm" />
+                            @{
+                                string imgPath = "";
+                                if (!string.IsNullOrEmpty(Model.image))
+                                {
+                                    imgPath = Model.image.StartsWith("products/")
+                                        ? Url.Content("~/Content/images/" + Model.image)
+                                        : Url.Content("~/Content/images/products/" + Model.image);
+                                }
+                                else
+                                {
+                                    imgPath = Url.Content("~/Content/images/products/bac_xiu.jpg");
+                                }
                             }
-                            else
-                            {
-                                <div class="bg-light rounded border text-muted d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
-                                    Chưa có ảnh
-                                </div>
-                            }
+                            <img id="imgPreview" src="@imgPath" alt="@Model.name" style="width: 90px; height: 90px; object-fit: cover;" class="rounded border shadow-sm" onerror="this.onerror=null; this.src='@Url.Content("~/Content/images/products/bac_xiu.jpg")';" />
                             <div>
                                 <label class="form-label small fw-bold">Chọn ảnh mới để thay thế:</label>
-                                <input type="file" name="imageFile" class="form-control form-control-sm" accept="image/*" />
+                                <input type="file" name="imageFile" id="imageFileInput" class="form-control form-control-sm" accept="image/*" onchange="if(this.files && this.files[0]){ document.getElementById('imgPreview').src = window.URL.createObjectURL(this.files[0]); }" />
+                                <div class="form-text small text-muted">Chọn tệp ảnh từ máy tính để xem trước ngay lập tức.</div>
                             </div>
                         </div>
-                        <input type="text" name="image" class="form-control form-control-sm" value="@Model.image" placeholder="Hoặc nhập đường dẫn ảnh..." />
+                        <input type="text" name="image" id="imageUrlInput" class="form-control form-control-sm" value="@Model.image" placeholder="Hoặc nhập đường dẫn ảnh..." oninput="if(this.value){ document.getElementById('imgPreview').src = this.value; }" />
                     </div>
 
                     <div class="mb-4">

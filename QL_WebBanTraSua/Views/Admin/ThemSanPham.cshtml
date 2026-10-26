@@ -38,13 +38,15 @@
 
                     <div class="mb-3">
                         <label class="form-label fw-bold">Hình ảnh đại diện</label>
-                        <input type="file" name="imageFile" class="form-control" accept="image/*" />
-                        <div class="form-text">Tải lên tệp ảnh từ máy tính (JPG, PNG, WEBP)</div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Hoặc Đường dẫn ảnh (URL / Tên file ảnh có sẵn)</label>
-                        <input type="text" name="image" class="form-control" placeholder="Ví dụ: products/tra_sua_matcha.jpg" value="@(Model != null ? Model.image : "")" />
+                        <div class="d-flex align-items-center gap-3 mb-2">
+                            <img id="imgPreviewAdd" src="@Url.Content("~/Content/images/products/bac_xiu.jpg")" alt="Xem trước ảnh" style="width: 90px; height: 90px; object-fit: cover;" class="rounded border shadow-sm" />
+                            <div>
+                                <label class="form-label small fw-bold">Chọn ảnh từ máy tính:</label>
+                                <input type="file" name="imageFile" class="form-control form-control-sm" accept="image/*" onchange="if(this.files && this.files[0]){ document.getElementById('imgPreviewAdd').src = window.URL.createObjectURL(this.files[0]); }" />
+                                <div class="form-text small text-muted">Hỗ trợ JPG, PNG, WEBP (Xem trước ngay khi chọn).</div>
+                            </div>
+                        </div>
+                        <input type="text" name="image" class="form-control form-control-sm" placeholder="Hoặc nhập đường dẫn ảnh: products/tra_sua_matcha.jpg" value="@(Model != null ? Model.image : "")" oninput="if(this.value){ document.getElementById('imgPreviewAdd').src = this.value; }" />
                     </div>
 
                     <div class="mb-4">

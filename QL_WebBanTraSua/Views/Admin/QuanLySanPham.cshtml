@@ -22,7 +22,7 @@
     </div>
 </div>
 
-<!-- Bộ lọc tìm kiếm (Pure HTML Form GET - Zero JS) -->
+<!-- Bộ lọc tìm kiếm (Pure HTML Form GET) -->
 <div class="card-custom mb-4">
     <div class="card-body">
         <form method="get" action="/Admin/QuanLySanPham" class="row g-3 align-items-end">
@@ -85,20 +85,20 @@
                         {
                             <tr>
                                 <td>
-                                    @if (!string.IsNullOrEmpty(item.image))
-                                    {
-                                        string imgPath = item.image.StartsWith("products/")
-                                            ? Url.Content("~/Content/images/" + item.image)
-                                            : Url.Content("~/Content/images/products/" + item.image);
-
-                                        <img src="@imgPath" alt="@item.name" style="width: 54px; height: 54px; object-fit: cover;" class="rounded border shadow-sm" />
+                                    @{
+                                        string imgPath = "";
+                                        if (!string.IsNullOrEmpty(item.image))
+                                        {
+                                            imgPath = item.image.StartsWith("products/")
+                                                ? Url.Content("~/Content/images/" + item.image)
+                                                : Url.Content("~/Content/images/products/" + item.image);
+                                        }
+                                        else
+                                        {
+                                            imgPath = Url.Content("~/Content/images/products/bac_xiu.jpg");
+                                        }
                                     }
-                                    else
-                                    {
-                                        <div class="bg-light rounded border text-muted d-flex align-items-center justify-content-center" style="width: 54px; height: 54px; font-size: 1.5rem;">
-                                            🧋
-                                        </div>
-                                    }
+                                    <img src="@imgPath" alt="@item.name" style="width: 54px; height: 54px; object-fit: cover;" class="rounded border shadow-sm" onerror="this.onerror=null; this.src='@Url.Content("~/Content/images/products/bac_xiu.jpg")';" />
                                 </td>
                                 <td>
                                     <div class="fw-bold text-dark">@item.name</div>
