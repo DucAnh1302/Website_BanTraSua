@@ -1,25 +1,227 @@
 ﻿<!DOCTYPE html>
-
-<html>
+<html lang="vi">
 <head>
-    <meta name="viewport" content="width=device-width" />
-    <title>@ViewBag.Title</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewBag.Title - TeaBloom Quản Trị Hệ Thống</title>
     <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
-
+    <style>
+        body {
+            background-color: #f4f6f9;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            color: #333;
+        }
+        .admin-sidebar {
+            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+            min-height: 100vh;
+            color: #e2e8f0;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .admin-brand {
+            padding: 20px 18px;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #38bdf8;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+        .admin-brand:hover {
+            color: #7dd3fc;
+        }
+        .sidebar-section-title {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #94a3b8;
+            padding: 16px 20px 6px;
+            font-weight: 600;
+        }
+        .admin-nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 11px 20px;
+            color: #cbd5e1;
+            text-decoration: none;
+            font-size: 0.92rem;
+            font-weight: 500;
+            border-left: 3px solid transparent;
+            transition: all 0.15s ease;
+        }
+        .admin-nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.06);
+            color: #ffffff;
+            border-left-color: #38bdf8;
+        }
+        .admin-nav-link.active {
+            background-color: rgba(56, 189, 248, 0.12);
+            color: #38bdf8;
+            font-weight: 600;
+            border-left-color: #38bdf8;
+        }
+        .admin-topbar {
+            background-color: #ffffff;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 14px 28px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+        }
+        .admin-main-content {
+            padding: 26px 28px;
+        }
+        .card-custom {
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+            background-color: #ffffff;
+            margin-bottom: 24px;
+        }
+        .card-custom .card-header {
+            background-color: #ffffff;
+            border-bottom: 1px solid #f1f5f9;
+            font-weight: 600;
+            padding: 14px 20px;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+        }
+        .stat-card {
+            border-radius: 10px;
+            padding: 20px;
+            color: #fff;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        }
+        .stat-card.blue { background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); }
+        .stat-card.green { background: linear-gradient(135deg, #059669 0%, #047857 100%); }
+        .stat-card.amber { background: linear-gradient(135deg, #d97706 0%, #b45309 100%); }
+        .stat-card.purple { background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); }
+        .stat-card.red { background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); }
+        .stat-number {
+            font-size: 1.85rem;
+            font-weight: 700;
+            margin: 6px 0 2px 0;
+        }
+        .stat-label {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+        .table th {
+            font-weight: 600;
+            font-size: 0.86rem;
+            background-color: #f8fafc;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            vertical-align: middle;
+        }
+        .table td {
+            vertical-align: middle;
+            font-size: 0.92rem;
+        }
+        .badge-status {
+            font-weight: 600;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 0.78rem;
+        }
+    </style>
 </head>
 <body>
-    <div class="row">
-        <div class="col-2">
-            <nav class="nav flex-column">
-                <a class="nav-link active" href="/Admin/Index">DashBoard</a>
-                <a class="nav-link" href="/Admin/QuanLySanPham">Quản lý sản phẩm</a>
+    <div class="container-fluid p-0">
+        <div class="row g-0">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 admin-sidebar">
+                <a href="/Admin/Index" class="admin-brand">
+                    <span>🧋 TeaBloom</span>
+                    <span class="badge bg-primary text-white" style="font-size: 0.68rem; font-weight: normal;">Admin</span>
+                </a>
 
-            </nav>
-        </div>
-        <div class="col-10">
-            @RenderBody()
+                <div class="sidebar-section-title">Hệ thống</div>
+                <nav class="nav flex-column">
+                    <a class="admin-nav-link @(ViewBag.ActiveMenu == "Dashboard" ? "active" : "")" href="/Admin/Index">
+                        <span>📊</span> Tổng quan (Dashboard)
+                    </a>
+                </nav>
+
+                <div class="sidebar-section-title">Bán hàng & Thực đơn</div>
+                <nav class="nav flex-column">
+                    <a class="admin-nav-link @(ViewBag.ActiveMenu == "SanPham" ? "active" : "")" href="/Admin/QuanLySanPham">
+                        <span>🧋</span> Quản lý Sản phẩm
+                    </a>
+                    <a class="admin-nav-link @(ViewBag.ActiveMenu == "DanhMuc" ? "active" : "")" href="/Admin/QuanLyDanhMuc">
+                        <span>📁</span> Quản lý Danh mục
+                    </a>
+                    <a class="admin-nav-link @(ViewBag.ActiveMenu == "Topping" ? "active" : "")" href="/Admin/QuanLyTopping">
+                        <span>🍬</span> Quản lý Topping
+                    </a>
+                    <a class="admin-nav-link @(ViewBag.ActiveMenu == "DonHang" ? "active" : "")" href="/Admin/QuanLyDonHang">
+                        <span>🧾</span> Quản lý Đơn hàng
+                    </a>
+                </nav>
+
+                <div class="sidebar-section-title">Kho & Khuyến mãi</div>
+                <nav class="nav flex-column">
+                    <a class="admin-nav-link @(ViewBag.ActiveMenu == "Kho" ? "active" : "")" href="/Admin/QuanLyKho">
+                        <span>📦</span> Quản lý Kho & Tồn kho
+                    </a>
+                    <a class="admin-nav-link @(ViewBag.ActiveMenu == "Voucher" ? "active" : "")" href="/Admin/QuanLyVoucher">
+                        <span>🏷️</span> Quản lý Khuyến mãi
+                    </a>
+                </nav>
+
+                <div class="sidebar-section-title">Người dùng & Tài khoản</div>
+                <nav class="nav flex-column mb-4">
+                    <a class="admin-nav-link @(ViewBag.ActiveMenu == "NguoiDung" ? "active" : "")" href="/Admin/QuanLyNguoiDung">
+                        <span>👥</span> Quản lý Người dùng
+                    </a>
+                    <a class="admin-nav-link" href="/Home/Index" target="_blank">
+                        <span>🌐</span> Xem ngoài Website
+                    </a>
+                </nav>
+            </div>
+
+            <!-- Content Area -->
+            <div class="col-md-9 col-lg-10">
+                <!-- Topbar -->
+                <div class="admin-topbar">
+                    <div>
+                        <span class="text-muted small">Khu vực quản trị hệ thống quán trà sữa TeaBloom</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="badge bg-light text-dark border p-2">
+                            👤 Vai trò: <strong>Administrator</strong>
+                        </span>
+                        <a href="/Home/Index" class="btn btn-sm btn-outline-secondary">
+                            Về trang chủ
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Main Body -->
+                <div class="admin-main-content">
+                    @if (TempData["Success"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <strong>Thành công!</strong> @TempData["Success"]
+                        </div>
+                    }
+
+                    @if (TempData["Error"] != null)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <strong>Lỗi!</strong> @TempData["Error"]
+                        </div>
+                    }
+
+                    @RenderBody()
+                </div>
+            </div>
         </div>
     </div>
-    
 </body>
 </html>

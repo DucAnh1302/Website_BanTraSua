@@ -1,0 +1,246 @@
+﻿@using QL_WebBanTraSua.Models
+@model List<ingredient>
+@{
+    ViewBag.Title = "Quản Lý Kho Nguyên Liệu - TeaBloom";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+
+    var recentTransactions = ViewBag.RecentTransactions as List<inventory_transactions> ?? new List<inventory_transactions>();
+    string currentSearch = ViewBag.Search as string ?? "";
+    string currentFilter = ViewBag.FilterStock as string ?? "";
+
+    int lowStockCount = Model.Count(i => i.stock_quantity <= i.min_stock && i.stock_quantity > 0);
+    int outOfStockCount = Model.Count(i => i.stock_quantity <= 0);
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1">📦 Quản Lý Kho & Định Lượng Nguyên Liệu</h3>
+        <p class="text-muted small mb-0">Theo dõi tồn kho thực tế, cảnh báo cạn kiệt và thực hiện nhập kho định lượng (UC05, UC07, UC10)</p>
+    </div>
+    <div>
+        <a href="/Admin/ThemNguyenLieu" class="btn btn-primary">
+            ➕ Thêm Nguyên Liệu Mới
+        </a>
+    </div>
+</div>
+
+<!-- Thống kê tồn kho -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="stat-card blue">
+            <div class="stat-label">📦 Tổng Loại Nguyên Liệu</div>
+            <div class="stat-number">@Model.Count loại</div>
+            <div class="small mt-2 opacity-75">Trà, Sữa, Đường, Si-rô, Trân châu...</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card amber">
+            <div class="stat-label">⚠️ Sắp Chạm Ngưỡng Cạn Kho</div>
+            <div class="stat-number">@lowStockCount loại</div>
+            <div class="small mt-2 opacity-75">Tồn kho &le; Định mức an toàn tối thiểu</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card red">
+            <div class="stat-label">🛑 Hết Hàng Hoàn Toàn</div>
+            <div class="stat-number">@outOfStockCount loại</div>
+            <div class="small mt-2 opacity-75">Cần lập phiếu nhập kho khẩn cấp</div>
+        </div>
+    </div>
+</div>
+
+<!-- Bộ lọc tìm kiếm (Pure HTML Form GET - Zero JS) -->
+<div class="card-custom mb-4">
+    <div class="card-body">
+        <form method="get" action="/Admin/QuanLyKho" class="row g-3 align-items-end">
+            <div class="col-md-5">
+                <label class="form-label small fw-bold">Tìm kiếm nguyên liệu</label>
+                <input type="text" name="search" class="form-control" placeholder="Nhập tên trà, sữa, bột kem..." value="@currentSearch" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label small fw-bold">Trạng thái tồn kho</label>
+                <select name="filterStock" class="form-select">
+                    <option value="">-- Tất cả mức tồn kho --</option>
+                    <option value="low" @(currentFilter == "low" ? "selected" : "")>⚠️ Cảnh báo cạn kho (Tồn &le; Ngưỡng an toàn)</option>
+                    <option value="out" @(currentFilter == "out" ? "selected" : "")>🛑 Đã hết hàng (Tồn = 0)</option>
+                </select>
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-secondary w-100">
+                    Lọc Kho
+                </button>
+                <a href="/Admin/QuanLyKho" class="btn btn-outline-secondary" title="Đặt lại">
+                    ↺
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Bảng danh sách nguyên liệu và form Nhập Kho Nhanh -->
+<div class="card-custom mb-4">
+    <div class="card-header fw-bold">Danh Sách Tồn Kho Nguyên Liệu</div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th style="width: 60px;">ID</th>
+                        <th>Tên nguyên liệu</th>
+                        <th>ĐVT</th>
+                        <th>Tồn kho hiện tại</th>
+                        <th>Ngưỡng an toàn</th>
+                        <th>Tình trạng</th>
+                        <th style="width: 320px;">Nhập Thêm Kho Nhanh (UC07)</th>
+                        <th class="text-end" style="width: 90px;">Sửa</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Count > 0)
+                    {
+                        foreach (var item in Model)
+                        {
+                            bool isOut = item.stock_quantity <= 0;
+                            bool isLow = item.stock_quantity <= item.min_stock;
+
+                            <tr class="@(isOut ? "table-danger" : (isLow ? "table-warning" : ""))">
+                                <td class="text-muted fw-bold">#@item.id</td>
+                                <td>
+                                    <div class="fw-bold text-dark">@item.name</div>
+                                    <small class="text-muted">Nhóm: @item.consumption_role</small>
+                                </td>
+                                <td>
+                                    <span class="badge bg-light text-dark border">@item.unit</span>
+                                </td>
+                                <td>
+                                    <span class="fw-bold fs-6 @(isOut ? "text-danger" : (isLow ? "text-warning" : "text-success"))">
+                                        @string.Format("{0:N1}", item.stock_quantity) @item.unit
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="text-muted small">@item.min_stock @item.unit</span>
+                                </td>
+                                <td>
+                                    @if (isOut)
+                                    {
+                                        <span class="badge bg-danger">Hết hàng</span>
+                                    }
+                                    else if (isLow)
+                                    {
+                                        <span class="badge bg-warning text-dark">Cạn kiệt</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success">Đầy đủ</span>
+                                    }
+                                </td>
+                                <td>
+                                    <!-- Form Nhập kho trực tiếp qua HTML POST thuần - Zero JS -->
+                                    <form method="post" action="/Admin/NhapKho" class="d-flex gap-1 align-items-center">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="ingredient_id" value="@item.id" />
+                                        <input type="number" name="quantity" class="form-control form-control-sm" placeholder="+ Số lượng" step="any" min="0.1" required style="width: 110px;" />
+                                        <input type="number" name="unit_cost" class="form-control form-control-sm" placeholder="Đơn giá" step="1000" min="0" style="width: 110px;" />
+                                        <button type="submit" class="btn btn-sm btn-primary text-nowrap" title="Xác nhận nhập thêm tồn kho">
+                                            + Nhập
+                                        </button>
+                                    </form>
+                                </td>
+                                <td class="text-end">
+                                    <a href="/Admin/SuaNguyenLieu/@item.id" class="btn btn-sm btn-outline-secondary">
+                                        ✏️ Sửa
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="8" class="text-center text-muted py-5">
+                                Không tìm thấy nguyên liệu nào trong kho!
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Lịch sử giao dịch kho gần nhất (UC05, UC07) -->
+<div class="card-custom">
+    <div class="card-header fw-bold">🕒 Lịch Sử Biến Động Kho Gần Đây (Inventory Audit)</div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-sm table-striped align-middle mb-0" style="font-size: 0.88rem;">
+                <thead>
+                    <tr>
+                        <th>Thời gian</th>
+                        <th>Nguyên liệu</th>
+                        <th>Thay đổi số lượng</th>
+                        <th>Đơn giá vốn</th>
+                        <th>Loại giao dịch</th>
+                        <th>Ghi chú nghiệp vụ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (recentTransactions != null && recentTransactions.Count > 0)
+                    {
+                        foreach (var tr in recentTransactions)
+                        {
+                            <tr>
+                                <td>
+                                    @(tr.created_at.HasValue ? tr.created_at.Value.ToString("dd/MM/yyyy HH:mm") : "")
+                                </td>
+                                <td class="fw-bold">
+                                    @(tr.ingredient != null ? tr.ingredient.name : "N/A")
+                                </td>
+                                <td>
+                                    @if (tr.quantity_changed > 0)
+                                    {
+                                        <span class="text-success fw-bold">+ @tr.quantity_changed @(tr.ingredient != null ? tr.ingredient.unit : "")</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-danger fw-bold">@tr.quantity_changed @(tr.ingredient != null ? tr.ingredient.unit : "")</span>
+                                    }
+                                </td>
+                                <td>
+                                    @(tr.unit_cost.HasValue ? string.Format("{0:N0} đ", tr.unit_cost.Value) : "-")
+                                </td>
+                                <td>
+                                    @if (tr.transaction_type == "import_manual")
+                                    {
+                                        <span class="badge bg-success">Nhập kho thủ công</span>
+                                    }
+                                    else if (tr.transaction_type == "import_cancel")
+                                    {
+                                        <span class="badge bg-warning text-dark">Hoàn kho hủy đơn</span>
+                                    }
+                                    else if (tr.transaction_type == "export_order")
+                                    {
+                                        <span class="badge bg-danger">Xuất bán đơn hàng</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">@tr.transaction_type</span>
+                                    }
+                                </td>
+                                <td class="text-muted">
+                                    @tr.note
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-3">Chưa có giao dịch biến động kho nào được ghi nhận.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
