@@ -1,6 +1,15 @@
+﻿-- ========================================================
+-- DATABASE: db_trasua
+-- Chuẩn hóa: Chạy 1 phát thành công trên SQL Server (SSMS)
 -- ========================================================
--- 1. TẠO DATABASE
--- ========================================================
+
+IF DB_ID('db_trasua') IS NOT NULL
+BEGIN
+    ALTER DATABASE db_trasua SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+    DROP DATABASE db_trasua;
+END
+GO
+
 CREATE DATABASE db_trasua;
 GO
 
@@ -8,7 +17,7 @@ USE db_trasua;
 GO
 
 -- ========================================================
--- 2. TẠO BẢNG
+-- 1. TẠO CÁC BẢNG (TABLES)
 -- ========================================================
 
 CREATE TABLE [categories] (
@@ -106,6 +115,7 @@ CREATE TABLE [orders] (
   [id] BIGINT IDENTITY(1,1) NOT NULL PRIMARY KEY,
   [customer_id] BIGINT DEFAULT NULL,
   [staff_id] BIGINT DEFAULT NULL,
+  [voucher_id] BIGINT DEFAULT NULL,
   [subtotal] DECIMAL(12,0) NOT NULL,
   [shipping_fee] DECIMAL(12,0) NOT NULL DEFAULT 0,
   [discount_amount] DECIMAL(12,0) NOT NULL DEFAULT 0,
@@ -156,64 +166,7 @@ CREATE TABLE [inventory_transactions] (
 GO
 
 -- ========================================================
--- 3. TẠO KHÓA NGOẠI (FOREIGN KEYS)
--- ========================================================
--- Chạy đoạn code này để ép SSMS tạo lại toàn bộ Khóa Ngoại (Foreign Keys)
-
-ALTER TABLE [inventory_transactions]
-  ADD CONSTRAINT [fk_inv_trans_ingredient_id] FOREIGN KEY ([ingredient_id]) REFERENCES [ingredients] ([id]);
-GO
-
-ALTER TABLE [inventory_transactions]
-  ADD CONSTRAINT [fk_inv_trans_order_id] FOREIGN KEY ([order_id]) REFERENCES [orders] ([id]);
-GO
-
-ALTER TABLE [orders]
-  ADD CONSTRAINT [fk_orders_customer_id] FOREIGN KEY ([customer_id]) REFERENCES [users] ([id]);
-GO
-
-ALTER TABLE [orders]
-  ADD CONSTRAINT [fk_orders_staff_id] FOREIGN KEY ([staff_id]) REFERENCES [users] ([id]);
-GO
-
-ALTER TABLE [order_items]
-  ADD CONSTRAINT [fk_order_items_order_id] FOREIGN KEY ([order_id]) REFERENCES [orders] ([id]);
-GO
-
-ALTER TABLE [order_items]
-  ADD CONSTRAINT [fk_order_items_variant_id] FOREIGN KEY ([variant_id]) REFERENCES [product_variants] ([id]);
-GO
-
-ALTER TABLE [order_item_toppings]
-  ADD CONSTRAINT [fk_order_item_toppings_order_item_id] FOREIGN KEY ([order_item_id]) REFERENCES [order_items] ([id]);
-GO
-
-ALTER TABLE [order_item_toppings]
-  ADD CONSTRAINT [fk_order_item_toppings_topping_id] FOREIGN KEY ([topping_id]) REFERENCES [toppings] ([id]);
-GO
-
-ALTER TABLE [products]
-  ADD CONSTRAINT [fk_products_category_id] FOREIGN KEY ([category_id]) REFERENCES [categories] ([id]);
-GO
-
-ALTER TABLE [product_variants]
-  ADD CONSTRAINT [fk_product_variants_product_id] FOREIGN KEY ([product_id]) REFERENCES [products] ([id]);
-GO
-
-ALTER TABLE [recipe_details]
-  ADD CONSTRAINT [fk_recipe_details_ingredient_id] FOREIGN KEY ([ingredient_id]) REFERENCES [ingredients] ([id]);
-GO
-
-ALTER TABLE [recipe_details]
-  ADD CONSTRAINT [fk_recipe_details_variant_id] FOREIGN KEY ([variant_id]) REFERENCES [product_variants] ([id]);
-GO
-
-ALTER TABLE [toppings]
-  ADD CONSTRAINT [fk_toppings_ingredient_id] FOREIGN KEY ([ingredient_id]) REFERENCES [ingredients] ([id]);
-GO
-
--- ========================================================
--- 4. THÊM DỮ LIỆU
+-- 2. THÊM DỮ LIỆU BAN ĐẦU (SEED DATA)
 -- ========================================================
 
 -- --- CATEGORIES ---
@@ -299,17 +252,17 @@ SET IDENTITY_INSERT [toppings] OFF;
 -- --- PRODUCTS ---
 SET IDENTITY_INSERT [products] ON;
 INSERT INTO [products] ([id], [category_id], [name], [image], [description], [is_active], [created_at], [updated_at]) VALUES
-(1, 1, N'Trà Sữa Truyền Thống', 'products/4R9cQIDGAw1zNISpAaLgVmt5H7HMMEfE25xOQ2OZ.jpg', N'Vị trà đen đậm đà hòa quyện cùng sữa béo ngậy.', 1, '2026-09-16 20:32:52', '2026-09-25 13:08:02'),
-(2, 1, N'Trà Sữa Trân Châu Đường Đen', 'products/3Rg6xxcMFdpvq47UtjfoNDPUN6jeAL0C9LYMXK92.webp', N'Trân châu dẻo dai, thơm mùi caramel đường đen.', 1, '2026-09-16 20:32:52', '2026-09-25 13:23:30'),
-(3, 1, N'Trà Sữa Matcha', 'products/KylLi7oTWtYkHk58OzfWrxvlUhKEu0AQiRv2qlve.webp', N'Matcha Nhật Bản nguyên chất, béo nhẹ vị trà xanh.', 1, '2026-09-16 20:32:52', '2026-09-25 13:08:21'),
-(4, 2, N'Hồng Trà Đào Cam Sả', 'products/nvsHhrnn5FVSmNV8yUmCeIeseLwm6Ahrccaa7dzN.jpg', N'Hồng trà thanh mát kết hợp đào, cam và sả tươi.', 1, '2026-09-16 20:32:52', '2026-09-25 13:20:36'),
-(5, 2, N'Trà Vải', 'products/cRVg26MD2JgBIugHAIKK1jLYaqEefz3zweIYV6Cl.jpg', N'Trà xanh thơm hương vải chín ngọt dịu.', 1, '2026-09-16 20:32:53', '2026-09-25 13:08:39'),
-(6, 3, N'Cà Phê Sữa Đá', 'products/ivlRlzlndUzsfCYVCrUcCTAmYcWA64tRaZxZRh13.webp', N'Cà phê phin truyền thống pha cùng sữa đặc.', 1, '2026-09-16 20:32:53', '2026-09-25 13:23:49'),
-(7, 3, N'Bạc Xỉu', 'products/i0VQtyy1YZQjn998VaBbguEckDYDyR77L18uTrwj.webp', N'Nhiều sữa, ít cà phê — vị ngọt béo dịu nhẹ.', 1, '2026-09-16 20:32:53', '2026-09-25 13:23:12'),
-(8, 4, N'Socola Đá Xay', 'products/CieovRRKyGulovsjeBlDOxO0TY7gTqRsXg8F8rl2.webp', N'Đá xay mịn hòa quyện cùng socola nguyên chất.', 1, '2026-09-16 20:32:53', '2026-09-25 13:22:52'),
-(9, 4, N'Dâu Tây Đá Xay', 'products/J5FIT2laIfQgu5ZruKQyZsnsvi8KIxu0iMZkbyvv.jpg', N'Dâu tây tươi xay mịn, chua ngọt sảng khoái.', 1, '2026-09-16 20:32:53', '2026-09-25 13:20:11'),
-(11, 1, N'Trà sữa socola', 'products/mgfPZtf1sHsOLBmYOEqF57JTgyHscby12thBiq5d.webp', N'Trà sữa béo ngậy kết hợp với sô cô la lôi cuốn', 1, '2026-09-21 09:18:56', '2026-09-25 13:22:07'),
-(12, 5, N'Matcha Machiato', 'products/1790588816_matchalatte4.jpd.jpg', N'Thơm trà và béo sữa', 1, '2026-09-23 19:02:35', '2026-09-28 02:46:56'),
+(1, 1, N'Trà Sữa Truyền Thống', 'products/tra-sua-truyen-thong.jpg', N'Vị trà đen đậm đà hòa quyện cùng sữa béo ngậy.', 1, '2026-09-16 20:32:52', '2026-09-25 13:08:02'),
+(2, 1, N'Trà Sữa Trân Châu Đường Đen', 'products/tra-sua-tran-chau-duong-den.jpg', N'Trân châu dẻo dai, thơm mùi caramel đường đen.', 1, '2026-09-16 20:32:52', '2026-09-25 13:23:30'),
+(3, 1, N'Trà Sữa Matcha', 'products/tra-sua-matcha.jpg', N'Matcha Nhật Bản nguyên chất, béo nhẹ vị trà xanh.', 1, '2026-09-16 20:32:52', '2026-09-25 13:08:21'),
+(4, 2, N'Hồng Trà Đào Cam Sả', 'products/hong-tra-dao-cam-sa.jpg', N'Hồng trà thanh mát kết hợp đào, cam và sả tươi.', 1, '2026-09-16 20:32:52', '2026-09-25 13:20:36'),
+(5, 2, N'Trà Vải', 'products/tra-vai.jpg', N'Trà xanh thơm hương vải chín ngọt dịu.', 1, '2026-09-16 20:32:53', '2026-09-25 13:08:39'),
+(6, 3, N'Cà Phê Sữa Đá', 'products/ca-phe-sua-da.png', N'Cà phê phin truyền thống pha cùng sữa đặc.', 1, '2026-09-16 20:32:53', '2026-09-25 13:23:49'),
+(7, 3, N'Bạc Xỉu', 'products/ca-phe-bac-xiu.jpg', N'Nhiều sữa, ít cà phê — vị ngọt béo dịu nhẹ.', 1, '2026-09-16 20:32:53', '2026-09-25 13:23:12'),
+(8, 4, N'Socola Đá Xay', 'products/socola-da-xay.jpg', N'Đá xay mịn hòa quyện cùng socola nguyên chất.', 1, '2026-09-16 20:32:53', '2026-09-25 13:22:52'),
+(9, 4, N'Dâu Tây Đá Xay', 'products/dau-tay-da-xay.jpg', N'Dâu tây tươi xay mịn, chua ngọt sảng khoái.', 1, '2026-09-16 20:32:53', '2026-09-25 13:20:11'),
+(11, 1, N'Trà sữa socola', 'products/tra-sua-socola.jpg', N'Trà sữa béo ngậy kết hợp với sô cô la lôi cuốn', 1, '2026-09-21 09:18:56', '2026-09-25 13:22:07'),
+(12, 5, N'Matcha Machiato', 'products/matcha-machiato.jpg', N'Thơm trà và béo sữa', 1, '2026-09-23 19:02:35', '2026-09-28 02:46:56'),
 (13, 1, N'Trà sữa test phân trang', NULL, 'sad', 0, '2026-09-24 19:08:25', '2026-09-25 17:21:36'),
 (14, 1, 'test', NULL, '2', 1, '2026-09-25 13:25:20', '2026-09-25 13:25:20');
 SET IDENTITY_INSERT [products] OFF;
@@ -548,7 +501,7 @@ INSERT INTO [inventory_transactions] ([id], [ingredient_id], [order_id], [quanti
 (38, 8, 4, -216, NULL, NULL, 'sale_deduction', N'Trừ kho tự động theo đơn #4', '2026-09-16 20:32:53'),
 (39, 1, 4, -9, NULL, NULL, 'sale_deduction', N'Trừ kho tự động theo đơn #4', '2026-09-16 20:32:53'),
 (40, 7, 4, -30, NULL, NULL, 'sale_deduction', N'Trừ kho tự động theo đơn #4', '2026-09-16 20:32:53'),
-(41, 8, 4, -270, NULL, NULL, 'sale_deduction', N'Trừ kho tự động theo đơn #4', '2026-09-16 20:32:54'),
+(41, 8, 4, -270, NULL, NULL, 'sale_deduction', N'Trừ kho tự động theo đơn #4', '2026-09-16 20:32:53'),
 (42, 2, 5, -14.4, NULL, NULL, 'sale_deduction', N'Trừ kho tự động theo đơn #5', '2026-09-16 20:32:54'),
 (43, 7, 5, -48, NULL, NULL, 'sale_deduction', N'Trừ kho tự động theo đơn #5', '2026-09-16 20:32:54'),
 (44, 8, 5, -432, NULL, NULL, 'sale_deduction', N'Trừ kho tự động theo đơn #5', '2026-09-16 20:32:54'),
@@ -750,4 +703,129 @@ INSERT INTO [inventory_transactions] ([id], [ingredient_id], [order_id], [quanti
 (250, 5, 31, -20, NULL, NULL, 'sale_deduction', N'Trừ kho tự động theo đơn #31', '2026-09-25 16:20:32'),
 (251, 7, 31, -15, NULL, NULL, 'sale_deduction', N'Trừ kho tự động theo đơn #31', '2026-09-25 16:20:32');
 SET IDENTITY_INSERT [inventory_transactions] OFF;
+GO
+
+-- ========================================================
+-- 3. TẠO TOÀN BỘ KHÓA NGOẠI (FOREIGN KEYS)
+-- ========================================================
+
+ALTER TABLE [toppings] 
+  ADD CONSTRAINT [FK_toppings_ingredient] FOREIGN KEY ([ingredient_id]) REFERENCES [ingredients] ([id]) ON DELETE SET NULL;
+
+ALTER TABLE [products] 
+  ADD CONSTRAINT [FK_products_category] FOREIGN KEY ([category_id]) REFERENCES [categories] ([id]);
+
+ALTER TABLE [product_variants] 
+  ADD CONSTRAINT [FK_product_variants_product] FOREIGN KEY ([product_id]) REFERENCES [products] ([id]) ON DELETE CASCADE;
+
+ALTER TABLE [recipe_details] 
+  ADD CONSTRAINT [FK_recipe_details_ingredient] FOREIGN KEY ([ingredient_id]) REFERENCES [ingredients] ([id]) ON DELETE CASCADE;
+
+ALTER TABLE [recipe_details] 
+  ADD CONSTRAINT [FK_recipe_details_variant] FOREIGN KEY ([variant_id]) REFERENCES [product_variants] ([id]) ON DELETE CASCADE;
+
+-- Đặt NO ACTION để tránh lỗi Msg 1785 (multiple cascade paths) trong SQL Server
+ALTER TABLE [orders] 
+  ADD CONSTRAINT [FK_orders_customer] FOREIGN KEY ([customer_id]) REFERENCES [users] ([id]);
+
+ALTER TABLE [orders] 
+  ADD CONSTRAINT [FK_orders_staff] FOREIGN KEY ([staff_id]) REFERENCES [users] ([id]);
+
+ALTER TABLE [orders] 
+  ADD CONSTRAINT [FK_orders_voucher] FOREIGN KEY ([voucher_id]) REFERENCES [vouchers] ([id]) ON DELETE SET NULL;
+
+ALTER TABLE [order_items] 
+  ADD CONSTRAINT [FK_order_items_order] FOREIGN KEY ([order_id]) REFERENCES [orders] ([id]) ON DELETE CASCADE;
+
+ALTER TABLE [order_items] 
+  ADD CONSTRAINT [FK_order_items_variant] FOREIGN KEY ([variant_id]) REFERENCES [product_variants] ([id]);
+
+ALTER TABLE [order_item_toppings] 
+  ADD CONSTRAINT [FK_order_item_toppings_order_item] FOREIGN KEY ([order_item_id]) REFERENCES [order_items] ([id]) ON DELETE CASCADE;
+
+ALTER TABLE [order_item_toppings] 
+  ADD CONSTRAINT [FK_order_item_toppings_topping] FOREIGN KEY ([topping_id]) REFERENCES [toppings] ([id]) ON DELETE SET NULL;
+
+ALTER TABLE [inventory_transactions] 
+  ADD CONSTRAINT [FK_inv_trans_ingredient] FOREIGN KEY ([ingredient_id]) REFERENCES [ingredients] ([id]) ON DELETE CASCADE;
+
+ALTER TABLE [inventory_transactions] 
+  ADD CONSTRAINT [FK_inv_trans_order] FOREIGN KEY ([order_id]) REFERENCES [orders] ([id]) ON DELETE SET NULL;
+GO
+
+-- ========================================================
+-- CẬP NHẬT ẢNH SẢN PHẨM & MÓN MỚI (CHUẨN HÓA KEBAB-CASE)
+-- ========================================================
+
+﻿USE db_trasua;
+GO
+
+-- 1. Cập nhật đường dẫn ảnh chuẩn cho các sản phẩm hiện có
+UPDATE [products] SET [image] = 'products/tra-sua-truyen-thong.jpg' WHERE [id] = 1;
+UPDATE [products] SET [image] = 'products/tra-sua-tran-chau-duong-den.jpg' WHERE [id] = 2;
+UPDATE [products] SET [image] = 'products/tra-sua-matcha.jpg' WHERE [id] = 3;
+UPDATE [products] SET [image] = 'products/hong-tra-dao-cam-sa.jpg' WHERE [id] = 4;
+UPDATE [products] SET [image] = 'products/tra-vai.jpg' WHERE [id] = 5;
+UPDATE [products] SET [image] = 'products/ca-phe-sua-da.png' WHERE [id] = 6;
+UPDATE [products] SET [image] = 'products/ca-phe-bac-xiu.jpg' WHERE [id] = 7;
+UPDATE [products] SET [image] = 'products/socola-da-xay.jpg' WHERE [id] = 8;
+UPDATE [products] SET [image] = 'products/dau-tay-da-xay.jpg' WHERE [id] = 9;
+UPDATE [products] SET [image] = 'products/tra-sua-socola.jpg' WHERE [id] = 11;
+UPDATE [products] SET [image] = 'products/matcha-machiato.jpg' WHERE [id] = 12;
+
+-- Ẩn các sản phẩm test
+UPDATE [products] SET [is_active] = 0 WHERE [id] IN (13, 14);
+
+-- 2. Thêm các sản phẩm mới từ bộ ảnh & file Du_lieu.xlsx (nếu chưa có)
+-- SP 15: Trà Sữa Khoai Môn
+IF NOT EXISTS (SELECT 1 FROM [products] WHERE [name] = N'Trà Sữa Khoai Môn')
+BEGIN
+    INSERT INTO [products] ([category_id], [name], [image], [description], [is_active], [created_at], [updated_at])
+    VALUES (1, N'Trà Sữa Khoai Môn', 'products/tra-sua-khoai-mon.jpg', N'Khoai môn béo bùi thơm ngậy hòa quyện cùng sữa tươi và trân châu dẻo dai.', 1, GETDATE(), GETDATE());
+    
+    DECLARE @idKhoaiMon BIGINT = SCOPE_IDENTITY();
+    INSERT INTO [product_variants] ([product_id], [size], [price], [created_at], [updated_at]) VALUES
+    (@idKhoaiMon, 'S', 28000, GETDATE(), GETDATE()),
+    (@idKhoaiMon, 'M', 33000, GETDATE(), GETDATE()),
+    (@idKhoaiMon, 'L', 38000, GETDATE(), GETDATE());
+END
+
+-- SP 16: Trà Chanh Tươi
+IF NOT EXISTS (SELECT 1 FROM [products] WHERE [name] = N'Trà Chanh Tươi')
+BEGIN
+    INSERT INTO [products] ([category_id], [name], [image], [description], [is_active], [created_at], [updated_at])
+    VALUES (2, N'Trà Chanh Tươi', 'products/tra-chanh.jpg', N'Trà thanh mát kết hợp chanh tươi mọng nước, chua ngọt đã khát.', 1, GETDATE(), GETDATE());
+    
+    DECLARE @idTraChanh BIGINT = SCOPE_IDENTITY();
+    INSERT INTO [product_variants] ([product_id], [size], [price], [created_at], [updated_at]) VALUES
+    (@idTraChanh, 'S', 20000, GETDATE(), GETDATE()),
+    (@idTraChanh, 'M', 25000, GETDATE(), GETDATE()),
+    (@idTraChanh, 'L', 30000, GETDATE(), GETDATE());
+END
+
+-- SP 17: Cacao Sữa Đá
+IF NOT EXISTS (SELECT 1 FROM [products] WHERE [name] = N'Cacao Sữa Đá')
+BEGIN
+    INSERT INTO [products] ([category_id], [name], [image], [description], [is_active], [created_at], [updated_at])
+    VALUES (1, N'Cacao Sữa Đá', 'products/cacao-sua.jpg', N'Vị cacao nguyên chất đậm đà, thơm lừng hòa quyện cùng vị sữa ngọt béo.', 1, GETDATE(), GETDATE());
+    
+    DECLARE @idCacao BIGINT = SCOPE_IDENTITY();
+    INSERT INTO [product_variants] ([product_id], [size], [price], [created_at], [updated_at]) VALUES
+    (@idCacao, 'S', 28000, GETDATE(), GETDATE()),
+    (@idCacao, 'M', 33000, GETDATE(), GETDATE()),
+    (@idCacao, 'L', 38000, GETDATE(), GETDATE());
+END
+
+-- SP 18: Hồng Trà Sữa
+IF NOT EXISTS (SELECT 1 FROM [products] WHERE [name] = N'Hồng Trà Sữa')
+BEGIN
+    INSERT INTO [products] ([category_id], [name], [image], [description], [is_active], [created_at], [updated_at])
+    VALUES (1, N'Hồng Trà Sữa', 'products/hong-tra-sua.jpg', N'Hương vị hồng trà thơm đậm đà kết hợp cùng vị sữa béo thanh tao.', 1, GETDATE(), GETDATE());
+    
+    DECLARE @idHongTra BIGINT = SCOPE_IDENTITY();
+    INSERT INTO [product_variants] ([product_id], [size], [price], [created_at], [updated_at]) VALUES
+    (@idHongTra, 'S', 25000, GETDATE(), GETDATE()),
+    (@idHongTra, 'M', 30000, GETDATE(), GETDATE()),
+    (@idHongTra, 'L', 35000, GETDATE(), GETDATE());
+END
 GO

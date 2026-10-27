@@ -1,0 +1,188 @@
+@{
+    ViewBag.Title = "Liên Hệ - Tiệm Trà Sữa";
+    Layout = "~/Views/Shared/LayoutKhachHang.cshtml";
+}
+
+@section styles {
+    <link rel="stylesheet" href="@Url.Content("~/assets/css/contact.css")" />
+    <style>
+        .hover-lift {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .hover-lift:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.08) !important;
+        }
+        .store-img {
+            height: 220px;
+            object-fit: cover;
+            width: 100%;
+            border-radius: 12px;
+        }
+    </style>
+}
+
+<main class="bg-light text-dark">
+    <!-- 1. HERO BANNER -->
+    <section class="contact-hero-section d-flex align-items-center justify-content-center text-center position-relative w-100 overflow-hidden"
+             style="min-height: 380px; background: url('https://images.unsplash.com/photo-1554118811-1e0d58224f24?q=80&w=1920&auto=format&fit=crop') center/cover no-repeat;">
+        <div class="position-absolute top-0 start-0 w-100 h-100" style="background: rgba(18, 18, 18, 0.7);"></div>
+        
+        <div class="container position-relative py-5" style="z-index: 2;">
+            <p class="text-uppercase text-white-50 fw-semibold small tracking-wide mb-2">Giờ mở cửa: 08:00 - 22:30 hàng ngày</p>
+            <h1 class="display-4 fw-bolder text-uppercase mb-3 text-white" style="letter-spacing: 2px;">
+                Ghé Thăm Tiệm Trà Sữa
+            </h1>
+            <p class="fs-6 text-light mx-auto mb-0" style="max-width: 600px; opacity: 0.9;">
+                Không gian mát mẻ, âm nhạc êm dịu và những ly trà thơm ngát luôn sẵn sàng chào đón bạn.
+            </p>
+        </div>
+    </section>
+
+    <!-- 2. KHÔNG GIAN CỬA HÀNG -->
+    <section class="py-5 bg-white border-bottom border-light-subtle">
+        <div class="container py-4">
+            <div class="text-center mb-5">
+                <span class="text-muted fw-bold text-uppercase small">Không gian</span>
+                <h2 class="fw-bold text-dark text-uppercase mt-1">Trải Nghiệm Tại Quán</h2>
+                <p class="text-muted small">Được thiết kế phù hợp cho học tập, làm việc và gặp gỡ bạn bè</p>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 rounded-4 shadow-sm hover-lift overflow-hidden bg-light">
+                        <img src="https://images.unsplash.com/photo-1559925393-8be0ec4767c8?q=80&w=800&auto=format&fit=crop"
+                             class="store-img" alt="Quầy pha chế">
+                        <div class="card-body p-4">
+                            <h6 class="fw-bold text-dark mb-2">Quầy Pha Chế Mở</h6>
+                            <p class="text-muted small mb-0">Quan sát trực tiếp quy trình pha chế sạch sẽ và chuyên nghiệp từ đội ngũ nhân viên.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 rounded-4 shadow-sm hover-lift overflow-hidden bg-light">
+                        <img src="https://images.unsplash.com/photo-1521017432531-fbd92d768814?q=80&w=800&auto=format&fit=crop"
+                             class="store-img" alt="Góc làm việc">
+                        <div class="card-body p-4">
+                            <h6 class="fw-bold text-dark mb-2">Khu Vực Học Tập & Làm Việc</h6>
+                            <p class="text-muted small mb-0">Bàn ghế êm ái, đầy đủ ổ cắm điện, máy lạnh mát mẻ và kết nối wifi ổn định.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 rounded-4 shadow-sm hover-lift overflow-hidden bg-light">
+                        <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=800&auto=format&fit=crop"
+                             class="store-img" alt="Ban công">
+                        <div class="card-body p-4">
+                            <h6 class="fw-bold text-dark mb-2">Góc Ban Công Thoáng Đãng</h6>
+                            <p class="text-muted small mb-0">Không gian ngoài trời nhiều cây xanh, thích hợp ngắm phố và trò chuyện thư giãn.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. THÔNG TIN LIÊN HỆ & FORM -->
+    <section class="py-5">
+        <div class="container py-4">
+            <div class="row g-5">
+                <!-- Cột trái: Thông tin -->
+                <div class="col-lg-5">
+                    <span class="text-muted fw-bold text-uppercase small">Kết nối</span>
+                    <h3 class="fw-bold mb-4 text-dark text-uppercase mt-1">
+                        Thông Tin Cửa Hàng
+                    </h3>
+
+                    <div class="mb-4">
+                        <h6 class="fw-bold text-dark mb-1">Địa chỉ:</h6>
+                        <p class="text-muted mb-0">140 Lê Trọng Tấn, P. Tây Thạnh, Q. Tân Phú, TP. Hồ Chí Minh</p>
+                    </div>
+
+                    <div class="mb-4">
+                        <h6 class="fw-bold text-dark mb-1">Hotline đặt hàng & CSKH:</h6>
+                        <p class="text-primary fw-bold mb-0 fs-5">1900 1234 - 0359 490 221</p>
+                    </div>
+
+                    <div class="mb-4">
+                        <h6 class="fw-bold text-dark mb-1">Email liên hệ:</h6>
+                        <p class="text-muted mb-0">cskh@trasua.vn</p>
+                    </div>
+
+                    <div class="mb-4">
+                        <h6 class="fw-bold text-dark mb-1">Thời gian phục vụ:</h6>
+                        <p class="text-muted mb-0">Thứ Hai - Chủ Nhật: 08:00 - 22:30</p>
+                    </div>
+
+                    <hr class="my-4 text-muted opacity-25">
+
+                    <h6 class="fw-bold text-dark mb-2">Tiện ích tại quán:</h6>
+                    <p class="text-muted small mb-0">
+                        Wifi miễn phí • Máy lạnh 24/7 • Giữ xe có bảo vệ • Thanh toán tiền mặt / Chuyển khoản QR / Thẻ.
+                    </p>
+                </div>
+
+                <!-- Cột phải: Form gửi tin nhắn -->
+                <div class="col-lg-7">
+                    <div class="p-4 p-md-5 rounded-4 border-0 shadow-sm bg-white">
+                        <h4 class="fw-bold mb-2 text-dark text-uppercase">
+                            Gửi Lời Nhắn
+                        </h4>
+                        <p class="text-muted small mb-4">Ý kiến đóng góp của bạn giúp Tiệm Trà Sữa hoàn thiện chất lượng phục vụ tốt hơn.</p>
+                        
+                        <form id="contactForm" onsubmit="event.preventDefault(); alert('Cảm ơn bạn đã gửi tin nhắn! Chúng tôi sẽ phản hồi trong thời gian sớm nhất.'); this.reset();">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-semibold text-muted">Họ và tên</label>
+                                    <input type="text" class="form-control rounded-3 py-2 bg-light border-0" placeholder="Nguyễn Văn A" required />
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-semibold text-muted">Số điện thoại</label>
+                                    <input type="tel" class="form-control rounded-3 py-2 bg-light border-0" placeholder="0901 234 567" required />
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-semibold text-muted">Email</label>
+                                    <input type="email" class="form-control rounded-3 py-2 bg-light border-0" placeholder="email@gmail.com" required />
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-semibold text-muted">Nhu cầu liên hệ</label>
+                                    <select class="form-select rounded-3 py-2 bg-light border-0" required>
+                                        <option value="" selected disabled>Chọn nội dung...</option>
+                                        <option value="1">Góp ý chất lượng thức uống</option>
+                                        <option value="2">Phản ánh dịch vụ phục vụ</option>
+                                        <option value="3">Hợp tác / Đặt số lượng lớn</option>
+                                        <option value="4">Vấn đề khác</option>
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label small fw-semibold text-muted">Nội dung chi tiết</label>
+                                    <textarea class="form-control rounded-3 py-2 bg-light border-0" rows="4" placeholder="Nhập nội dung bạn muốn gửi gắm..." required></textarea>
+                                </div>
+                                <div class="col-12 mt-3">
+                                    <button type="submit" class="btn btn-primary w-100 py-3 fw-semibold text-uppercase rounded-pill shadow-sm">
+                                        Gửi tin nhắn
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. GOOGLE MAPS -->
+    <section class="map-section w-100">
+        <iframe
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.060360274028!2d106.62606661474933!3d10.806689092300438!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752be27d8b4f4d%3A0x92dcba2950430867!2zMTQwIEzDqiBUcuG7jW5nIFThuqVuLCBUw6J5IFRo4bqhbmgsIFTDom4gUGjDuiwgVGjDoG5oIHBo4buRIEjhu5MgQ2jDrSBNaW5oLCBWaWV0bmFt!5e0!3m2!1sen!2s!4v1684000000000!5m2!1sen!2s"
+            width="100%"
+            height="400"
+            style="border: 0;"
+            allowfullscreen=""
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade">
+        </iframe>
+    </section>
+</main>

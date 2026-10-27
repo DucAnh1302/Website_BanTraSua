@@ -1,0 +1,233 @@
+@model IEnumerable<QL_WebBanTraSua.Models.product>
+
+@{
+    ViewBag.Title = "Thực Đơn - Tiệm Trà Sữa";
+    Layout = "~/Views/Shared/LayoutKhachHang.cshtml";
+
+    var categories = ViewBag.Categories as List<QL_WebBanTraSua.Models.category>;
+    long? currentCat = ViewBag.CurrentCategory as long?;
+    string currentSort = ViewBag.CurrentSort as string ?? "newest";
+    string currentPrice = ViewBag.CurrentPriceRange as string ?? "all";
+    string searchKeyword = ViewBag.SearchKeyword as string ?? "";
+}
+
+@section styles {
+    <link rel="stylesheet" href="@Url.Content("~/assets/css/products.css")" />
+    <style>
+        .product-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .product-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.12) !important;
+        }
+        .price-filter-active {
+            background-color: #d4a373 !important;
+            border-color: #d4a373 !important;
+            color: #fff !important;
+            font-weight: 700;
+        }
+    </style>
+}
+
+@helper GetProductImage(string image, string categoryName)
+{
+    if (!string.IsNullOrEmpty(image))
+    {
+        if (image.StartsWith("http://") || image.StartsWith("https://"))
+        {
+            <text>@image</text>
+        }
+        else
+        {
+            <text>@Url.Content("~/assets/img/" + image.TrimStart('/'))</text>
+        }
+    }
+    else
+    {
+        <text>https://images.unsplash.com/photo-1541658016709-82535e94bc69?q=80&w=400&auto=format&fit=crop</text>
+    }
+}
+
+<main class="container py-5 mt-3">
+    <!-- Header banner -->
+    <div class="p-4 p-md-5 mb-4 rounded-4 text-white bg-dark shadow-sm position-relative overflow-hidden"
+         style="background: linear-gradient(135deg, #18181b 0%, #27272a 100%);">
+        <div class="col-md-8 px-0 position-relative" style="z-index: 2;">
+            <span class="badge bg-primary text-uppercase px-3 py-2 mb-2 fw-bold">Menu Độc Quyền</span>
+            <h1 class="display-5 fw-bolder mb-2 text-white">THỰC ĐƠN TIỆM TRÀ SỮA</h1>
+            <p class="lead mb-0 text-white-50">
+                Thưởng thức hương vị trà đậm đà, sữa béo ngậy cùng topping tươi mới mỗi ngày.
+            </p>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(searchKeyword))
+    {
+        <div class="alert alert-info d-flex justify-content-between align-items-center rounded-3 shadow-sm mb-4">
+            <div>
+                <i class="bi bi-info-circle me-2"></i> Kết quả tìm kiếm cho từ khóa: <strong>"@searchKeyword"</strong>
+            </div>
+            <a href="@Url.Action("Products", "Customer", new { categoryId = currentCat, sort = currentSort, priceRange = currentPrice })"
+               class="btn btn-sm btn-outline-dark fw-bold">
+                Xóa tìm kiếm
+            </a>
+        </div>
+    }
+
+    <div class="row g-4">
+        <!-- Sidebar Filter (Cột trái đơn giản, gọn gàng) -->
+        <aside class="col-lg-3 col-md-4">
+            <!-- Danh mục món -->
+            <div class="mb-4">
+                <h5 class="fw-bold text-uppercase mb-3" style="letter-spacing: 1px">
+                    <i class="bi bi-bookmarks me-2 text-primary"></i>Danh Mục Món
+                </h5>
+                <div class="list-group list-group-flush rounded-3 shadow-sm border">
+                    <a href="@Url.Action("Products", "Customer", new { sort = currentSort, priceRange = currentPrice, search = searchKeyword })"
+                       class="list-group-item list-group-item-action d-flex justify-content-between align-items-center @(!currentCat.HasValue ? "active bg-primary text-white border-primary" : "text-dark")">
+                        <span class="fw-semibold"><i class="bi bi-grid-fill me-2"></i>Tất cả thức uống</span>
+                    </a>
+                    @if (categories != null)
+                    {
+                        foreach (var cat in categories)
+                        {
+                            bool isSelected = currentCat.HasValue && currentCat.Value == cat.id;
+                            <a href="@Url.Action("Products", "Customer", new { categoryId = cat.id, sort = currentSort, priceRange = currentPrice, search = searchKeyword })"
+                               class="list-group-item list-group-item-action d-flex justify-content-between align-items-center @(isSelected ? "active bg-primary text-white border-primary" : "text-dark")">
+                                <span><i class="bi bi-cup-hot-fill me-2 opacity-75"></i>@cat.name</span>
+                                <span class="badge @(isSelected ? "bg-white text-primary" : "bg-light text-secondary border") rounded-pill">
+                                    @(cat.products != null ? cat.products.Count(p => p.is_active) : 0)
+                                </span>
+                            </a>
+                        }
+                    }
+                </div>
+            </div>
+
+            <!-- Bộ lọc giá -->
+            <div class="card border rounded-3 p-3 shadow-sm mb-4 bg-white">
+                <h6 class="fw-bold text-uppercase mb-3 text-dark">
+                    <i class="bi bi-funnel me-2 text-primary"></i>Lọc Theo Mức Giá
+                </h6>
+                <div class="d-flex flex-column gap-2">
+                    <a href="@Url.Action("Products", "Customer", new { categoryId = currentCat, sort = currentSort, priceRange = "all", search = searchKeyword })"
+                       class="btn btn-sm text-start py-2 rounded-2 @(currentPrice == "all" ? "price-filter-active shadow-sm" : "btn-light text-dark")">
+                        Tất cả mức giá
+                    </a>
+                    <a href="@Url.Action("Products", "Customer", new { categoryId = currentCat, sort = currentSort, priceRange = "under28", search = searchKeyword })"
+                       class="btn btn-sm text-start py-2 rounded-2 @(currentPrice == "under28" || currentPrice == "under30" || currentPrice == "under40" ? "price-filter-active shadow-sm" : "btn-light text-dark")">
+                        Dưới 28.000₫
+                    </a>
+                    <a href="@Url.Action("Products", "Customer", new { categoryId = currentCat, sort = currentSort, priceRange = "28to32", search = searchKeyword })"
+                       class="btn btn-sm text-start py-2 rounded-2 @(currentPrice == "28to32" || currentPrice == "30to35" || currentPrice == "40to60" ? "price-filter-active shadow-sm" : "btn-light text-dark")">
+                        28.000₫ - 32.000₫
+                    </a>
+                    <a href="@Url.Action("Products", "Customer", new { categoryId = currentCat, sort = currentSort, priceRange = "above32", search = searchKeyword })"
+                       class="btn btn-sm text-start py-2 rounded-2 @(currentPrice == "above32" || currentPrice == "above35" || currentPrice == "above60" ? "price-filter-active shadow-sm" : "btn-light text-dark")">
+                        Từ 33.000₫ trở lên
+                    </a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Product Grid (Cột phải) -->
+        <div class="col-lg-9 col-md-8">
+            <!-- Toolbar -->
+            <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom bg-white p-3 rounded-3 shadow-sm">
+                <span class="text-secondary fs-6">
+                    Hiển thị <strong class="text-primary fs-5">@(Model != null ? Model.Count() : 0)</strong> thức uống
+                </span>
+
+                <div class="d-flex align-items-center gap-2">
+                    <label for="sortSelect" class="text-nowrap text-secondary mb-0 fw-medium small">Sắp xếp:</label>
+                    <select class="form-select form-select-sm shadow-none border-secondary rounded-2 fw-medium"
+                            id="sortSelect"
+                            style="width: auto; cursor: pointer"
+                            onchange="location = this.value;">
+                        <option value="@Url.Action("Products", "Customer", new { categoryId = currentCat, sort = "newest", priceRange = currentPrice, search = searchKeyword })"
+                                @(currentSort == "newest" ? "selected" : "")>
+                            Mới nhất
+                        </option>
+                        <option value="@Url.Action("Products", "Customer", new { categoryId = currentCat, sort = "price-asc", priceRange = currentPrice, search = searchKeyword })"
+                                @(currentSort == "price-asc" ? "selected" : "")>
+                            Giá: Thấp đến Cao
+                        </option>
+                        <option value="@Url.Action("Products", "Customer", new { categoryId = currentCat, sort = "price-desc", priceRange = currentPrice, search = searchKeyword })"
+                                @(currentSort == "price-desc" ? "selected" : "")>
+                            Giá: Cao đến Thấp
+                        </option>
+                        <option value="@Url.Action("Products", "Customer", new { categoryId = currentCat, sort = "name-asc", priceRange = currentPrice, search = searchKeyword })"
+                                @(currentSort == "name-asc" ? "selected" : "")>
+                            Tên: A - Z
+                        </option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Nếu không có sản phẩm -->
+            @if (Model == null || !Model.Any())
+            {
+                <div class="text-center py-5 bg-white rounded-4 shadow-sm border p-4">
+                    <i class="bi bi-cup-straw display-1 text-muted mb-3 d-block"></i>
+                    <h5 class="fw-bold text-secondary">Không tìm thấy thức uống nào phù hợp</h5>
+                    <p class="text-muted small">Hãy thử tìm với từ khóa khác hoặc xóa bộ lọc danh mục và mức giá.</p>
+                    <a href="@Url.Action("Products", "Customer")" class="btn btn-outline-primary rounded-pill px-4 fw-bold mt-2 shadow-sm">
+                        Xem tất cả thức uống
+                    </a>
+                </div>
+            }
+            else
+            {
+                <!-- Lưới danh sách sản phẩm -->
+                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                    @foreach (var item in Model)
+                    {
+                        var variants = item.product_variants.ToList();
+                        decimal minPrice = variants.Any() ? variants.Min(v => v.price) : 0;
+                        string catName = item.category != null ? item.category.name : "";
+
+                        <div class="col">
+                            <div class="card h-100 border-0 shadow-sm product-card rounded-4 overflow-hidden bg-white">
+                                <div class="position-relative overflow-hidden" style="height: 220px;">
+                                    <a href="@Url.Action("Details", "Customer", new { id = item.id })">
+                                        <img src="@GetProductImage(item.image, catName)"
+                                             onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1541658016709-82535e94bc69?q=80&w=400&auto=format&fit=crop';"
+                                             class="w-100 h-100"
+                                             alt="@item.name"
+                                             style="object-fit: cover;" />
+                                    </a>
+                                    <span class="position-absolute top-0 start-0 m-3 badge bg-black bg-opacity-75 text-white px-3 py-1 rounded-pill small">
+                                        @catName
+                                    </span>
+                                </div>
+
+                                <div class="card-body d-flex flex-column p-3">
+                                    <h5 class="card-title fw-bold fs-6 mb-2">
+                                        <a href="@Url.Action("Details", "Customer", new { id = item.id })"
+                                           class="text-dark text-decoration-none">
+                                            @item.name
+                                        </a>
+                                    </h5>
+                                    <p class="card-text text-muted small text-truncate mb-3" title="@item.description">
+                                        @(string.IsNullOrEmpty(item.description) ? "Thức uống thơm ngon hảo hạng tại Tiệm Trà Sữa" : item.description)
+                                    </p>
+                                    <div class="mt-auto d-flex justify-content-between align-items-center pt-2 border-top">
+                                        <div>
+                                            <span class="text-muted small d-block" style="font-size: 0.75rem;">Chỉ từ</span>
+                                            <span class="text-primary fw-bolder fs-5">@string.Format("{0:N0}₫", minPrice)</span>
+                                        </div>
+                                        <a href="@Url.Action("Details", "Customer", new { id = item.id })"
+                                           class="btn btn-sm btn-primary rounded-pill px-3 fw-bold shadow-sm">
+                                            <i class="bi bi-plus-lg me-1"></i>Chọn món
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</main>

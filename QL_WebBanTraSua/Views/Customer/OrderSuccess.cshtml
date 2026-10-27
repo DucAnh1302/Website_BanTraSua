@@ -1,0 +1,75 @@
+@model QL_WebBanTraSua.Models.order
+
+@{
+    ViewBag.Title = "Đặt Hàng Thành Công";
+    Layout = "~/Views/Shared/LayoutKhachHang.cshtml";
+}
+
+<main class="container py-5 mt-3">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden bg-white text-center p-4 p-md-5">
+                <div class="mb-4">
+                    <div class="rounded-circle bg-success text-white d-inline-flex justify-content-center align-items-center shadow"
+                         style="width: 80px; height: 80px;">
+                        <i class="bi bi-check-lg display-4"></i>
+                    </div>
+                </div>
+
+                <h2 class="fw-bolder text-dark mb-2">ĐẶT HÀNG THÀNH CÔNG!</h2>
+                <p class="text-muted mb-4 fs-6">
+                    Cảm ơn bạn đã lựa chọn <strong>Tiệm Trà Sữa</strong>. Chúng tôi đã nhận được đơn hàng và đang tiến hành pha chế những ly trà sữa thơm ngon nhất cho bạn!
+                </p>
+
+                <div class="bg-light p-4 rounded-4 text-start mb-4 border">
+                    <div class="row g-3">
+                        <div class="col-sm-6">
+                            <span class="text-muted small d-block">Mã Đơn Hàng:</span>
+                            <strong class="text-primary fs-5">#@Model.id</strong>
+                        </div>
+                        <div class="col-sm-6">
+                            <span class="text-muted small d-block">Thời Gian Đặt:</span>
+                            <strong class="text-dark">@(Model.created_at.HasValue ? Model.created_at.Value.ToString("dd/MM/yyyy HH:mm") : DateTime.Now.ToString("dd/MM/yyyy HH:mm"))</strong>
+                        </div>
+                        <div class="col-sm-6">
+                            <span class="text-muted small d-block">Người Nhận Hàng:</span>
+                            <strong class="text-dark">@Model.shipping_name (@Model.shipping_phone)</strong>
+                        </div>
+                        <div class="col-sm-6">
+                            <span class="text-muted small d-block">Hình Thức Thanh Toán:</span>
+                            <strong class="text-dark">@(Model.payment_method == "transfer" ? "Chuyển khoản (VietQR)" : "Tiền mặt (COD)")</strong>
+                        </div>
+                        <div class="col-12">
+                            <span class="text-muted small d-block">Địa Chỉ Giao Hàng:</span>
+                            <strong class="text-dark">@Model.shipping_address</strong>
+                        </div>
+                        <div class="col-12 border-top pt-3 d-flex justify-content-between align-items-center">
+                            <span class="fw-bold fs-6">Tổng Thanh Toán:</span>
+                            <span class="text-primary fw-bolder fs-4">@string.Format("{0:N0}₫", Model.final_total)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex flex-wrap justify-content-center gap-2 gap-sm-3">
+                    <a href="@Url.Action("OrderDetail", "Customer", new { id = Model.id })"
+                       class="btn btn-outline-primary rounded-pill px-4 py-2 fw-bold shadow-sm">
+                        <i class="bi bi-receipt me-2"></i>Xem Chi Tiết Đơn
+                    </a>
+                    <a href="@Url.Action("XuatHoaDonPDF", "Customer", new { id = Model.id })"
+                       target="_blank"
+                       class="btn btn-outline-danger rounded-pill px-4 py-2 fw-bold shadow-sm">
+                        <i class="bi bi-file-earmark-pdf-fill me-2"></i>Xem / In Hóa Đơn (PDF)
+                    </a>
+                    <a href="@Url.Action("OrderHistory", "Customer", new { phone = Model.shipping_phone })"
+                       class="btn btn-dark rounded-pill px-4 py-2 fw-bold shadow-sm">
+                        <i class="bi bi-clock-history me-2"></i>Lịch Sử Đơn Hàng
+                    </a>
+                    <a href="@Url.Action("Products", "Customer")"
+                       class="btn btn-primary rounded-pill px-4 py-2 fw-bold shadow-sm">
+                        <i class="bi bi-cup-straw me-2"></i>Đặt Thêm Món
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>

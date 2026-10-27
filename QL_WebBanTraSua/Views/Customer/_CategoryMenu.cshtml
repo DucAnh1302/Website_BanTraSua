@@ -1,0 +1,26 @@
+@model IEnumerable<QL_WebBanTraSua.Models.category>
+
+@{
+    long? currentCat = ViewBag.CurrentCategory as long?;
+}
+
+<div class="list-group list-group-flush rounded-3 shadow-sm border">
+    <a href="@Url.Action("Index", "Customer")"
+       class="list-group-item list-group-item-action d-flex justify-content-between align-items-center @(!currentCat.HasValue ? "active bg-danger text-white border-danger" : "text-dark")">
+        <span class="fw-semibold"><i class="bi bi-grid-fill me-2"></i>Tất cả thức uống</span>
+    </a>
+    @if (Model != null)
+    {
+        foreach (var cat in Model)
+        {
+            bool isSelected = currentCat.HasValue && currentCat.Value == cat.id;
+            <a href="@Url.Action("Index", "Customer", new { categoryId = cat.id })"
+               class="list-group-item list-group-item-action d-flex justify-content-between align-items-center @(isSelected ? "active bg-danger text-white border-danger" : "text-dark")">
+                <span><i class="bi bi-cup-hot-fill me-2 opacity-75"></i>@cat.name</span>
+                <span class="badge @(isSelected ? "bg-white text-danger" : "bg-light text-secondary border") rounded-pill">
+                    @(cat.products != null ? cat.products.Count(p => p.is_active) : 0)
+                </span>
+            </a>
+        }
+    }
+</div>

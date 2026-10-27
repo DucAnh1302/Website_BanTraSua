@@ -1,0 +1,151 @@
+@model QL_WebBanTraSua.Models.order
+
+@{
+    ViewBag.Title = "Chi Tiết Đơn Hàng #" + Model.id;
+    Layout = "~/Views/Shared/LayoutKhachHang.cshtml";
+}
+
+<main class="container py-5 mt-3">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="@Url.Action("Index", "Customer")" class="text-decoration-none text-muted">Trang chủ</a></li>
+            <li class="breadcrumb-item"><a href="@Url.Action("OrderHistory", "Customer")" class="text-decoration-none text-muted">Lịch sử đơn hàng</a></li>
+            <li class="breadcrumb-item active fw-bold text-primary" aria-current="page">Hóa đơn #@Model.id</li>
+        </ol>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card border rounded-4 shadow-sm bg-white overflow-hidden p-4 p-md-5">
+                <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center border-bottom pb-4 mb-4 gap-3">
+                    <div>
+                        <span class="badge bg-primary text-uppercase px-3 py-2 mb-2 fw-bold">Hóa Đơn Bán Hàng</span>
+                        <h2 class="fw-bolder text-dark mb-1">ĐƠN HÀNG #@Model.id</h2>
+                        <span class="text-muted small">
+                            <i class="bi bi-clock me-1"></i>Thời gian: @(Model.created_at.HasValue ? Model.created_at.Value.ToString("dd/MM/yyyy HH:mm") : "N/A")
+                        </span>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <a href="@Url.Action("XuatHoaDonPDF", "Customer", new { id = Model.id })"
+                           target="_blank"
+                           class="btn btn-danger rounded-pill fw-bold px-4 py-2 shadow">
+                            <i class="bi bi-file-earmark-pdf-fill me-2"></i>Xuất Hóa Đơn (PDF)
+                        </a>
+                        <a href="@Url.Action("OrderHistory", "Customer", new { phone = Model.shipping_phone })"
+                           class="btn btn-outline-dark rounded-pill fw-bold px-3 py-2">
+                            Quay lại
+                        </a>
+                    </div>
+                </div>
+
+                <div class="row g-4 mb-4">
+                    <div class="col-md-6">
+                        <div class="p-3 bg-light rounded-3 h-100 border">
+                            <h6 class="fw-bold text-dark text-uppercase mb-2"><i class="bi bi-geo-alt-fill me-2 text-primary"></i>Thông Tin Giao Hàng</h6>
+                            <p class="mb-1 small"><strong>Người nhận:</strong> @(Model.shipping_name ?? "Khách hàng")</p>
+                            <p class="mb-1 small"><strong>Số điện thoại:</strong> @(Model.shipping_phone ?? "Chưa cung cấp")</p>
+                            <p class="mb-0 small"><strong>Địa chỉ:</strong> @(Model.shipping_address ?? "Tại quán")</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-3 bg-light rounded-3 h-100 border">
+                            <h6 class="fw-bold text-dark text-uppercase mb-2"><i class="bi bi-credit-card-2-front-fill me-2 text-primary"></i>Thanh Toán & Trạng Thái</h6>
+                            <p class="mb-1 small">
+                                <strong>Phương thức:</strong> @(Model.payment_method == "transfer" ? "Chuyển khoản (VietQR)" : "Tiền mặt (COD)")
+                            </p>
+                            <p class="mb-1 small">
+                                <strong>Trạng thái thanh toán:</strong>
+                                <span class="badge @(Model.payment_status == "paid" ? "bg-success" : "bg-warning text-dark")">
+                                    @(Model.payment_status == "paid" ? "Đã thanh toán" : "Chưa thanh toán")
+                                </span>
+                            </p>
+                            <p class="mb-0 small">
+                                <strong>Trạng thái đơn:</strong>
+                                <span class="badge bg-primary">@Model.order_status</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-responsive mb-4">
+                    <table class="table table-bordered align-middle">
+                        <thead class="table-light text-uppercase small text-secondary">
+                            <tr>
+                                <th class="text-center" style="width: 50px;">STT</th>
+                                <th>Thức uống</th>
+                                <th class="text-center" style="width: 80px;">Size</th>
+                                <th>Tùy chọn (Đường, Đá, Topping)</th>
+                                <th class="text-center" style="width: 90px;">Đơn giá</th>
+                                <th class="text-center" style="width: 70px;">SL</th>
+                                <th class="text-end" style="width: 130px;">Thành tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{ int stt = 1; }
+                            @foreach (var itm in Model.order_items)
+                            {
+                                var v = itm.product_variants;
+                                string pName = v != null && v.product != null ? v.product.name : "Thức uống";
+                                string pSize = v != null ? v.size : "M";
+                                decimal topPrice = itm.order_item_toppings != null ? itm.order_item_toppings.Sum(t => t.price) : 0;
+                                decimal lineTotal = (itm.unit_price + topPrice) * itm.quantity;
+
+                                <tr>
+                                    <td class="text-center fw-bold">@stt</td>
+                                    <td>
+                                        <strong class="text-dark">@pName</strong>
+                                        @if (!string.IsNullOrEmpty(itm.note))
+                                        {
+                                            <div class="small text-muted fst-italic">Ghi chú: @itm.note</div>
+                                        }
+                                    </td>
+                                    <td class="text-center"><span class="badge bg-secondary">@pSize</span></td>
+                                    <td class="small">
+                                        <div>Đường: @(itm.sugar_level)%, Đá: @(itm.ice_option)</div>
+                                        @if (itm.order_item_toppings != null && itm.order_item_toppings.Any())
+                                        {
+                                            <div class="text-primary mt-1">
+                                                Topping: @string.Join(", ", itm.order_item_toppings.Select(t => t.topping_name + " (" + string.Format("{0:N0}₫", t.price) + ")"))
+                                            </div>
+                                        }
+                                    </td>
+                                    <td class="text-center">@string.Format("{0:N0}₫", itm.unit_price)</td>
+                                    <td class="text-center fw-bold">@itm.quantity</td>
+                                    <td class="text-end fw-bold text-primary">@string.Format("{0:N0}₫", lineTotal)</td>
+                                </tr>
+                                stt++;
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="row justify-content-end">
+                    <div class="col-md-5">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Tạm tính:</span>
+                            <span class="fw-semibold">@string.Format("{0:N0}₫", Model.subtotal)</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Phí giao hàng:</span>
+                            <span class="fw-semibold">@string.Format("{0:N0}₫", Model.shipping_fee)</span>
+                        </div>
+                        @if (Model.discount_amount > 0)
+                        {
+                            <div class="d-flex justify-content-between mb-2 text-danger">
+                                <span>Giảm giá Voucher:</span>
+                                <span class="fw-semibold">-@string.Format("{0:N0}₫", Model.discount_amount)</span>
+                            </div>
+                        }
+                        <hr />
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fw-bold fs-5 text-dark">Tổng thanh toán:</span>
+                            <span class="fw-bolder fs-3 text-primary">@string.Format("{0:N0}₫", Model.final_total)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>

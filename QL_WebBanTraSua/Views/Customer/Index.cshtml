@@ -1,0 +1,881 @@
+@model IEnumerable<QL_WebBanTraSua.Models.product>
+
+@{
+    ViewBag.Title = "Trang Chủ - Tiệm Trà Sữa";
+    Layout = "~/Views/Shared/LayoutKhachHang.cshtml";
+}
+
+@section styles {
+    <link rel="stylesheet" href="@Url.Content("~/assets/css/index.css")" />
+}
+
+<main>
+      <!-- HERO SECTION -->
+      <section
+        class="hero-fullscreen position-relative"
+        style="height: 500px; overflow: hidden"
+      >
+        <div
+          id="heroCarousel"
+          class="carousel slide h-100"
+          data-bs-ride="carousel"
+        >
+          <div class="carousel-inner h-100">
+            <!-- Slide 1 -->
+            <div class="carousel-item active h-100">
+              <img
+                src="https://images.unsplash.com/photo-1541658016709-82535e94bc69?q=80&w=1920&auto=format&fit=crop"
+                class="d-block w-100 h-100 object-fit-cover"
+                alt="Trà Sữa Trân Châu"
+              />
+              <div
+                class="position-absolute top-0 start-0 w-100 h-100 bg-dark opacity-50 z-1 pe-none"
+              ></div>
+              <div
+                class="carousel-caption d-flex align-items-center h-100 top-0 bottom-0 start-0 end-0 z-2 text-start pe-none"
+              >
+                <div class="container">
+                  <div class="row">
+                    <div class="col-md-8 col-lg-6 p-4 p-md-5">
+                      <span
+                        class="text-uppercase text-light fw-bold mb-3 d-block"
+                        style="letter-spacing: 3px"
+                        >Hương vị nguyên bản</span
+                      >
+                      <h1
+                        class="display-3 fw-bolder mb-4 text-white hero-title"
+                      >
+                        ĐẬM VỊ TRÀ<br />THƠM VỊ SỮA
+                      </h1>
+                      <p class="lead text-light mb-5 text-shadow">
+                        Trải nghiệm những ly trà sữa được pha chế từ lá trà tươi
+                        ngon nhất, kết hợp cùng trân châu dẻo dai.
+                      </p>
+                      <a
+                        href="@Url.Action("Products", "Customer")"
+                        class="btn btn-primary btn-lg px-5 py-3 rounded-pill text-uppercase fw-bold pe-auto"
+                      >
+                        Đặt Hàng Ngay <i class="bi bi-arrow-right ms-2"></i>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TRIẾT LÝ VỊ TRÀ (EDITORIAL TEXT & IMG SO LE) -->
+      <section class="tea-philosophy-section py-5">
+        <div class="container py-lg-3">
+          <!-- Hàng 1: Text Trái - Ảnh Phải -->
+          <div class="row align-items-center mb-5 pb-lg-3 g-4 g-lg-5">
+            <div class="col-lg-6 order-2 order-lg-1">
+              <div class="editorial-text-wrap pe-lg-4">
+                <span class="editorial-tag">01 / NGUỒN CỘI NGUYÊN BẢN</span>
+                <h2 class="editorial-title">
+                  Từ Búp Trà Sương Sớm <br />Đến Hương Vị Mộc Tự Nhiên
+                </h2>
+                <p class="editorial-lead">
+                  Một ly trà ngon luôn bắt đầu từ sự thuần khiết. Những búp trà
+                  non được tuyển chọn thủ công tại nông trường Bảo Lộc khi còn
+                  đọng sương mai, sao ủ mộc mạc theo phương pháp truyền thống để
+                  lưu giữ trọn vẹn tầng hương hoa cỏ tự nhiên.
+                </p>
+                <div class="editorial-quote">
+                  "Không hương liệu tạo mùi, không phụ gia công nghiệp. Vị ngậy
+                  béo êm dịu được kết hợp hoàn toàn từ nguồn sữa tươi thanh
+                  trùng Dalat thuần khiết."
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-6 order-1 order-lg-2">
+              <div class="editorial-img-wrap">
+                <img
+                  src="https://images.unsplash.com/photo-1544787219-7f47ccb76574?q=80&w=900&auto=format&fit=crop"
+                  alt="Nông trường trà Bảo Lộc"
+                  class="editorial-img img-fluid"
+                />
+                <span class="editorial-caption">BẢO LỘC • LÂM ĐỒNG</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Hàng 2: Ảnh Trái - Text Phải (So Le) -->
+          <div class="row align-items-center g-4 g-lg-5">
+            <div class="col-lg-6">
+              <div class="editorial-img-wrap">
+                <img
+                  src="https://images.unsplash.com/photo-1556881286-fc6915169721?q=80&w=900&auto=format&fit=crop"
+                  alt="Pha chế thủ công và đá riêng"
+                  class="editorial-img img-fluid"
+                />
+                <span class="editorial-caption"
+                  >PHA CHẾ THỦ CÔNG • ĐÁ RIÊNG</span
+                >
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="editorial-text-wrap ps-lg-4">
+                <span class="editorial-tag">02 / CHĂM CHÚT TRẢI NGHIỆM</span>
+                <h2 class="editorial-title">
+                  Giao Tươi Đá Riêng — <br />Vẹn Nguyên Từng Tầng Hương Sắc
+                </h2>
+                <p class="editorial-lead">
+                  Chúng tôi đóng gói đá trong túi riêng biệt kèm túi giữ nhiệt
+                  niêm phong cẩn trọng. Khi thức uống đến tay bạn, ly trà vẫn
+                  giữ vẹn nguyên độ đậm đà, không sợ bị tan đá làm loãng nhạt
+                  hương vị.
+                </p>
+                <div class="editorial-quote">
+                  "Nếu cảm thấy chưa vừa vặn về độ ngọt hay lượng đá, quán luôn
+                  sẵn lòng pha lại một ly mới hoàn toàn miễn phí cho bạn."
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- DANH MỤC NỔI BẬT -->
+      <section class="shop-by-category py-5 mt-4">
+        <div class="container">
+          <div class="text-center mb-5">
+            <h2 class="fw-bolder display-6 text-uppercase">Danh Mục Nổi Bật</h2>
+            <div
+              class="divider mx-auto bg-dark mt-3"
+              style="width: 60px; height: 3px"
+            ></div>
+          </div>
+          <div class="row g-4">
+            <div class="col-md-4">
+              <a
+                href="@Url.Action("Products", "Customer", new { categoryId = 1 })"
+                class="category-card d-block position-relative overflow-hidden text-decoration-none rounded-3"
+              >
+                <img
+                  src="https://images.unsplash.com/photo-1541658016709-82535e94bc69?q=80&w=600&auto=format&fit=crop"
+                  class="w-100 object-fit-cover category-img"
+                  alt="Trà Sữa"
+                  style="height: 350px"
+                />
+                <div
+                  class="category-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
+                >
+                  <h3
+                    class="text-white fw-bold m-0 text-uppercase"
+                    style="letter-spacing: 2px"
+                  >
+                    Trà Sữa
+                  </h3>
+                </div>
+              </a>
+            </div>
+            <div class="col-md-4">
+              <a
+                href="@Url.Action("Products", "Customer", new { categoryId = 2 })"
+                class="category-card d-block position-relative overflow-hidden text-decoration-none rounded-3"
+              >
+                <img
+                  src="https://images.unsplash.com/photo-1497534446932-c925b458314e?q=80&w=600&auto=format&fit=crop"
+                  class="w-100 object-fit-cover category-img"
+                  alt="Trà Trái Cây"
+                  style="height: 350px"
+                />
+                <div
+                  class="category-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
+                >
+                  <h3
+                    class="text-white fw-bold m-0 text-uppercase"
+                    style="letter-spacing: 2px"
+                  >
+                    Trà Trái Cây
+                  </h3>
+                </div>
+              </a>
+            </div>
+            <div class="col-md-4">
+              <a
+                href="@Url.Action("Products", "Customer", new { categoryId = 5 })"
+                class="category-card d-block position-relative overflow-hidden text-decoration-none rounded-3"
+              >
+                <img
+                  src="https://images.unsplash.com/photo-1534778101976-62847782c213?q=80&w=600&auto=format&fit=crop"
+                  class="w-100 object-fit-cover category-img"
+                  alt="Macchiato"
+                  style="height: 350px"
+                />
+                <div
+                  class="category-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
+                >
+                  <h3
+                    class="text-white fw-bold m-0 text-uppercase"
+                    style="letter-spacing: 2px"
+                  >
+                    Macchiato
+                  </h3>
+                </div>
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- MENU SẢN PHẨM MỚI -->
+      <section class="latest-products py-5 bg-light">
+        <div class="container">
+          <div class="text-center mb-5">
+            <h2 class="fw-bolder display-6 text-uppercase">Món Mới Phải Thử</h2>
+            <div
+              class="divider mx-auto bg-dark mt-3"
+              style="width: 60px; height: 3px"
+            ></div>
+          </div>
+
+          <!-- Lưới Sản Phẩm Nổi Bật (Render động qua index.js) -->
+          <div class="row g-4" id="latest-products-grid">
+            @if (Model != null)
+            {
+                foreach (var p in Model)
+                {
+                    var variants = p.product_variants != null ? p.product_variants.ToList() : new List<QL_WebBanTraSua.Models.product_variants>();
+                    decimal minP = variants.Any() ? variants.Min(v => v.price) : 0;
+                    string catName = p.category != null ? p.category.name : "";
+                    string imgUrl;
+                    if (!string.IsNullOrEmpty(p.image))
+                    {
+                        if (p.image.StartsWith("http://") || p.image.StartsWith("https://"))
+                        {
+                            imgUrl = p.image;
+                        }
+                        else
+                        {
+                            imgUrl = Url.Content("~/assets/img/" + p.image.TrimStart('/'));
+                        }
+                    }
+                    else if (catName.Contains("Cà Phê")) { imgUrl = "https://images.unsplash.com/photo-1517701604599-bb29b565090c?q=80&w=400&auto=format&fit=crop"; }
+                    else if (catName.Contains("Matcha")) { imgUrl = "https://images.unsplash.com/photo-1515823662972-da6a2e4d3002?q=80&w=400&auto=format&fit=crop"; }
+                    else if (catName.Contains("Trái Cây")) { imgUrl = "https://images.unsplash.com/photo-1556679343-c7306c1976bc?q=80&w=400&auto=format&fit=crop"; }
+                    else { imgUrl = "https://images.unsplash.com/photo-1541658016709-82535e94bc69?q=80&w=400&auto=format&fit=crop"; }
+
+                    <div class="col-md-4 col-sm-6">
+                        <div class="card h-100 border-0 shadow-sm product-card rounded-4 overflow-hidden bg-white">
+                            <a href="@Url.Action("Details", "Customer", new { id = p.id })">
+                                <img src="@imgUrl"
+                                     onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1541658016709-82535e94bc69?q=80&w=400&auto=format&fit=crop';"
+                                     class="card-img-top w-100"
+                                     alt="@p.name"
+                                     style="height: 220px; object-fit: cover;" />
+                            </a>
+                            <div class="card-body d-flex flex-column p-3">
+                                <h5 class="card-title fw-bold fs-6 mb-2">
+                                    <a href="@Url.Action("Details", "Customer", new { id = p.id })" class="text-dark text-decoration-none">
+                                        @p.name
+                                    </a>
+                                </h5>
+                                <p class="card-text text-muted small text-truncate mb-3">
+                                    @(string.IsNullOrEmpty(p.description) ? "Vị trà sữa đậm đà hòa quyện cùng sữa tươi béo ngậy." : p.description)
+                                </p>
+                                <div class="mt-auto d-flex justify-content-between align-items-center pt-2 border-top">
+                                    <span class="text-primary fw-bolder fs-5">@string.Format("{0:N0}₫", minP)</span>
+                                    <a href="@Url.Action("Details", "Customer", new { id = p.id })"
+                                       class="btn btn-primary rounded-pill px-3 fw-bold btn-sm">
+                                        <i class="bi bi-plus-circle me-1"></i> Chọn
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+          </div>
+        </div>
+      </section>
+
+      <!-- =======================================================
+           PHÂN ĐOẠN 1 (WAO STYLE): KHÁM PHÁ THEO NHU CẦU & GU VỊ
+           ======================================================= -->
+      <section class="py-5 bg-white" id="flavor-profiles">
+        <div class="container">
+          <div class="text-center mb-5">
+            <span
+              class="text-primary fw-bold text-uppercase small"
+              style="letter-spacing: 2px"
+              >Lựa Chọn Hoàn Hảo Cho Bạn</span
+            >
+            <h2 class="fw-bolder display-6 text-uppercase mt-1">
+              Thưởng Thức Theo Gu Vị
+            </h2>
+            <p class="text-muted">
+              Dù bạn thích vị trà nồng nàn hay thanh nhẹ ngọt dịu, quán luôn có
+              tách trà dành riêng cho bạn
+            </p>
+            <div
+              class="divider mx-auto bg-dark mt-3"
+              style="width: 60px; height: 3px"
+            ></div>
+          </div>
+
+          <div class="row g-4">
+            <!-- Gu 1: Đậm Vị -->
+            <div class="col-md-6 col-lg-3">
+              <a
+                href="@Url.Action("Products", "Customer", new { categoryId = 1 })"
+                class="flavor-card"
+              >
+                <img
+                  src="https://images.unsplash.com/photo-1572490122747-3968b75cc699?q=80&w=600&auto=format&fit=crop"
+                  alt="Trà Sữa Đậm Vị"
+                  class="flavor-card-img"
+                />
+                <div class="flavor-card-overlay">
+                  <span class="flavor-badge">GU ĐẬM ĐÀ</span>
+                  <h4 class="fw-bold mb-1 text-white">Trà Sữa Đậm Vị</h4>
+                  <p class="small text-light opacity-75 mb-0">
+                    Hồng trà & Oolong nướng ủ đậm, hậu vị lắng sâu nồng nàn.
+                  </p>
+                </div>
+              </a>
+            </div>
+
+            <!-- Gu 2: Thanh Vị -->
+            <div class="col-md-6 col-lg-3">
+              <a
+                href="@Url.Action("Products", "Customer", new { categoryId = 1 })"
+                class="flavor-card"
+              >
+                <img
+                  src="https://images.unsplash.com/photo-1541658016709-82535e94bc69?q=80&w=600&auto=format&fit=crop"
+                  alt="Trà Sữa Thanh Vị"
+                  class="flavor-card-img"
+                />
+                <div class="flavor-card-overlay">
+                  <span class="flavor-badge">GU THANH NHẸ</span>
+                  <h4 class="fw-bold mb-1 text-white">Trà Sữa Thanh Vị</h4>
+                  <p class="small text-light opacity-75 mb-0">
+                    Hương sữa thơm nhẹ, ít ngọt, thanh khiết không lo ngấy.
+                  </p>
+                </div>
+              </a>
+            </div>
+
+            <!-- Gu 3: Trái Cây -->
+            <div class="col-md-6 col-lg-3">
+              <a
+                href="@Url.Action("Products", "Customer", new { categoryId = 2 })"
+                class="flavor-card"
+              >
+                <img
+                  src="https://images.unsplash.com/photo-1497534446932-c925b458314e?q=80&w=600&auto=format&fit=crop"
+                  alt="Trà Trái Cây Tươi Mát"
+                  class="flavor-card-img"
+                />
+                <div class="flavor-card-overlay">
+                  <span class="flavor-badge">TƯƠI MÁT TỰ NHIÊN</span>
+                  <h4 class="fw-bold mb-1 text-white">
+                    Trà Trái Cây Nhiệt Đới
+                  </h4>
+                  <p class="small text-light opacity-75 mb-0">
+                    Cam sả, ổi hồng, đào tươi mát lạnh, bừng tỉnh năng lượng.
+                  </p>
+                </div>
+              </a>
+            </div>
+
+            <!-- Gu 4: Macchiato Cheese -->
+            <div class="col-md-6 col-lg-3">
+              <a
+                href="@Url.Action("Products", "Customer", new { categoryId = 5 })"
+                class="flavor-card"
+              >
+                <img
+                  src="https://images.unsplash.com/photo-1534778101976-62847782c213?q=80&w=600&auto=format&fit=crop"
+                  alt="Macchiato Kem Béo"
+                  class="flavor-card-img"
+                />
+                <div class="flavor-card-overlay">
+                  <span class="flavor-badge">KEM BÉO MƯỢT</span>
+                  <h4 class="fw-bold mb-1 text-white">Macchiato Kem Cheese</h4>
+                  <p class="small text-light opacity-75 mb-0">
+                    Lớp kem cheese mằn mặn béo ngậy phủ trên nền cốt trà mộc.
+                  </p>
+                </div>
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =======================================================
+           PHÂN ĐOẠN 2: CHUYỆN VỊ TRÀ - BACKGROUND VIDEO CINEMATIC
+           ======================================================= -->
+      <section class="tea-story-video-section" id="tea-story">
+        <!-- Background Video từ thư mục assets/video -->
+        <video autoplay loop muted playsinline class="tea-bg-video">
+          <source
+            src="@Url.Content("~/assets/video/14466015_1920_1080_30fps.mp4")"
+            type="video/mp4"
+          />
+        </video>
+        <div class="tea-video-overlay"></div>
+
+        <div
+          class="container position-relative z-2 text-center text-white py-4"
+        >
+          <span class="tea-video-tag">CHUYỆN VỊ TRÀ</span>
+          <h2 class="tea-video-title">
+            Trà Việt Đậm Vị — <br class="d-none d-md-block" />Hành Trình Từ Nông
+            Trường Đến Tách Trà
+          </h2>
+          <p class="tea-video-subtitle">
+            Gìn giữ hương vị mộc mạc nguyên bản từ những búp trà non đọng sương
+            mai tại Bảo Lộc, Lâm Đồng.
+          </p>
+
+          <!-- 3 Dòng Giá Trị Phong Cách WAO Tea (Không Dùng Icon/Hộp Màu AI) -->
+          <div class="tea-video-rows">
+            <div class="tea-video-row-item">
+              <span class="tea-video-dot"></span>
+              <p class="tea-video-row-text">
+                Tuyển chọn tiêu chuẩn "1 búp 2 lá non" vào sáng sớm tại nông
+                trường trà cao nguyên.
+              </p>
+            </div>
+            <div class="tea-video-row-item">
+              <span class="tea-video-dot"></span>
+              <p class="tea-video-row-text">
+                Kỹ thuật sao sấy & ủ nhiệt thủ công gia truyền, giữ trọn vẹn
+                tinh dầu hoa cỏ tự nhiên.
+              </p>
+            </div>
+            <div class="tea-video-row-item">
+              <span class="tea-video-dot"></span>
+              <p class="tea-video-row-text">
+                Đóng gói đá riêng kèm túi giữ nhiệt, đảm bảo thức uống vẹn
+                nguyên độ đậm đà khi giao đến tay bạn.
+              </p>
+            </div>
+          </div>
+
+          <!-- Nút hành động tinh tế -->
+          <div>
+            <a href="customer/customer/about.html" class="btn btn-video-story">
+              Khám Phá Chuyện Vị Trà <i class="bi bi-arrow-up-right ms-2"></i>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- =======================================================
+           PHÂN ĐOẠN 3: DỊCH VỤ & TRẢI NGHIỆM CHU ĐÁO TẠI QUÁN (MINIMALIST)
+           ======================================================= -->
+      <section class="services-minimal-section py-5" id="services-section">
+        <div class="container py-lg-3">
+          <!-- Tiêu đề phân đoạn: Bố cục bất đối xứng hiện đại -->
+          <div class="row align-items-end mb-5">
+            <div class="col-lg-7">
+              <span
+                class="text-uppercase small fw-bold text-muted"
+                style="letter-spacing: 2.5px"
+              >
+                DỊCH VỤ &amp; TRẢI NGHIỆM
+              </span>
+              <h2 class="display-6 fw-bold mt-2 mb-0 text-dark">
+                Trải Nghiệm Chu Đáo Tại Quán
+              </h2>
+            </div>
+            <div class="col-lg-5 mt-3 mt-lg-0">
+              <p class="text-muted mb-0">
+                Từ một ly trà giao tận bàn đến những buổi tiệc teabreak quy mô
+                lớn, chúng tôi luôn chuẩn bị chu đáo để bạn an tâm thưởng thức.
+              </p>
+            </div>
+          </div>
+
+          <!-- 4 Cột Dịch Vụ: Đường nét tối giản, không dùng hộp bo icon AI -->
+          <div class="row g-4 g-lg-5">
+            <!-- 01 -->
+            <div class="col-md-6 col-lg-3">
+              <div class="service-minimal-item">
+                <span class="service-minimal-num">01 / CATERING</span>
+                <h3 class="service-minimal-title">Tiệc Trà Doanh Nghiệp</h3>
+                <p class="service-minimal-desc">
+                  Phục vụ teabreak công ty, hội thảo, sinh nhật. Hỗ trợ thùng
+                  giữ nhiệt chuyên dụng và chiết khấu linh hoạt theo quy mô đơn
+                  hàng.
+                </p>
+              </div>
+            </div>
+
+            <!-- 02 -->
+            <div class="col-md-6 col-lg-3">
+              <div class="service-minimal-item">
+                <span class="service-minimal-num">02 / CUSTOM</span>
+                <h3 class="service-minimal-title">Pha Chế Đúng Khẩu Vị</h3>
+                <p class="service-minimal-desc">
+                  Tự do chọn độ ngọt mộc (từ 0% đến 100%), mức đá và hơn 10 loại
+                  topping tươi được nấu mới liên tục mỗi ngày tại quầy.
+                </p>
+              </div>
+            </div>
+
+            <!-- 03 -->
+            <div class="col-md-6 col-lg-3">
+              <div class="service-minimal-item">
+                <span class="service-minimal-num">03 / PACKAGING</span>
+                <h3 class="service-minimal-title">Đóng Gói &amp; Đá Riêng</h3>
+                <p class="service-minimal-desc">
+                  Màng ép chống tràn niêm phong tuyệt đối, đá viên tinh khiết
+                  tách riêng để cốt trà luôn đậm đà, không bị loãng vị khi giao
+                  xa.
+                </p>
+              </div>
+            </div>
+
+            <!-- 04 -->
+            <div class="col-md-6 col-lg-3">
+              <div class="service-minimal-item">
+                <span class="service-minimal-num">04 / MEMBERSHIP</span>
+                <h3 class="service-minimal-title">Tích Điểm Hội Viên</h3>
+                <p class="service-minimal-desc">
+                  Tích điểm tự động bằng số điện thoại cho mỗi đơn đặt. Dễ dàng
+                  đổi điểm lấy ly trà yêu thích và nhận quà tặng tháng sinh
+                  nhật.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dòng thông tin liên hệ gọn gàng -->
+          <div
+            class="service-minimal-footer mt-5 pt-4 border-top d-flex flex-wrap justify-content-between align-items-center gap-3"
+          >
+            <span class="small text-muted">
+              Cần tư vấn đơn tiệc hoặc đặt trước số lượng lớn? Hotline hỗ trợ:
+              <strong class="text-dark">1900 6868</strong>
+            </span>
+            <a href="@Url.Action("Contact", "Customer")" class="service-minimal-link">
+              Liên hệ tư vấn <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- =======================================================
+           PHÂN ĐOẠN 4: ĐÁNH GIÁ KHÁCH HÀNG (TẠM ẨN THEO YÊU CẦU)
+           ======================================================= -->
+      <!--
+      <section class="py-5 bg-white" id="customer-reviews">
+        <div class="container">
+          <div class="text-center mb-5">
+            <span
+              class="text-primary fw-bold text-uppercase small"
+              style="letter-spacing: 2px"
+              >Niềm Tin Từ Khách Hàng</span
+            >
+            <h2 class="fw-bolder display-6 text-uppercase mt-1">
+              Cảm Nhận Tách Trà
+            </h2>
+            <p class="text-muted">
+              Hơn 10.000+ tín đồ trà sữa tại TP.HCM đã tin tưởng và đồng hành
+              mỗi ngày
+            </p>
+            <div
+              class="divider mx-auto bg-dark mt-3"
+              style="width: 60px; height: 3px"
+            ></div>
+          </div>
+
+          <div class="row g-4">
+            <div class="col-md-4">
+              <div class="testimonial-card d-flex flex-column">
+                <div class="d-flex align-items-center mb-3 text-warning fs-5">
+                  <i class="bi bi-star-fill me-1"></i>
+                  <i class="bi bi-star-fill me-1"></i>
+                  <i class="bi bi-star-fill me-1"></i>
+                  <i class="bi bi-star-fill me-1"></i>
+                  <i class="bi bi-star-fill me-1"></i>
+                </div>
+                <p class="text-muted small flex-grow-1 mb-4 italic">
+                  "Trà Oolong nướng kem cheese ở đây là chân ái của mình! Vị trà
+                  thơm lừng tự nhiên, không bị hóa học hay ngọt khé cổ như các
+                  bên khác. Giao đá riêng nên uống lúc nào cũng ngon chuẩn vị."
+                </p>
+                <div class="d-flex align-items-center gap-3 pt-3 border-top">
+                  <img
+                    src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=120&auto=format&fit=crop"
+                    alt="Khách hàng Thảo Vy"
+                    class="testimonial-avatar"
+                  />
+                  <div>
+                    <h6 class="fw-bold mb-0">Nguyễn Thảo Vy</h6>
+                    <small class="text-muted"
+                      >Nhân viên văn phòng - Quận 1</small
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <div class="testimonial-card d-flex flex-column">
+                <div class="d-flex align-items-center mb-3 text-warning fs-5">
+                  <i class="bi bi-star-fill me-1"></i>
+                  <i class="bi bi-star-fill me-1"></i>
+                  <i class="bi bi-star-fill me-1"></i>
+                  <i class="bi bi-star-fill me-1"></i>
+                  <i class="bi bi-star-fill me-1"></i>
+                </div>
+                <p class="text-muted small flex-grow-1 mb-4 italic">
+                  "Team công ty mình ở Tân Phú tuần nào cũng đặt 2-3 đợt. Trà
+                  Đào Cam Sả uống giải nhiệt mùa hè siêu đỉnh, topping trân châu
+                  trắng giòn sần sật nhai cực đã. Đóng gói rất cẩn thận!"
+                </p>
+                <div class="d-flex align-items-center gap-3 pt-3 border-top">
+                  <img
+                    src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=120&auto=format&fit=crop"
+                    alt="Khách hàng Minh Tuấn"
+                    class="testimonial-avatar"
+                  />
+                  <div>
+                    <h6 class="fw-bold mb-0">Trần Minh Tuấn</h6>
+                    <small class="text-muted">Lập trình viên - HUIT</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <div class="testimonial-card d-flex flex-column">
+                <div class="d-flex align-items-center mb-3 text-warning fs-5">
+                  <i class="bi bi-star-fill me-1"></i>
+                  <i class="bi bi-star-fill me-1"></i>
+                  <i class="bi bi-star-fill me-1"></i>
+                  <i class="bi bi-star-fill me-1"></i>
+                  <i class="bi bi-star-fill me-1"></i>
+                </div>
+                <p class="text-muted small flex-grow-1 mb-4 italic">
+                  "Thích nhất là menu cho chọn mức đường đá cực kỳ chi tiết.
+                  Mình ăn kiêng nên hay chọn 0% đường với Trà Trái Cây, vị chua
+                  ngọt từ quả tươi vẫn giữ trọn vẹn, không hề nhạt nhẽo."
+                </p>
+                <div class="d-flex align-items-center gap-3 pt-3 border-top">
+                  <img
+                    src="https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=120&auto=format&fit=crop"
+                    alt="Khách hàng Mai Phương"
+                    class="testimonial-avatar"
+                  />
+                  <div>
+                    <h6 class="fw-bold mb-0">Lê Mai Phương</h6>
+                    <small class="text-muted">Freelancer Content Creator</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      -->
+
+      <!-- =======================================================
+           PHÂN ĐOẠN 5 (WAO STYLE): CÂU HỎI THƯỜNG GẶP (FAQ ACCORDION)
+           ======================================================= -->
+      <section class="py-5 bg-light" id="faq-section">
+        <div class="container">
+          <div class="text-center mb-5">
+            <span
+              class="text-primary fw-bold text-uppercase small"
+              style="letter-spacing: 2px"
+              >Hỗ Trợ Nhanh Chóng</span
+            >
+            <h2 class="fw-bolder display-6 text-uppercase mt-1">
+              Câu Hỏi Thường Gặp
+            </h2>
+            <p class="text-muted">
+              Những điều bạn thường thắc mắc khi đặt trà sữa tại TIỆM TRÀ SỮA
+            </p>
+            <div
+              class="divider mx-auto bg-dark mt-3"
+              style="width: 60px; height: 3px"
+            ></div>
+          </div>
+
+          <div class="row justify-content-center">
+            <div class="col-lg-8">
+              <div class="accordion faq-accordion" id="teaFaqAccordion">
+                <!-- Câu 1 -->
+                <div class="accordion-item shadow-sm">
+                  <h3 class="accordion-header" id="faqHeading1">
+                    <button
+                      class="accordion-button collapsed"
+                      type="button"
+                      data-bs-toggle="collapse"
+                      data-bs-target="#faqCollapse1"
+                      aria-expanded="false"
+                      aria-controls="faqCollapse1"
+                    >
+                      <i class="bi bi-question-circle text-primary me-2"></i>
+                      Làm thế nào để điều chỉnh mức đường và lượng đá theo ý
+                      muốn?
+                    </button>
+                  </h3>
+                  <div
+                    id="faqCollapse1"
+                    class="accordion-collapse collapse"
+                    aria-labelledby="faqHeading1"
+                    data-bs-parent="#teaFaqAccordion"
+                  >
+                    <div class="accordion-body">
+                      Tại trang chi tiết từng món hoặc khi bấm nút "Chọn món"
+                      trên trang chủ, bạn có thể dễ dàng tùy biến các mức đường
+                      (0%, 50%, 100%) và lượng đá (Không đá, 50% đá, 100% đá)
+                      hoàn toàn miễn phí để vừa vặn nhất với khẩu vị của mình.
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Câu 2 -->
+                <div class="accordion-item shadow-sm">
+                  <h3 class="accordion-header" id="faqHeading2">
+                    <button
+                      class="accordion-button collapsed"
+                      type="button"
+                      data-bs-toggle="collapse"
+                      data-bs-target="#faqCollapse2"
+                      aria-expanded="false"
+                      aria-controls="faqCollapse2"
+                    >
+                      <i class="bi bi-question-circle text-primary me-2"></i>
+                      Tiệm có giao hàng tận nơi không và thời gian giao khoảng
+                      bao lâu?
+                    </button>
+                  </h3>
+                  <div
+                    id="faqCollapse2"
+                    class="accordion-collapse collapse"
+                    aria-labelledby="faqHeading2"
+                    data-bs-parent="#teaFaqAccordion"
+                  >
+                    <div class="accordion-body">
+                      Có! Quán hỗ trợ giao hàng tận nơi toàn khu vực nội thành
+                      TP.HCM trong vòng 30 - 45 phút. Đặc biệt, đá luôn được
+                      đóng gói trong túi zip riêng biệt kèm túi giữ nhiệt giúp
+                      đồ uống không bị tan nhạt trong quá trình vận chuyển.
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Câu 3 -->
+                <div class="accordion-item shadow-sm">
+                  <h3 class="accordion-header" id="faqHeading3">
+                    <button
+                      class="accordion-button collapsed"
+                      type="button"
+                      data-bs-toggle="collapse"
+                      data-bs-target="#faqCollapse3"
+                      aria-expanded="false"
+                      aria-controls="faqCollapse3"
+                    >
+                      <i class="bi bi-question-circle text-primary me-2"></i>
+                      Quán có những loại Topping nào đặc sắc nhất?
+                    </button>
+                  </h3>
+                  <div
+                    id="faqCollapse3"
+                    class="accordion-collapse collapse"
+                    aria-labelledby="faqHeading3"
+                    data-bs-parent="#teaFaqAccordion"
+                  >
+                    <div class="accordion-body">
+                      Chúng tôi có 5 loại topping nấu mới mỗi ngày: Trân Châu
+                      Đường Đen dẻo dai, Trân Châu Trắng giòn sần sật, Pudding
+                      Trứng béo ngậy mềm mịn, Kem Cheese Phô Mai mằn mặn độc
+                      quyền và Thạch Trái Cây thanh mát.
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Câu 4 -->
+                <div class="accordion-item shadow-sm">
+                  <h3 class="accordion-header" id="faqHeading4">
+                    <button
+                      class="accordion-button collapsed"
+                      type="button"
+                      data-bs-toggle="collapse"
+                      data-bs-target="#faqCollapse4"
+                      aria-expanded="false"
+                      aria-controls="faqCollapse4"
+                    >
+                      <i class="bi bi-question-circle text-primary me-2"></i>
+                      Chính sách đổi trả hoặc đền bù khi đơn hàng gặp sự cố?
+                    </button>
+                  </h3>
+                  <div
+                    id="faqCollapse4"
+                    class="accordion-collapse collapse"
+                    aria-labelledby="faqHeading4"
+                    data-bs-parent="#teaFaqAccordion"
+                  >
+                    <div class="accordion-body">
+                      Quán cam kết hài lòng 100%. Nếu đơn hàng bị giao sai món,
+                      quên topping hoặc thức uống bị đổ vỡ do vận chuyển, quý
+                      khách chỉ cần liên hệ hotline
+                      <strong>1900 1234</strong> trong vòng 1 giờ sau khi nhận
+                      nước, chúng tôi sẽ đổi ngay ly mới miễn phí hoặc hoàn tiền
+                      100%.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =======================================================
+           PHÂN ĐOẠN 6 (WAO STYLE): ĐỐI TÁC GIAO HÀNG & PHƯƠNG THỨC THANH TOÁN
+           ======================================================= -->
+      <section
+        class="py-4 border-top border-bottom bg-white"
+        id="partners-section"
+      >
+        <div class="container">
+          <div class="row align-items-center text-center text-md-start">
+            <div class="col-md-3 mb-3 mb-md-0">
+              <span
+                class="text-uppercase fw-bold small text-muted d-block"
+                style="letter-spacing: 1.5px"
+                >Đối Tác Đồng Hành:</span
+              >
+              <span class="fw-bold text-dark fs-6"
+                >Thanh Toán & Vận Chuyển</span
+              >
+            </div>
+            <div class="col-md-9">
+              <div
+                class="d-flex flex-wrap justify-content-center justify-content-md-end align-items-center gap-3"
+              >
+                <span class="partner-logo-item"
+                  ><i class="bi bi-bag-check-fill text-danger"></i>
+                  ShopeeFood</span
+                >
+                <span class="partner-logo-item"
+                  ><i class="bi bi-bicycle text-success"></i> GrabFood</span
+                >
+                <span class="partner-logo-item"
+                  ><i class="bi bi-qr-code text-primary"></i> VietQR</span
+                >
+                <span class="partner-logo-item"
+                  ><i class="bi bi-wallet2 text-danger"></i> MoMo</span
+                >
+                <span class="partner-logo-item"
+                  ><i class="bi bi-credit-card text-dark"></i> Visa /
+                  Master</span
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>

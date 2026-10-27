@@ -1,0 +1,262 @@
+@{
+    ViewBag.Title = "Về Chúng Tôi - Tiệm Trà Sữa";
+    Layout = "~/Views/Shared/LayoutKhachHang.cshtml";
+}
+
+@section styles {
+    <link rel="stylesheet" href="@Url.Content("~/assets/css/about.css")" />
+    <style>
+        .hover-lift {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .hover-lift:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.08) !important;
+        }
+        .step-number {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #d4a373;
+            letter-spacing: -1px;
+        }
+        .stat-card {
+            background: #fff;
+            border-radius: 12px;
+            border: 1px solid rgba(0,0,0,0.06);
+        }
+        .gallery-img {
+            height: 250px;
+            object-fit: cover;
+            width: 100%;
+            border-radius: 12px;
+            transition: opacity 0.3s ease;
+        }
+        .gallery-img:hover {
+            opacity: 0.92;
+        }
+    </style>
+}
+
+<main class="bg-light text-dark">
+    <!-- 1. HERO BANNER -->
+    <section class="about-hero-section d-flex align-items-center justify-content-center text-center position-relative w-100 overflow-hidden"
+             style="min-height: 420px; background: url('https://images.unsplash.com/photo-1576092762791-dd9e2220afa1?q=80&w=1920&auto=format&fit=crop') center/cover no-repeat;">
+        <div class="position-absolute top-0 start-0 w-100 h-100" style="background: rgba(18, 18, 18, 0.7);"></div>
+        
+        <div class="container position-relative py-5" style="z-index: 2;">
+            <p class="text-uppercase text-white-50 fw-semibold small tracking-wide mb-2">Câu chuyện thương hiệu</p>
+            <h1 class="display-4 fw-bolder text-uppercase mb-3 text-white" style="letter-spacing: 2px;">
+                Đậm Vị Trà • Thơm Vị Sữa
+            </h1>
+            <p class="fs-6 text-light mx-auto mb-4" style="max-width: 600px; opacity: 0.9;">
+                Hành trình kết nối những tâm hồn yêu trà qua từng búp trà tươi thuần khiết và công thức pha chế thủ công.
+            </p>
+
+            <!-- Stats Bar -->
+            <div class="row g-3 justify-content-center mt-2">
+                <div class="col-6 col-md-3">
+                    <div class="stat-card p-3 shadow-sm">
+                        <h4 class="fw-bold text-dark mb-1">100%</h4>
+                        <p class="text-muted small mb-0">Trà mộc tự nhiên</p>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="stat-card p-3 shadow-sm">
+                        <h4 class="fw-bold text-dark mb-1">4 Giờ</h4>
+                        <p class="text-muted small mb-0">Ủ mẻ trà mới</p>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="stat-card p-3 shadow-sm">
+                        <h4 class="fw-bold text-dark mb-1">15+</h4>
+                        <p class="text-muted small mb-0">Món nước chọn lọc</p>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="stat-card p-3 shadow-sm">
+                        <h4 class="fw-bold text-dark mb-1">Thủ công</h4>
+                        <p class="text-muted small mb-0">Nấu trân châu mỗi ngày</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 2. BRAND STORY -->
+    <section class="py-5">
+        <div class="container py-4">
+            <!-- Khởi Nguồn -->
+            <div class="row align-items-center mb-5 pb-5 border-bottom border-light-subtle">
+                <div class="col-lg-6 mb-4 mb-lg-0">
+                    <img src="https://images.unsplash.com/photo-1541658016709-82535e94bc69?q=80&w=900&auto=format&fit=crop"
+                         alt="Ly trà sữa"
+                         class="img-fluid rounded-4 shadow-sm w-100"
+                         style="object-fit: cover; aspect-ratio: 4/3;" />
+                </div>
+                <div class="col-lg-6 ps-lg-5">
+                    <span class="text-muted fw-bold text-uppercase small">Khởi nguồn từ đam mê</span>
+                    <h2 class="fw-bold mt-2 mb-4 text-dark text-uppercase">
+                        Từng Giọt Trà Là Một Sự Tận Tâm
+                    </h2>
+                    <p class="text-muted lh-lg mb-3">
+                        Ra đời từ một tiệm nhỏ trên góc phố nhộn nhịp, <strong>Tiệm Trà Sữa</strong> bắt đầu với một niềm tin đơn giản:
+                        <em>Một ly trà sữa ngon phải được làm từ sự chân thành và nguyên liệu sạch</em>.
+                    </p>
+                    <p class="text-muted lh-lg mb-4">
+                        Chúng tôi nói không với các loại bột trà công nghiệp hay hương liệu tổng hợp. Mỗi mẻ trà được ủ chậm đúng nhiệt độ tiêu chuẩn để giữ trọn vẹn tầng hương hoa tự nhiên và hậu vị ngọt thanh mát.
+                    </p>
+                    <div class="d-flex gap-3">
+                        <a href="@Url.Action("Products", "Customer")" class="btn btn-primary rounded-pill px-4 py-2 fw-semibold">
+                            Xem thực đơn
+                        </a>
+                        <a href="@Url.Action("Contact", "Customer")" class="btn btn-outline-dark rounded-pill px-4 py-2 fw-semibold">
+                            Liên hệ tiệm
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Nông trại & Nguyên liệu -->
+            <div class="row align-items-center flex-column-reverse flex-lg-row">
+                <div class="col-lg-6 pe-lg-5 mt-4 mt-lg-0">
+                    <span class="text-muted fw-bold text-uppercase small">Nguồn gốc nguyên liệu</span>
+                    <h2 class="fw-bold mt-2 mb-4 text-dark text-uppercase">
+                        Lá Trà Từ Nông Trại Cao Nguyên
+                    </h2>
+                    <p class="text-muted lh-lg mb-3">
+                        Chúng tôi hợp tác cùng các đồi chè uy tín tại Bảo Lộc và Thái Nguyên. Búp trà tươi được thu hái thủ công vào sáng sớm khi sương chưa tan để lưu giữ hương vị tinh khôi nhất.
+                    </p>
+                    <div class="row g-3 mt-1">
+                        <div class="col-sm-6">
+                            <h6 class="fw-bold text-dark mb-1">Sữa tươi thanh trùng</h6>
+                            <p class="text-muted small mb-0">Vị béo ngậy thanh nhẹ, dễ tiêu hóa.</p>
+                        </div>
+                        <div class="col-sm-6">
+                            <h6 class="fw-bold text-dark mb-1">Trân châu dẻo thơm</h6>
+                            <p class="text-muted small mb-0">Nấu bằng đường nâu tự nhiên, dẻo dai.</p>
+                        </div>
+                        <div class="col-sm-6">
+                            <h6 class="fw-bold text-dark mb-1">Trái cây tươi theo mùa</h6>
+                            <p class="text-muted small mb-0">Đào giòn, dâu tây, vải và chanh tươi.</p>
+                        </div>
+                        <div class="col-sm-6">
+                            <h6 class="fw-bold text-dark mb-1">Không chất bảo quản</h6>
+                            <p class="text-muted small mb-0">Đảm bảo an toàn sức khỏe tuyệt đối.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <img src="https://images.unsplash.com/photo-1571934811356-5cc061b6821f?q=80&w=900&auto=format&fit=crop"
+                         alt="Thu hoạch lá trà"
+                         class="img-fluid rounded-4 shadow-sm w-100"
+                         style="object-fit: cover; aspect-ratio: 4/3;" />
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. QUY TRÌNH PHA CHẾ (4 BƯỚC TINH TẾ) -->
+    <section class="py-5 bg-white border-top border-bottom border-light-subtle">
+        <div class="container py-4">
+            <div class="text-center mb-5">
+                <span class="text-muted fw-bold text-uppercase small">Quy trình</span>
+                <h2 class="fw-bold text-dark text-uppercase mt-1">Hành Trình Tạo Nên Ly Trà</h2>
+                <p class="text-muted small">Từng công đoạn đều được thực hiện cẩn trọng và chuẩn xác</p>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-md-6 col-lg-3">
+                    <div class="card h-100 border-0 rounded-4 shadow-sm hover-lift overflow-hidden bg-light">
+                        <img src="https://images.unsplash.com/photo-1563822249548-9a72b6353cd1?q=80&w=600&auto=format&fit=crop"
+                             class="card-img-top" style="height: 170px; object-fit: cover;" alt="Tuyển chọn lá trà">
+                        <div class="card-body p-4 text-center">
+                            <div class="step-number mb-2">01</div>
+                            <h6 class="fw-bold text-dark mb-2">Thu Hái Lá Trà</h6>
+                            <p class="text-muted small mb-0">Lựa chọn những búp trà tươi non đạt chuẩn từ nông trại.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-3">
+                    <div class="card h-100 border-0 rounded-4 shadow-sm hover-lift overflow-hidden bg-light">
+                        <img src="https://images.unsplash.com/photo-1556881286-fc6915169721?q=80&w=600&auto=format&fit=crop"
+                             class="card-img-top" style="height: 170px; object-fit: cover;" alt="Ủ trà">
+                        <div class="card-body p-4 text-center">
+                            <div class="step-number mb-2">02</div>
+                            <h6 class="fw-bold text-dark mb-2">Ủ Trà Chuẩn Nhiệt</h6>
+                            <p class="text-muted small mb-0">Kiểm soát nhiệt độ nước và thời gian ủ riêng cho từng loại trà.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-3">
+                    <div class="card h-100 border-0 rounded-4 shadow-sm hover-lift overflow-hidden bg-light">
+                        <img src="https://images.unsplash.com/photo-1517701604599-bb29b565090c?q=80&w=600&auto=format&fit=crop"
+                             class="card-img-top" style="height: 170px; object-fit: cover;" alt="Nấu topping">
+                        <div class="card-body p-4 text-center">
+                            <div class="step-number mb-2">03</div>
+                            <h6 class="fw-bold text-dark mb-2">Topping Tươi Mới</h6>
+                            <p class="text-muted small mb-0">Trân châu và pudding được chế biến liên tục trong ngày.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-3">
+                    <div class="card h-100 border-0 rounded-4 shadow-sm hover-lift overflow-hidden bg-light">
+                        <img src="https://images.unsplash.com/photo-1559925393-8be0ec4767c8?q=80&w=600&auto=format&fit=crop"
+                             class="card-img-top" style="height: 170px; object-fit: cover;" alt="Pha chế">
+                        <div class="card-body p-4 text-center">
+                            <div class="step-number mb-2">04</div>
+                            <h6 class="fw-bold text-dark mb-2">Pha Chế Theo Yêu Cầu</h6>
+                            <p class="text-muted small mb-0">Cân chỉnh lượng đường và đá chính xác theo khẩu vị riêng của bạn.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. KHÔNG GIAN QUÁN -->
+    <section class="py-5">
+        <div class="container py-4">
+            <div class="text-center mb-5">
+                <span class="text-muted fw-bold text-uppercase small">Hình ảnh</span>
+                <h2 class="fw-bold text-dark text-uppercase mt-1">Khoảnh Khắc Tại Quán</h2>
+                <p class="text-muted small">Không gian bình yên để thưởng thức ly trà thơm cùng bạn bè</p>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-6 col-md-3">
+                    <img src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?q=80&w=600&auto=format&fit=crop"
+                         class="gallery-img shadow-sm" alt="Không gian quán">
+                </div>
+                <div class="col-6 col-md-3">
+                    <img src="https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?q=80&w=600&auto=format&fit=crop"
+                         class="gallery-img shadow-sm" alt="Trà trái cây">
+                </div>
+                <div class="col-6 col-md-3">
+                    <img src="https://images.unsplash.com/photo-1536256263959-770b48d82b0a?q=80&w=600&auto=format&fit=crop"
+                         class="gallery-img shadow-sm" alt="Matcha">
+                </div>
+                <div class="col-6 col-md-3">
+                    <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=600&auto=format&fit=crop"
+                         class="gallery-img shadow-sm" alt="Barista">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. CTA -->
+    <section class="py-5 bg-dark text-white text-center"
+             style="background: #1c1917;">
+        <div class="container py-4">
+            <h3 class="fw-bold text-uppercase mb-3">Sẵn Sàng Thưởng Thức?</h3>
+            <p class="text-white-50 mb-4 mx-auto" style="max-width: 500px;">
+                Chọn thức uống yêu thích và thưởng thức hương vị tươi ngon từ Tiệm Trà Sữa ngay hôm nay.
+            </p>
+            <a href="@Url.Action("Products", "Customer")" class="btn btn-primary rounded-pill px-5 py-2 fw-semibold">
+                Xem Menu & Đặt Hàng
+            </a>
+        </div>
+    </section>
+</main>

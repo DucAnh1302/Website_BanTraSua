@@ -1,0 +1,210 @@
+@model List<QL_WebBanTraSua.Models.CartItem>
+
+@{
+    ViewBag.Title = "Giỏ Hàng Của Bạn";
+    Layout = "~/Views/Shared/LayoutKhachHang.cshtml";
+
+    decimal subtotal = ViewBag.Subtotal != null ? (decimal)ViewBag.Subtotal : 0m;
+    decimal shipping = ViewBag.ShippingFee != null ? (decimal)ViewBag.ShippingFee : 0m;
+    decimal discount = ViewBag.Discount != null ? (decimal)ViewBag.Discount : 0m;
+    decimal total = ViewBag.FinalTotal != null ? (decimal)ViewBag.FinalTotal : 0m;
+}
+
+@helper GetProductImage(string image)
+{
+    if (!string.IsNullOrEmpty(image))
+    {
+        if (image.StartsWith("http://") || image.StartsWith("https://"))
+        {
+            <text>@image</text>
+        }
+        else
+        {
+            <text>@Url.Content("~/assets/img/" + image.TrimStart('/'))</text>
+        }
+    }
+    else
+    {
+        <text>https://images.unsplash.com/photo-1541658016709-82535e94bc69?q=80&w=200&auto=format&fit=crop</text>
+    }
+}
+
+<main class="container py-5 mt-3">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="@Url.Action("Index", "Customer")" class="text-decoration-none text-muted">Trang chủ</a></li>
+            <li class="breadcrumb-item"><a href="@Url.Action("Products", "Customer")" class="text-decoration-none text-muted">Thực đơn</a></li>
+            <li class="breadcrumb-item active fw-bold text-primary" aria-current="page">Giỏ hàng</li>
+        </ol>
+    </nav>
+
+    <h2 class="fw-bolder mb-4 text-uppercase">
+        <i class="bi bi-bag-check-fill me-2 text-primary"></i>Giỏ Hàng Của Bạn
+    </h2>
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="text-center py-5 bg-white rounded-4 shadow-sm border my-4">
+            <i class="bi bi-cart-x display-1 text-muted mb-3 d-block"></i>
+            <h4 class="fw-bold text-secondary">Giỏ hàng của bạn đang trống</h4>
+            <p class="text-muted small">Hãy thêm những ly trà sữa thơm ngon vào giỏ hàng nhé!</p>
+            <a href="@Url.Action("Products", "Customer")" class="btn btn-primary rounded-pill px-4 py-2 fw-bold mt-2 shadow-sm">
+                <i class="bi bi-arrow-left me-1"></i> Khám Phá Thực Đơn Ngay
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            <!-- Danh sách món trong giỏ (Cột trái) -->
+            <div class="col-lg-8">
+                <div class="card border rounded-4 shadow-sm overflow-hidden bg-white mb-3">
+                    <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                        <span class="fw-bold fs-6">Có @Model.Sum(i => i.Quantity) món trong giỏ</span>
+                        <a href="@Url.Action("XoaTatCa", "Customer")"
+                           class="btn btn-sm btn-outline-danger border-0 fw-semibold"
+                           onclick="return confirm('Bạn có chắc muốn xóa tất cả món trong giỏ?');">
+                            <i class="bi bi-trash3 me-1"></i>Xóa tất cả
+                        </a>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table align-middle mb-0">
+                                <thead class="table-light text-secondary small text-uppercase">
+                                    <tr>
+                                        <th style="min-width: 250px;">Sản phẩm</th>
+                                        <th class="text-center">Đơn giá</th>
+                                        <th class="text-center" style="width: 140px;">Số lượng</th>
+                                        <th class="text-end pe-3">Thành tiền</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model)
+                                    {
+                                        <tr>
+                                            <td class="p-3">
+                                                <div class="d-flex align-items-center gap-3">
+                                                    <img src="@GetProductImage(item.Image)"
+                                                         onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1541658016709-82535e94bc69?q=80&w=200&auto=format&fit=crop';"
+                                                         alt="@item.ProductName"
+                                                         class="rounded-3 shadow-sm flex-shrink-0"
+                                                         style="width: 70px; height: 70px; object-fit: cover;" />
+                                                    <div>
+                                                        <h6 class="fw-bold mb-1 text-dark">
+                                                            <a href="@Url.Action("Details", "Customer", new { id = item.ProductId })"
+                                                               class="text-dark text-decoration-none">
+                                                                @item.ProductName
+                                                            </a>
+                                                        </h6>
+                                                        <div class="small text-muted mb-1">
+                                                            <span class="badge bg-secondary me-1">Size @item.Size</span>
+                                                            <span class="badge bg-light text-dark border me-1">Đường: @(item.SugarLevel)%</span>
+                                                            <span class="badge bg-light text-dark border">
+                                                                Đá: @(item.IceOption == "none" ? "Không đá" : (item.IceOption == "less" ? "50% Đá" : "100% Đá"))
+                                                            </span>
+                                                        </div>
+                                                        @if (item.Toppings != null && item.Toppings.Any())
+                                                        {
+                                                            <div class="small text-primary mb-1">
+                                                                <i class="bi bi-plus-circle me-1"></i>Topping: @string.Join(", ", item.Toppings.Select(t => t.Name))
+                                                            </div>
+                                                        }
+                                                        @if (!string.IsNullOrEmpty(item.Note))
+                                                        {
+                                                            <div class="small text-muted fst-italic">
+                                                                Ghi chú: @item.Note
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </td>
+
+                                            <td class="text-center fw-semibold text-secondary">
+                                                @string.Format("{0:N0}₫", item.UnitPrice)
+                                            </td>
+
+                                            <td class="text-center">
+                                                <div class="d-flex align-items-center justify-content-center">
+                                                    @using (Html.BeginForm("CapNhatGioHang", "Customer", FormMethod.Post, new { @class = "d-inline m-0" }))
+                                                    {
+                                                        <input type="hidden" name="cartItemId" value="@item.CartItemId" />
+                                                        <input type="hidden" name="quantity" value="@(item.Quantity - 1)" />
+                                                        <button type="submit" class="btn btn-sm btn-outline-secondary px-2 fw-bold">-</button>
+                                                    }
+                                                    <span class="mx-2 fw-bold fs-6">@item.Quantity</span>
+                                                    @using (Html.BeginForm("CapNhatGioHang", "Customer", FormMethod.Post, new { @class = "d-inline m-0" }))
+                                                    {
+                                                        <input type="hidden" name="cartItemId" value="@item.CartItemId" />
+                                                        <input type="hidden" name="quantity" value="@(item.Quantity + 1)" />
+                                                        <button type="submit" class="btn btn-sm btn-outline-secondary px-2 fw-bold">+</button>
+                                                    }
+                                                </div>
+                                            </td>
+
+                                            <td class="text-end pe-3 fw-bold text-primary fs-6">
+                                                @string.Format("{0:N0}₫", item.TotalPrice)
+                                            </td>
+
+                                            <td class="text-center pe-3">
+                                                <a href="@Url.Action("XoaGioHang", "Customer", new { cartItemId = item.CartItemId })"
+                                                   class="text-danger"
+                                                   title="Xóa món này">
+                                                    <i class="bi bi-x-circle-fill fs-5"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="@Url.Action("Products", "Customer")" class="btn btn-outline-dark rounded-pill fw-bold px-4">
+                    <i class="bi bi-arrow-left me-1"></i> Tiếp tục chọn thêm món
+                </a>
+            </div>
+
+            <!-- Tóm tắt đơn hàng (Cột phải) -->
+            <div class="col-lg-4">
+                <div class="card border rounded-4 shadow-sm bg-white p-4 sticky-top" style="top: 90px;">
+                    <h5 class="fw-bold text-uppercase border-bottom pb-3 mb-3 text-dark">
+                        Tóm Tắt Đơn Hàng
+                    </h5>
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Tạm tính:</span>
+                        <span class="fw-bold">@string.Format("{0:N0}₫", subtotal)</span>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Phí giao hàng:</span>
+                        <span class="fw-bold text-success">@string.Format("{0:N0}₫", shipping)</span>
+                    </div>
+
+                    @if (discount > 0)
+                    {
+                        <div class="d-flex justify-content-between mb-2 text-danger">
+                            <span>Giảm giá Voucher:</span>
+                            <span class="fw-bold">-@string.Format("{0:N0}₫", discount)</span>
+                        </div>
+                    }
+
+                    <hr class="my-3" />
+
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <span class="fw-bold fs-5 text-dark">Tổng cộng:</span>
+                        <span class="fw-bolder fs-3 text-primary">@string.Format("{0:N0}₫", total)</span>
+                    </div>
+
+                    <a href="@Url.Action("Checkout", "Customer")"
+                       class="btn btn-primary w-100 py-3 rounded-pill text-uppercase fw-bold fs-6 shadow">
+                        <i class="bi bi-credit-card me-2"></i>Tiến Hành Đặt Hàng
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+</main>
