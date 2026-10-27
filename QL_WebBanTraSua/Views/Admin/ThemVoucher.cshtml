@@ -1,0 +1,107 @@
+﻿@model QL_WebBanTraSua.Models.voucher
+@{
+    ViewBag.Title = "Tạo Mã Khuyến Mãi Mới - TeaBloom";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1">➕ Tạo Mã Voucher Giảm Giá Mới</h3>
+        <p class="text-muted small mb-0">Thiết lập chương trình khuyến mãi, điều kiện áp dụng và thời gian hiệu lực</p>
+    </div>
+    <div>
+        <a href="/Admin/QuanLyVoucher" class="btn btn-outline-secondary">
+            &larr; Quay lại danh sách
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card-custom">
+            <div class="card-header fw-bold">Thông Tin Cấu Hình Mã Khuyến Mãi</div>
+            <div class="card-body p-4">
+                <form method="post" action="/Admin/ThemVoucher">
+                    @Html.AntiForgeryToken()
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Mã Voucher (Code) <span class="text-danger">*</span></label>
+                            <input type="text" name="code" class="form-control text-uppercase fw-bold" required placeholder="VÍ DỤ: BANMOI20, FREESHIP..." />
+                            @Html.ValidationMessage("code", "", new { @class = "text-danger small" })
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Tên chương trình ưu đãi <span class="text-danger">*</span></label>
+                            <input type="text" name="name" class="form-control" required placeholder="Ưu đãi chào bạn mới, Giảm giá cuối tuần..." />
+                            @Html.ValidationMessage("name", "", new { @class = "text-danger small" })
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Loại hình giảm giá</label>
+                            <select name="discount_type" class="form-select">
+                                <option value="percent">Phần trăm (%)</option>
+                                <option value="fixed">Số tiền cố định (VNĐ)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Giá trị giảm <span class="text-danger">*</span></label>
+                            <input type="number" name="discount_value" class="form-control" required placeholder="20 (% hoặc VNĐ)" min="1" />
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Mức giảm tối đa (VNĐ)</label>
+                            <input type="number" name="max_discount" class="form-control" placeholder="Để trống nếu không giới hạn" min="0" step="1000" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Giá trị đơn hàng tối thiểu (VNĐ)</label>
+                            <input type="number" name="min_order_value" class="form-control" value="0" min="0" step="1000" />
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Hạng hội viên áp dụng</label>
+                            <select name="required_tier" class="form-select">
+                                <option value="">Tất cả khách hàng (Không yêu cầu)</option>
+                                <option value="Đồng">Chỉ từ hạng Đồng</option>
+                                <option value="Bạc">Chỉ từ hạng Bạc</option>
+                                <option value="Vàng">Chỉ từ hạng Vàng</option>
+                                <option value="Kim Cương">Chỉ dành riêng Kim Cương</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Tổng lượt sử dụng tối đa</label>
+                            <input type="number" name="usage_limit" class="form-control" placeholder="Để trống nếu không giới hạn" min="1" />
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Ngày hết hạn</label>
+                            <input type="datetime-local" name="expires_at" class="form-control" />
+                            <div class="form-text small">Để trống nếu mã có hiệu lực vĩnh viễn.</div>
+                        </div>
+                        <div class="col-md-6 d-flex align-items-center">
+                            <div class="form-check form-switch mt-3">
+                                <input class="form-check-input" type="checkbox" name="is_active" value="true" checked id="vcActiveSwitch">
+                                <input type="hidden" name="is_active" value="false" />
+                                <label class="form-check-label fw-bold" for="vcActiveSwitch">Kích hoạt mã ngay lập tức</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="/Admin/QuanLyVoucher" class="btn btn-outline-secondary">Hủy</a>
+                        <button type="submit" class="btn btn-primary px-4 fw-bold">
+                            Tạo Mã Khuyến Mãi
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
