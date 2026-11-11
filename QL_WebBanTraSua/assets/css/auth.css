@@ -1,0 +1,78 @@
+/* =========================================
+   AUTH PAGES SPLIT-SCREEN STYLES
+   ========================================= */
+
+/* Cột hình ảnh Lookbook bên trái */
+.auth-image-col {
+    background-image: url('../img/pexels-badhon-35750806.jpg'); /* Sử dụng hình có sẵn trong dự án */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* Tùy chỉnh Bootstrap Floating Labels cho Dark Mode */
+.form-floating > .form-control {
+    background-color: transparent !important; /* Nền trong suốt */
+    border: none;
+    border-bottom: 1px solid #adb5bd; /* Viền dưới xám sáng hơn */
+    color: #fff !important; /* Chữ gõ vào màu trắng */
+    box-shadow: none !important; /* Bỏ shadow xanh của Bootstrap */
+}
+
+.form-floating > .form-control:focus {
+    border-bottom-color: #df6743; /* Chuyển viền dưới thành cam khi Focus */
+}
+
+.form-floating > label {
+    color: #adb5bd; /* Chữ placeholder màu xám sáng hơn */
+    padding-left: 0;
+}
+
+/* Khi có chữ hoặc focus thì Label chuyển màu trắng */
+.form-floating > .form-control:focus ~ label,
+.form-floating > .form-control:not(:placeholder-shown) ~ label {
+    color: #fff;
+    transform: scale(0.85) translateY(-1.5rem) translateX(-0.15rem);
+}
+
+/* Sửa lỗi tự động điền (autofill) của trình duyệt làm mất background trong suốt */
+.form-floating > .form-control:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 30px #212529 inset !important;
+    -webkit-text-fill-color: white !important;
+    border-bottom: 1px solid #df6743 !important;
+}
+
+/* Các link phụ */
+.auth-link {
+    color: #adb5bd;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.auth-link:hover {
+    color: #df6743;
+}
+
+/* Nút Đăng nhập/Đăng ký */
+.btn-auth-submit {
+    background-color: #df6743;
+    color: #fff;
+    transition: background-color 0.3s ease, opacity 0.3s ease;
+}
+
+.btn-auth-submit:hover {
+    background-color: #c85a3a;
+    opacity: 0.9;
+    color: #fff;
+}
+
+/* Custom Checkbox Dark Mode */
+.form-check-input.dark-check {
+    background-color: transparent;
+    border-color: #adb5bd;
+}
+
+.form-check-input.dark-check:checked {
+    background-color: #df6743;
+    border-color: #df6743;
+}
