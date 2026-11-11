@@ -1,0 +1,172 @@
+﻿@using QL_WebBanTraSua.Models
+@model List<order>
+@{
+    ViewBag.Title = "Quản Lý Đơn Hàng - TeaBloom";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+
+    string currentStatus = ViewBag.Status as string ?? "";
+    string currentSearch = ViewBag.Search as string ?? "";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1">🧾 Quản Lý Đơn Hàng Trà Sữa</h3>
+        <p class="text-muted small mb-0">Tiếp nhận, xác nhận trạng thái pha chế, giao hàng và đối soát thanh toán</p>
+    </div>
+</div>
+
+<!-- Tabs lọc trạng thái đơn hàng (Pure HTML Links - Zero JS) -->
+<div class="d-flex flex-wrap gap-2 mb-4">
+    <a href="/Admin/QuanLyDonHang" class="btn btn-sm @(string.IsNullOrEmpty(currentStatus) ? "btn-dark fw-bold" : "btn-outline-secondary")">
+        Tất cả đơn
+    </a>
+    <a href="/Admin/QuanLyDonHang?status=pending" class="btn btn-sm @(currentStatus == "pending" ? "btn-warning fw-bold text-dark" : "btn-outline-warning text-dark")">
+        ⏳ Chờ duyệt
+    </a>
+    <a href="/Admin/QuanLyDonHang?status=preparing" class="btn btn-sm @(currentStatus == "preparing" ? "btn-primary fw-bold" : "btn-outline-primary")">
+        🧋 Đang pha chế
+    </a>
+    <a href="/Admin/QuanLyDonHang?status=shipping" class="btn btn-sm @(currentStatus == "shipping" ? "btn-info fw-bold text-dark" : "btn-outline-info text-dark")">
+        🛵 Đang giao hàng
+    </a>
+    <a href="/Admin/QuanLyDonHang?status=completed" class="btn btn-sm @(currentStatus == "completed" ? "btn-success fw-bold" : "btn-outline-success")">
+        ✅ Đã hoàn thành
+    </a>
+    <a href="/Admin/QuanLyDonHang?status=cancelled" class="btn btn-sm @(currentStatus == "cancelled" ? "btn-danger fw-bold" : "btn-outline-danger")">
+        🛑 Đã hủy
+    </a>
+</div>
+
+<!-- Form tìm kiếm đơn hàng -->
+<div class="card-custom mb-4">
+    <div class="card-body">
+        <form method="get" action="/Admin/QuanLyDonHang" class="row g-2 align-items-center">
+            @if (!string.IsNullOrEmpty(currentStatus))
+            {
+                <input type="hidden" name="status" value="@currentStatus" />
+            }
+            <div class="col-md-9">
+                <input type="text" name="search" class="form-control" placeholder="Tra cứu theo mã đơn (#HD), số điện thoại hoặc tên người nhận..." value="@currentSearch" />
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    🔍 Tra Cứu
+                </button>
+                <a href="/Admin/QuanLyDonHang" class="btn btn-outline-secondary" title="Đặt lại bộ lọc">
+                    ↺
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Bảng danh sách đơn hàng -->
+<div class="card-custom">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span class="fw-bold">Danh Sách Đơn Hàng (@Model.Count đơn)</span>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Mã đơn</th>
+                        <th>Ngày đặt</th>
+                        <th>Người nhận / Khách hàng</th>
+                        <th>Kênh đặt</th>
+                        <th>Tổng tiền</th>
+                        <th>Thanh toán</th>
+                        <th>Trạng thái đơn</th>
+                        <th class="text-end">Chi tiết</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Count > 0)
+                    {
+                        foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <span class="fw-bold text-primary fs-6">#@item.id</span>
+                                </td>
+                                <td>
+                                    <div class="small fw-semibold">
+                                        @(item.created_at.HasValue ? item.created_at.Value.ToString("dd/MM/yyyy") : "")
+                                    </div>
+                                    <div class="text-muted" style="font-size: 0.75rem;">
+                                        @(item.created_at.HasValue ? item.created_at.Value.ToString("HH:mm:ss") : "")
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="fw-bold text-dark">
+                                        @(string.IsNullOrEmpty(item.shipping_name) ? (item.user != null ? item.user.name : "Khách tại quầy") : item.shipping_name)
+                                    </div>
+                                    <small class="text-muted">📞 @item.shipping_phone</small>
+                                </td>
+                                <td>
+                                    @if (item.order_type == "in_store")
+                                    {
+                                        <span class="badge bg-secondary">Tại quầy (POS)</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-info text-dark">Trực tuyến</span>
+                                    }
+                                </td>
+                                <td class="fw-bold text-danger fs-6">
+                                    @string.Format("{0:N0} đ", item.final_total)
+                                </td>
+                                <td>
+                                    @if (item.payment_status == "paid")
+                                    {
+                                        <span class="badge bg-success">Đã TT</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning text-dark">Chưa TT</span>
+                                    }
+                                    <div class="text-muted" style="font-size: 0.72rem;">@item.payment_method</div>
+                                </td>
+                                <td>
+                                    @if (item.order_status == "pending")
+                                    {
+                                        <span class="badge bg-warning text-dark">Chờ xác nhận</span>
+                                    }
+                                    else if (item.order_status == "preparing")
+                                    {
+                                        <span class="badge bg-primary">Đang làm nước</span>
+                                    }
+                                    else if (item.order_status == "shipping")
+                                    {
+                                        <span class="badge bg-info text-dark">Đang giao hàng</span>
+                                    }
+                                    else if (item.order_status == "completed")
+                                    {
+                                        <span class="badge bg-success">Hoàn thành</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">Đã hủy</span>
+                                    }
+                                </td>
+                                <td class="text-end">
+                                    <a href="/Admin/ChiTietDonHang/@item.id" class="btn btn-sm btn-outline-primary">
+                                        Chi tiết &rarr;
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="8" class="text-center text-muted py-5">
+                                Không có đơn hàng nào trong mục này!
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

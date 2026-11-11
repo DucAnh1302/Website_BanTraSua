@@ -1,0 +1,123 @@
+﻿/* =========================================
+   TIỆM TRÀ SỮA - INDEX CSS TÙY CHỈNH
+   ========================================= */
+
+:root {
+  --primary-color: #df6743;
+}
+
+.bg-black {
+  background-color: #000 !important;
+}
+
+.text-primary {
+  color: var(--primary-color) !important;
+}
+
+.bg-primary {
+  background-color: var(--primary-color) !important;
+}
+
+.btn-primary { 
+  background-color: var(--primary-color); 
+  border-color: var(--primary-color); 
+}
+
+.btn-primary:hover {
+  background-color: #c85a3a;
+  border-color: #c85a3a;
+}
+
+/* Căn giữa menu trên desktop */
+@media (min-width: 1200px) {
+  .navbar-center-absolute {
+    position: absolute !important;
+    left: 50%;
+    transform: translateX(-50%);
+    width: auto !important;
+    white-space: nowrap;
+  }
+}
+
+/* Hiệu ứng thẻ sản phẩm trà sữa */
+.product-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border-radius: 12px;
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(223, 103, 67, 0.15) !important;
+}
+
+.product-card .card-img-top {
+  border-radius: 12px 12px 0 0;
+  object-fit: cover;
+  height: 250px;
+}
+
+/* Tùy chỉnh Modal & Pill Selector cho Size/Đường/Đá */
+.modal-content {
+  border-radius: 16px;
+  border: none;
+}
+
+.option-pill {
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  border: 1px solid #dee2e6;
+  color: #495057;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+}
+
+.btn-check:checked + .option-pill {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  color: #fff;
+  box-shadow: 0 4px 8px rgba(223, 103, 67, 0.2);
+}
+
+.btn-check:not(:checked) + .option-pill:hover {
+  background-color: #f8f9fa;
+  border-color: #ced4da;
+}
+
+.form-check {
+  position: relative;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.form-check:hover {
+  background-color: #e9ecef !important;
+}
+
+.form-check-input:checked {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.hero-title {
+  letter-spacing: -1px;
+  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
+}
+
+.category-overlay {
+  background: rgba(0, 0, 0, 0.4);
+  transition: background 0.4s ease;
+}
+
+.category-card:hover .category-overlay {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.category-img {
+  transition: transform 0.6s ease;
+}
+
+.category-card:hover .category-img {
+  transform: scale(1.1);
+}

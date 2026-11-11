@@ -1,0 +1,147 @@
+﻿@using QL_WebBanTraSua.Models
+@model List<voucher>
+@{
+    ViewBag.Title = "Quản Lý Khuyến Mãi (Voucher) - TeaBloom";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1">🏷️ Quản Lý Mã Khuyến Mãi (Voucher)</h3>
+        <p class="text-muted small mb-0">Cấu hình mã giảm giá theo phần trăm hoặc số tiền cố định, giới hạn lượt dùng và phân hạng hội viên (UC08)</p>
+    </div>
+    <div>
+        <a href="/Admin/ThemVoucher" class="btn btn-primary">
+            ➕ Tạo Mã Voucher Mới
+        </a>
+    </div>
+</div>
+
+<div class="card-custom">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span class="fw-bold">Danh Sách Mã Giảm Giá (@Model.Count)</span>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Mã Code</th>
+                        <th>Chương trình</th>
+                        <th>Mức ưu đãi</th>
+                        <th>Đơn tối thiểu</th>
+                        <th>Hạng áp dụng</th>
+                        <th>Đã dùng / Giới hạn</th>
+                        <th>Hạn dùng</th>
+                        <th>Trạng thái</th>
+                        <th class="text-end" style="width: 200px;">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Count > 0)
+                    {
+                        foreach (var item in Model)
+                        {
+                            bool isExpired = item.expires_at.HasValue && item.expires_at.Value < DateTime.Now;
+
+                            <tr>
+                                <td>
+                                    <span class="badge bg-primary fs-6 font-monospace">@item.code</span>
+                                </td>
+                                <td>
+                                    <div class="fw-bold text-dark">@item.name</div>
+                                </td>
+                                <td>
+                                    @if (item.discount_type == "percent")
+                                    {
+                                        <span class="text-success fw-bold">Giảm @item.discount_value%</span>
+                                        if (item.max_discount.HasValue && item.max_discount.Value > 0)
+                                        {
+                                            <div class="small text-muted">(Tối đa: @string.Format("{0:N0}đ", item.max_discount.Value))</div>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="text-danger fw-bold">Giảm @string.Format("{0:N0} đ", item.discount_value)</span>
+                                    }
+                                </td>
+                                <td>
+                                    <span class="small">@string.Format("{0:N0} đ", item.min_order_value)</span>
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(item.required_tier))
+                                    {
+                                        <span class="badge bg-warning text-dark">Hạng @item.required_tier</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-light text-muted border">Tất cả khách</span>
+                                    }
+                                </td>
+                                <td>
+                                    <span class="fw-bold">@item.used_count</span> /
+                                    @(item.usage_limit.HasValue ? item.usage_limit.Value.ToString() : "∞")
+                                </td>
+                                <td>
+                                    @if (item.expires_at.HasValue)
+                                    {
+                                        <span class="@(isExpired ? "text-danger fw-bold" : "text-muted")">
+                                            @item.expires_at.Value.ToString("dd/MM/yyyy")
+                                        </span>
+                                        if (isExpired)
+                                        {
+                                            <div class="badge bg-danger" style="font-size: 0.65rem;">Đã hết hạn</div>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small">Vô thời hạn</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.is_active && !isExpired)
+                                    {
+                                        <span class="badge bg-success">Hoạt động</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">Tạm dừng</span>
+                                    }
+                                </td>
+                                <td class="text-end">
+                                    <div class="d-inline-flex gap-1 align-items-center">
+                                        <a href="/Admin/SuaVoucher/@item.id" class="btn btn-sm btn-outline-primary" title="Sửa voucher">
+                                            ✏️ Sửa
+                                        </a>
+
+                                        <form method="post" action="/Admin/ToggleTrangThaiVoucher" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@item.id" />
+                                            <button type="submit" class="btn btn-sm @(item.is_active ? "btn-outline-warning" : "btn-outline-success")">
+                                                @(item.is_active ? "Khóa" : "Bật")
+                                            </button>
+                                        </form>
+
+                                        <form method="post" action="/Admin/XoaVoucher" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@item.id" />
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Xóa voucher">
+                                                🗑️
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="9" class="text-center text-muted py-5">Chưa có mã voucher nào được tạo!</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

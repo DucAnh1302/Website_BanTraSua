@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="c3071c0b6ca04da192012cbc02fe8d29" Name="Diagram1">
+        <EntityTypeShape EntityType="db_trasuaModel.category" Width="1.5" PointX="1.5" PointY="15.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="db_trasuaModel.ingredient" Width="1.5" PointX="3" PointY="10.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="db_trasuaModel.inventory_transactions" Width="1.5" PointX="5.25" PointY="4.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="db_trasuaModel.order_item_toppings" Width="1.5" PointX="10.5" PointY="5" IsExpanded="true" />
+        <EntityTypeShape EntityType="db_trasuaModel.order_items" Width="1.5" PointX="8.25" PointY="4.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="db_trasuaModel.order" Width="1.5" PointX="3" PointY="3.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="db_trasuaModel.product_variants" Width="1.5" PointX="6" PointY="14.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="db_trasuaModel.product" Width="1.5" PointX="3.75" PointY="14.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="db_trasuaModel.recipe_details" Width="1.5" PointX="8.25" PointY="13.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="db_trasuaModel.topping" Width="1.5" PointX="8.25" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="db_trasuaModel.user" Width="1.5" PointX="0.75" PointY="4.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="db_trasuaModel.voucher" Width="1.5" PointX="10.75" PointY="9.125" IsExpanded="true" />
+        <AssociationConnector Association="db_trasuaModel.fk_products_category_id" ManuallyRouted="false" />
+        <AssociationConnector Association="db_trasuaModel.fk_inv_trans_ingredient_id" ManuallyRouted="false" />
+        <AssociationConnector Association="db_trasuaModel.fk_recipe_details_ingredient_id" ManuallyRouted="false" />
+        <AssociationConnector Association="db_trasuaModel.fk_toppings_ingredient_id" ManuallyRouted="false" />
+        <AssociationConnector Association="db_trasuaModel.fk_inv_trans_order_id" ManuallyRouted="false" />
+        <AssociationConnector Association="db_trasuaModel.fk_order_item_toppings_order_item_id" ManuallyRouted="false" />
+        <AssociationConnector Association="db_trasuaModel.fk_order_item_toppings_topping_id" ManuallyRouted="false" />
+        <AssociationConnector Association="db_trasuaModel.fk_order_items_order_id" ManuallyRouted="false" />
+        <AssociationConnector Association="db_trasuaModel.fk_order_items_variant_id" ManuallyRouted="false" />
+        <AssociationConnector Association="db_trasuaModel.fk_orders_customer_id" ManuallyRouted="false" />
+        <AssociationConnector Association="db_trasuaModel.fk_orders_staff_id" ManuallyRouted="false" />
+        <AssociationConnector Association="db_trasuaModel.fk_product_variants_product_id" ManuallyRouted="false" />
+        <AssociationConnector Association="db_trasuaModel.fk_recipe_details_variant_id" ManuallyRouted="false" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

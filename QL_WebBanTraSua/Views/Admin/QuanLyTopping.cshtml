@@ -1,0 +1,119 @@
+﻿@using QL_WebBanTraSua.Models
+@model List<topping>
+@{
+    ViewBag.Title = "Quản Lý Topping - TeaBloom";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1">🍬 Quản Lý Danh Sách Topping</h3>
+        <p class="text-muted small mb-0">Cấu hình các loại topping thêm vào ly nước (Trân châu, Thạch, Pudding, Kem cheese...)</p>
+    </div>
+    <div>
+        <a href="/Admin/ThemTopping" class="btn btn-primary">
+            ➕ Thêm Topping Mới
+        </a>
+    </div>
+</div>
+
+<div class="card-custom">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span class="fw-bold">Danh Sách Topping Hiện Có (@Model.Count)</span>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th style="width: 70px;">ID</th>
+                        <th>Tên Topping</th>
+                        <th>Giá bán thêm</th>
+                        <th>Nguyên liệu định lượng kho</th>
+                        <th>Định lượng mỗi phần</th>
+                        <th>Trạng thái</th>
+                        <th class="text-end" style="width: 200px;">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Count > 0)
+                    {
+                        foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="text-muted fw-bold">#@item.id</td>
+                                <td>
+                                    <span class="fw-bold text-dark">@item.name</span>
+                                </td>
+                                <td class="fw-bold text-danger">
+                                    + @string.Format("{0:N0} đ", item.price)
+                                </td>
+                                <td>
+                                    @if (item.ingredient != null)
+                                    {
+                                        <span class="badge bg-light text-dark border">
+                                            📦 @item.ingredient.name
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small">Chưa liên kết kho</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.amount_per_serving.HasValue && item.ingredient != null)
+                                    {
+                                        <span>@item.amount_per_serving.Value @item.ingredient.unit</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small">-</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.is_active)
+                                    {
+                                        <span class="badge bg-success">Còn hàng</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">Tạm hết</span>
+                                    }
+                                </td>
+                                <td class="text-end">
+                                    <div class="d-inline-flex gap-1 align-items-center">
+                                        <a href="/Admin/SuaTopping/@item.id" class="btn btn-sm btn-outline-primary" title="Sửa topping">
+                                            ✏️ Sửa
+                                        </a>
+
+                                        <form method="post" action="/Admin/ToggleTrangThaiTopping" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@item.id" />
+                                            <button type="submit" class="btn btn-sm @(item.is_active ? "btn-outline-warning" : "btn-outline-success")">
+                                                @(item.is_active ? "Ẩn" : "Bật")
+                                            </button>
+                                        </form>
+
+                                        <form method="post" action="/Admin/XoaTopping" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@item.id" />
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Xóa topping">
+                                                🗑️
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-5">Chưa có loại topping nào!</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
