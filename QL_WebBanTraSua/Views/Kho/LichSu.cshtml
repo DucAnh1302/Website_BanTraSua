@@ -1,0 +1,147 @@
+﻿@using QL_WebBanTraSua.Models
+@model List<inventory_transactions>
+@{
+    ViewBag.Title = "Lịch sử nhập xuất";
+    Layout = "~/Views/Shared/_LayoutKho.cshtml";
+    var ds = ViewBag.DsNguyenLieu as List<ingredient> ?? new List<ingredient>();
+    string loai = ViewBag.Loai as string ?? "";
+    long? ingId = ViewBag.IngredientId as long?;
+    DateTime? tu = ViewBag.TuNgay as DateTime?;
+    DateTime? den = ViewBag.DenNgay as DateTime?;
+    decimal tongTienNhap = ViewBag.TongTienNhap is decimal ? (decimal)ViewBag.TongTienNhap : 0m;
+
+    Func<string, string> tenLoai = t =>
+    {
+        switch (t)
+        {
+            case "import_invoice": return "Nhập theo phiếu";
+            case "import_csv": return "Nhập từ CSV";
+            case "import_manual": return "Nhập thủ công";
+            case "import_cancel": return "Hoàn kho hủy đơn";
+            case "export_manual": return "Xuất kho";
+            case "export_order": return "Xuất bán đơn hàng";
+            default: return t;
+        }
+    };
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1">🕒 Lịch Sử Nhập Xuất Kho</h3>
+        <p class="text-muted small mb-0">Hiển thị tối đa 300 giao dịch gần nhất theo bộ lọc</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="/Kho/NhapHang" class="btn btn-primary">📥 Nhập Hàng</a>
+        <a href="/Kho/XuatHang" class="btn btn-outline-danger">📤 Xuất Hàng</a>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="stat-card blue">
+            <div class="stat-label">🧾 Số Giao Dịch</div>
+            <div class="stat-number">@ViewBag.SoGiaoDich</div>
+            <div class="small mt-2 opacity-75">Theo bộ lọc hiện tại</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card green">
+            <div class="stat-label">📥 Lần Nhập Hàng</div>
+            <div class="stat-number">@ViewBag.SoLanNhap</div>
+            <div class="small mt-2 opacity-75">Giao dịch làm tăng tồn kho</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card red">
+            <div class="stat-label">📤 Lần Xuất Hàng</div>
+            <div class="stat-number">@ViewBag.SoLanXuat</div>
+            <div class="small mt-2 opacity-75">Giao dịch làm giảm tồn kho</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card purple">
+            <div class="stat-label">💰 Tổng Tiền Nhập</div>
+            <div class="stat-number" style="font-size: 1.5rem;">@string.Format("{0:N0} đ", tongTienNhap)</div>
+            <div class="small mt-2 opacity-75">Cộng các lần nhập đã lọc</div>
+        </div>
+    </div>
+</div>
+
+<div class="card-custom">
+    <div class="card-body">
+        <form method="get" action="/Kho/LichSu" class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label small fw-bold">Nguyên liệu</label>
+                <select name="ingredient_id" class="form-select">
+                    <option value="">Tất cả</option>
+                    @foreach (var i in ds)
+                    {
+                        <option value="@i.id" @(ingId == i.id ? "selected" : "")>@i.name</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small fw-bold">Loại giao dịch</label>
+                <select name="loai" class="form-select">
+                    <option value="" @(loai == "" ? "selected" : "")>Nhập và xuất</option>
+                    <option value="nhap" @(loai == "nhap" ? "selected" : "")>Chỉ nhập</option>
+                    <option value="xuat" @(loai == "xuat" ? "selected" : "")>Chỉ xuất</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small fw-bold">Từ ngày</label>
+                <input type="date" name="tuNgay" class="form-control" value="@(tu.HasValue ? tu.Value.ToString("yyyy-MM-dd") : "")" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small fw-bold">Đến ngày</label>
+                <input type="date" name="denNgay" class="form-control" value="@(den.HasValue ? den.Value.ToString("yyyy-MM-dd") : "")" />
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-dark flex-fill">🔍 Lọc</button>
+                <a href="/Kho/LichSu" class="btn btn-outline-secondary">Xóa lọc</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card-custom">
+    <div class="card-header fw-bold">📋 Danh Sách Giao Dịch Kho</div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Thời gian</th>
+                        <th>Nguyên liệu</th>
+                        <th>Loại giao dịch</th>
+                        <th class="text-end">Số lượng</th>
+                        <th class="text-end">Đơn giá</th>
+                        <th class="text-end">Thành tiền</th>
+                        <th>Ghi chú</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Count == 0)
+                    {
+                        <tr><td colspan="7" class="text-center text-muted py-5">Chưa có giao dịch nào khớp bộ lọc!</td></tr>
+                    }
+                    @foreach (var t in Model)
+                    {
+                        bool nhap = t.quantity_changed > 0;
+                        <tr>
+                            <td class="text-nowrap">@(t.created_at.HasValue ? t.created_at.Value.ToString("dd/MM/yyyy HH:mm") : "")</td>
+                            <td class="fw-bold">@(t.ingredient != null ? t.ingredient.name : "N/A")</td>
+                            <td><span class="badge @(nhap ? "bg-success" : "bg-danger")">@tenLoai(t.transaction_type)</span></td>
+                            <td class="text-end fw-bold @(nhap ? "text-success" : "text-danger")">
+                                @(nhap ? "+ " : "")@string.Format("{0:N1}", t.quantity_changed) @(t.ingredient != null ? t.ingredient.unit : "")
+                            </td>
+                            <td class="text-end">@(t.unit_cost.HasValue ? string.Format("{0:N0} đ", t.unit_cost.Value) : "-")</td>
+                            <td class="text-end">@(t.total_cost.HasValue ? string.Format("{0:N0} đ", t.total_cost.Value) : "-")</td>
+                            <td class="small text-muted">@t.note</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
