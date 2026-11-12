@@ -134,6 +134,7 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\AdminController.cs" />
     <Compile Include="Controllers\CustomerController.cs" />
+    <Compile Include="Controllers\KhoController.cs" />
     <Compile Include="Models\CartItem.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Global.asax.cs">
@@ -308,6 +309,14 @@
     <Content Include="Views\Customer\Products.cshtml" />
     <Content Include="Views\Customer\Tips.cshtml" />
     <Content Include="Views\Customer\_CategoryMenu.cshtml" />
+    <Content Include="Views\Kho\Index.cshtml" />
+    <Content Include="Views\Kho\LichSu.cshtml" />
+    <Content Include="Views\Kho\NhapCsv.cshtml" />
+    <Content Include="Views\Kho\NhapHang.cshtml" />
+    <Content Include="Views\Kho\SuaNguyenLieu.cshtml" />
+    <Content Include="Views\Kho\ThemNguyenLieu.cshtml" />
+    <Content Include="Views\Kho\XuatHang.cshtml" />
+    <Content Include="Views\Shared\_LayoutKho.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
