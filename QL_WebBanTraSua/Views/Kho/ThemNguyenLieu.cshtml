@@ -1,0 +1,59 @@
+﻿@using QL_WebBanTraSua.Models
+@model ingredient
+@{
+    ViewBag.Title = "Thêm nguyên liệu";
+    Layout = "~/Views/Shared/_LayoutKho.cshtml";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1">➕ Thêm Nguyên Liệu Mới</h3>
+        <p class="text-muted small mb-0">Nguyên liệu mới có tồn kho bằng 0. Hãy lập phiếu nhập để thêm số lượng.</p>
+    </div>
+    <div>
+        <a href="/Kho/Index" class="btn btn-outline-secondary">&larr; Quay lại kho</a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-6 mx-auto">
+        <div class="card-custom">
+            <div class="card-header fw-bold">Thông Tin Nguyên Liệu</div>
+            <div class="card-body p-4">
+                <form method="post" action="/Kho/ThemNguyenLieu">
+                    @Html.AntiForgeryToken()
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Tên nguyên liệu <span class="text-danger">*</span></label>
+                        <input type="text" name="name" class="form-control" value="@Model.name" required placeholder="Ví dụ: Trà đen, Sữa tươi, Siro vải..." />
+                        @Html.ValidationMessage("name", "", new { @class = "text-danger small" })
+                    </div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Đơn vị tính <span class="text-danger">*</span></label>
+                            <input type="text" name="unit" class="form-control" value="@Model.unit" required placeholder="g, ml, hộp, cái..." />
+                            @Html.ValidationMessage("unit", "", new { @class = "text-danger small" })
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Nhóm sử dụng</label>
+                            <select name="consumption_role" class="form-select">
+                                <option value="normal" @(Model.consumption_role == "normal" ? "selected" : "")>Thông thường (Món nước)</option>
+                                <option value="topping" @(Model.consumption_role == "topping" ? "selected" : "")>Dùng cho Topping</option>
+                                <option value="packaging" @(Model.consumption_role == "packaging" ? "selected" : "")>Bao bì / Ly / Ống hút</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Ngưỡng cảnh báo sắp hết</label>
+                        <input type="number" name="min_stock" class="form-control" value="@(Model.min_stock > 0 ? Model.min_stock : 100)" step="any" min="0" />
+                        <div class="form-text small">Khi tồn kho thấp hơn hoặc bằng mức này, nguyên liệu sẽ hiện trạng thái "Sắp hết".</div>
+                        @Html.ValidationMessage("min_stock", "", new { @class = "text-danger small" })
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary px-4">💾 Lưu Nguyên Liệu</button>
+                        <a href="/Kho/Index" class="btn btn-outline-secondary">Hủy bỏ</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,188 @@
+﻿@using QL_WebBanTraSua.Models
+@model List<ingredient>
+@{
+    ViewBag.Title = "Nguyên liệu";
+    Layout = "~/Views/Shared/_LayoutKho.cshtml";
+    string search = ViewBag.Search as string ?? "";
+    string filter = ViewBag.FilterStock as string ?? "";
+    var ganDay = ViewBag.GanDay as List<inventory_transactions> ?? new List<inventory_transactions>();
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1">📦 Quản Lý Nguyên Liệu Trong Kho</h3>
+        <p class="text-muted small mb-0">Theo dõi số lượng tồn hiện tại, đơn vị tính và cảnh báo nguyên liệu sắp hết</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="/Kho/NhapHang" class="btn btn-primary">📥 Nhập Hàng</a>
+        <a href="/Kho/ThemNguyenLieu" class="btn btn-outline-primary">➕ Thêm Nguyên Liệu</a>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="stat-card blue">
+            <div class="stat-label">📦 Tổng Loại Nguyên Liệu</div>
+            <div class="stat-number">@ViewBag.TongSo loại</div>
+            <div class="small mt-2 opacity-75">Trà, sữa, đường, siro, topping, bao bì...</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card amber">
+            <div class="stat-label">⚠️ Sắp Hết Hàng</div>
+            <div class="stat-number">@ViewBag.SapHet loại</div>
+            <div class="small mt-2 opacity-75">Tồn kho thấp hơn hoặc bằng ngưỡng cảnh báo</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card red">
+            <div class="stat-label">🛑 Đã Hết Hàng</div>
+            <div class="stat-number">@ViewBag.HetHang loại</div>
+            <div class="small mt-2 opacity-75">Cần lập phiếu nhập hàng sớm</div>
+        </div>
+    </div>
+</div>
+
+<div class="card-custom">
+    <div class="card-body">
+        <form method="get" action="/Kho/Index" class="row g-3 align-items-end">
+            <div class="col-md-5">
+                <label class="form-label small fw-bold">Tìm kiếm nguyên liệu</label>
+                <input type="text" name="search" class="form-control" placeholder="Nhập tên trà, sữa, siro..." value="@search" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label small fw-bold">Tình trạng tồn kho</label>
+                <select name="filterStock" class="form-select">
+                    <option value="" @(filter == "" ? "selected" : "")>Tất cả</option>
+                    <option value="low" @(filter == "low" ? "selected" : "")>⚠️ Sắp hết</option>
+                    <option value="out" @(filter == "out" ? "selected" : "")>🛑 Hết hàng</option>
+                </select>
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-dark flex-fill">🔍 Lọc</button>
+                <a href="/Kho/Index" class="btn btn-outline-secondary">Xóa lọc</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card-custom">
+    <div class="card-header fw-bold">📋 Danh Sách Tồn Kho Nguyên Liệu</div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th style="width: 60px;">ID</th>
+                        <th>Tên nguyên liệu</th>
+                        <th>Đơn vị</th>
+                        <th style="width: 240px;">Tồn hiện tại</th>
+                        <th>Ngưỡng cảnh báo</th>
+                        <th>Tình trạng</th>
+                        <th class="text-end" style="width: 270px;">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Count > 0)
+                    {
+                        foreach (var item in Model)
+                        {
+                            bool het = item.stock_quantity <= 0;
+                            bool sapHet = !het && item.stock_quantity <= item.min_stock;
+                            double goc = item.min_stock > 0 ? item.min_stock * 3 : Math.Max(item.stock_quantity, 1);
+                            double pct = Math.Max(0, Math.Min(100, item.stock_quantity / goc * 100));
+                            string mau = het ? "bg-danger" : (sapHet ? "bg-warning" : "bg-success");
+                            string nhom = item.consumption_role == "topping" ? "Topping" : (item.consumption_role == "packaging" ? "Bao bì" : "Món nước");
+
+                            <tr class="@(het ? "table-danger" : (sapHet ? "table-warning" : ""))">
+                                <td class="text-muted fw-bold">#@item.id</td>
+                                <td>
+                                    <div class="fw-bold text-dark">@item.name</div>
+                                    <small class="text-muted">Nhóm: @nhom</small>
+                                </td>
+                                <td><span class="badge bg-light text-dark border">@item.unit</span></td>
+                                <td>
+                                    <div class="fw-bold fs-6 @(het ? "text-danger" : (sapHet ? "text-warning" : "text-success"))">
+                                        @string.Format("{0:N1}", item.stock_quantity) @item.unit
+                                    </div>
+                                    <div class="progress mt-1" style="height: 5px;">
+                                        <div class="progress-bar @mau" style="width: @(pct.ToString("0", System.Globalization.CultureInfo.InvariantCulture))%;"></div>
+                                    </div>
+                                </td>
+                                <td><span class="text-muted small">@item.min_stock @item.unit</span></td>
+                                <td>
+                                    @if (het) { <span class="badge bg-danger">Hết hàng</span> }
+                                    else if (sapHet) { <span class="badge bg-warning text-dark">Sắp hết</span> }
+                                    else { <span class="badge bg-success">Đủ hàng</span> }
+                                </td>
+                                <td>
+                                    <div class="table-actions">
+                                        <a href="/Kho/NhapHang/@item.id" class="btn btn-sm btn-primary" title="Lập phiếu nhập cho nguyên liệu này">📥 Nhập</a>
+                                        <a href="/Kho/LichSu?ingredient_id=@item.id" class="btn btn-sm btn-outline-secondary">🕒 Lịch sử</a>
+                                        <a href="/Kho/SuaNguyenLieu/@item.id" class="btn btn-sm btn-outline-secondary">✏️ Sửa</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-5">
+                                Không tìm thấy nguyên liệu nào trong kho!
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="card-custom">
+    <div class="card-header fw-bold d-flex justify-content-between align-items-center">
+        <span>🕒 Biến Động Kho Gần Đây</span>
+        <a href="/Kho/LichSu" class="btn btn-sm btn-outline-secondary">Xem tất cả</a>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-sm table-striped align-middle mb-0" style="font-size: 0.88rem;">
+                <thead>
+                    <tr>
+                        <th>Thời gian</th>
+                        <th>Nguyên liệu</th>
+                        <th>Thay đổi số lượng</th>
+                        <th>Ghi chú</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (ganDay.Count > 0)
+                    {
+                        foreach (var tr in ganDay)
+                        {
+                            <tr>
+                                <td>@(tr.created_at.HasValue ? tr.created_at.Value.ToString("dd/MM/yyyy HH:mm") : "")</td>
+                                <td class="fw-bold">@(tr.ingredient != null ? tr.ingredient.name : "N/A")</td>
+                                <td>
+                                    @if (tr.quantity_changed > 0)
+                                    {
+                                        <span class="text-success fw-bold">+ @tr.quantity_changed @(tr.ingredient != null ? tr.ingredient.unit : "")</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-danger fw-bold">@tr.quantity_changed @(tr.ingredient != null ? tr.ingredient.unit : "")</span>
+                                    }
+                                </td>
+                                <td class="text-muted">@tr.note</td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr><td colspan="4" class="text-center text-muted py-3">Chưa có giao dịch nhập xuất nào được ghi nhận.</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,213 @@
+﻿@using QL_WebBanTraSua.Models
+@{
+    var cart = ViewBag.Cart as List<CartItem> ?? new List<CartItem>();
+    var state = ViewBag.PosState as PosCheckoutState ?? new PosCheckoutState();
+    decimal subtotal = ViewBag.Subtotal != null ? (decimal)ViewBag.Subtotal : 0m;
+    decimal discount = ViewBag.Discount != null ? (decimal)ViewBag.Discount : 0m;
+    decimal finalTotal = ViewBag.FinalTotal != null ? (decimal)ViewBag.FinalTotal : 0m;
+    var appliedVoucher = ViewBag.AppliedVoucher as voucher;
+    var currentShift = ViewBag.CurrentShift as pos_shifts;
+}
+
+<div class="card-pos p-3">
+    <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
+        <h5 class="fw-bold mb-0">🛒 Đơn Hàng Tại Quầy</h5>
+        @if (cart.Count > 0)
+        {
+            <form method="post" action="/Pos/XoaGioHang" class="mb-0">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-sm btn-outline-danger">Xóa hết</button>
+            </form>
+        }
+    </div>
+
+    @if (cart.Count == 0)
+    {
+        <div class="text-center py-5 text-muted">
+            <div class="fs-2 mb-2">🧋</div>
+            <div>Chưa có món nào trong đơn hiện tại.<br />Hãy bấm chọn món ở cột bên trái.</div>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive mb-3">
+            <table class="table table-sm align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Món</th>
+                        <th style="width: 125px;">SL</th>
+                        <th class="text-end">Tiền</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in cart)
+                    {
+                        <tr>
+                            <td>
+                                <div class="fw-bold small">@item.ProductName (@item.Size)</div>
+                                <div class="text-muted" style="font-size: 0.78rem;">
+                                    Đường @item.SugarLevel% |
+                                    @(item.IceOption == "less" ? "Ít đá" : item.IceOption == "none" ? "Không đá" : item.IceOption == "separate" ? "Đá riêng" : "Đá bình thường")
+                                    @if (item.Toppings != null && item.Toppings.Count > 0)
+                                    {
+                                        <br /><span class="text-primary">+ @string.Join(", ", item.Toppings.Select(t => t.Name))</span>
+                                    }
+                                    @if (!string.IsNullOrEmpty(item.Note))
+                                    {
+                                        <br /><span class="text-danger fst-italic">Ghi chú: @item.Note</span>
+                                    }
+                                </div>
+                            </td>
+                            <td>
+                                <form method="post" action="/Pos/CapNhatSoLuong" class="d-flex gap-1 mb-0">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="lineId" value="@item.CartItemId" />
+                                    <input type="number" name="quantity" value="@item.Quantity" min="1" max="99" class="form-control form-control-sm text-center" style="width: 55px;" />
+                                    <button type="submit" class="btn btn-sm btn-outline-primary px-2">Lưu</button>
+                                </form>
+                            </td>
+                            <td class="text-end fw-bold text-primary small">@string.Format("{0:N0}đ", item.TotalPrice)</td>
+                            <td class="text-end">
+                                <form method="post" action="/Pos/XoaMon" class="mb-0">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="lineId" value="@item.CartItemId" />
+                                    <button type="submit" class="btn btn-sm btn-link text-danger text-decoration-none fw-bold p-0">✕</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- VOUCHER POS -->
+        <div class="p-3 bg-light rounded-3 border mb-3">
+            <form method="post" action="/Pos/ApDungVoucher" class="input-group input-group-sm mb-2">
+                @Html.AntiForgeryToken()
+                <input type="text" name="code" class="form-control text-uppercase" placeholder="Nhập mã Voucher (vd: CHAO2026)..." required />
+                <button type="submit" class="btn btn-outline-primary fw-bold">Áp dụng</button>
+            </form>
+
+            @if (appliedVoucher != null)
+            {
+                <div class="alert alert-success py-1 px-2 small d-flex justify-content-between align-items-center mb-2">
+                    <span>Đang dùng: <strong>@appliedVoucher.code</strong> (-@string.Format("{0:N0}đ", discount))</span>
+                    <form method="post" action="/Pos/GoVoucher" class="mb-0">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-sm btn-link text-danger p-0 text-decoration-none fw-bold">Gỡ</button>
+                    </form>
+                </div>
+            }
+
+            <div class="d-flex justify-content-between small text-muted">
+                <span>Tạm tính:</span>
+                <span class="fw-semibold text-dark">@string.Format("{0:N0}đ", subtotal)</span>
+            </div>
+            @if (discount > 0)
+            {
+                <div class="d-flex justify-content-between small text-success fw-semibold">
+                    <span>Giảm giá Voucher:</span>
+                    <span>-@string.Format("{0:N0}đ", discount)</span>
+                </div>
+            }
+            <hr class="my-2" />
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="fw-bold">Tổng cần thu:</span>
+                <span class="fs-4 fw-bolder text-danger">@string.Format("{0:N0}đ", finalTotal)</span>
+            </div>
+        </div>
+
+        <!-- FORM HỢP NHẤT: KHÁCH HÀNG SĐT + PTTT + TIỀN THỐI + CHỐT ĐƠN (DÙNG HTML5 FORMACTION, 0% JS) -->
+        <form method="post" action="/Pos/ThanhToan">
+            @Html.AntiForgeryToken()
+
+            <div class="p-3 border rounded-3 mb-3 bg-white">
+                <h6 class="fw-bold small text-primary mb-2">👤 Hội Viên &amp; Tích Điểm Qua SĐT (Tùy chọn)</h6>
+                <div class="input-group input-group-sm mb-2">
+                    <input type="text" name="customer_phone" value="@state.CustomerPhone" class="form-control" placeholder="Nhập SĐT khách hàng..." />
+                    <button type="submit" formaction="/Pos/TraCuuKhachHang" formnovalidate class="btn btn-outline-dark fw-semibold">🔍 Tra SĐT</button>
+                </div>
+                <div class="row g-2 mb-2">
+                    <div class="col-6">
+                        <input type="text" name="customer_name" value="@state.CustomerName" class="form-control form-control-sm" placeholder="Tên (nếu tạo mới)" />
+                    </div>
+                    <div class="col-6">
+                        <input type="email" name="customer_email" value="@state.CustomerEmail" class="form-control form-control-sm" placeholder="Email (nếu tạo mới)" />
+                    </div>
+                </div>
+
+                @if (state.MatchedCustomerId.HasValue)
+                {
+                    <div class="alert alert-info py-1 px-2 small mb-0">
+                        ✓ Hội viên: <strong>@state.CustomerName</strong> | Hạng: <strong>@state.MatchedCustomerTier</strong> | Điểm: <strong>@state.MatchedCustomerPoints</strong>
+                    </div>
+                }
+                else if (state.IsNewCustomerWillCreate && !string.IsNullOrWhiteSpace(state.CustomerPhone))
+                {
+                    <div class="alert alert-warning py-1 px-2 small mb-0">
+                        ★ Khách mới SĐT <strong>@state.CustomerPhone</strong> — sẽ tự tạo tài khoản &amp; tích điểm khi thanh toán.
+                    </div>
+                }
+                else
+                {
+                    <div class="text-muted" style="font-size: 0.76rem;">Bỏ trống nếu bán cho Khách lẻ vãng lai.</div>
+                }
+            </div>
+
+            <div class="p-3 bg-light rounded-3 border">
+                <div class="mb-3">
+                    <label class="form-label fw-bold small mb-1">Phương thức thanh toán</label>
+                    <div class="d-flex gap-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="payment_method" id="pmCash" value="cash" @(state.PaymentMethod != "transfer" ? "checked" : "") />
+                            <label class="form-check-label fw-semibold small" for="pmCash">💵 Tiền mặt</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="payment_method" id="pmTransfer" value="transfer" @(state.PaymentMethod == "transfer" ? "checked" : "") />
+                            <label class="form-check-label fw-semibold small" for="pmTransfer">🏦 Chuyển khoản VietQR</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold small mb-1">Tiền khách đưa (VNĐ - nếu trả Tiền mặt)</label>
+                    <div class="input-group input-group-sm">
+                        <input type="number" name="amount_given" value="@(state.AmountGiven.HasValue ? state.AmountGiven.Value.ToString("0") : finalTotal.ToString("0"))" min="0" step="1000" class="form-control fw-bold text-primary" />
+                        <button type="submit" formaction="/Pos/TinhTienThoi" formnovalidate class="btn btn-outline-secondary fw-semibold">
+                            🧮 Tính tiền thối
+                        </button>
+                    </div>
+
+                    @if (state.PaymentMethod == "cash" && state.AmountGiven.HasValue)
+                    {
+                        decimal diff = state.AmountGiven.Value - finalTotal;
+                        if (diff >= 0)
+                        {
+                            <div class="mt-2 small fw-bold text-success">
+                                ✓ Tiền thối lại khách: @string.Format("{0:N0}đ", diff)
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="mt-2 small fw-bold text-danger">
+                                ✕ Khách đưa còn thiếu: @string.Format("{0:N0}đ", Math.Abs(diff))
+                            </div>
+                        }
+                    }
+                </div>
+
+                @if (currentShift == null)
+                {
+                    <div class="alert alert-warning py-2 small mb-2">
+                        ⚠️ Bạn cần <a href="/Pos/Index?panel=moca" class="fw-bold">Mở Ca Thu Ngân</a> trước khi bấm Thanh toán.
+                    </div>
+                }
+
+                <button type="submit" class="btn btn-success btn-lg w-100 fw-bold">
+                    💳 THANH TOÁN &amp; HOÀN TẤT ĐƠN
+                </button>
+            </div>
+        </form>
+    }
+</div>

@@ -1,0 +1,28 @@
+## Visual Studio Cache & User-specific files
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.userprefs
+
+## Build Results (Binaries & Temp)
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+*.dll
+*.pdb
+*.cache
+
+## NuGet Packages
+*.nupkg
+**/[Pp]ackages/*
+!**/[Pp]ackages/repositories.config
+nuget.exe
+
+## Test & Log Files
+TestResults/
+*.log
+*.tmp
+*.bak

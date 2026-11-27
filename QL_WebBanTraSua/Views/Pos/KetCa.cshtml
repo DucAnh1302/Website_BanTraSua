@@ -1,0 +1,203 @@
+﻿@model QL_WebBanTraSua.Models.pos_shifts
+@using QL_WebBanTraSua.Models
+@{
+    ViewBag.Title = "Kết ca & Báo cáo Z-Report";
+    Layout = "~/Views/Shared/_LayoutPos.cshtml";
+    var recentClosed = ViewBag.RecentClosedShifts as List<pos_shifts> ?? new List<pos_shifts>();
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h3 class="fw-bold mb-1">💰 Quản Lý Ca Thu Ngân &amp; Báo Cáo Z-Report</h3>
+        <p class="text-muted small mb-0">Đối soát tiền mặt két tiền cuối ca làm việc và lưu vết kiểm toán chống thất thoát</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="/Pos/LichSuCa" class="btn btn-outline-secondary btn-sm">📋 Lịch sử ca</a>
+        <a href="/Pos/Index" class="btn btn-primary btn-sm">&larr; Quay lại Quầy POS</a>
+    </div>
+</div>
+
+@if (Model == null)
+{
+    <div class="card-pos p-4 mb-4">
+        <h5 class="fw-bold text-primary mb-2">Chưa có ca làm việc nào đang mở</h5>
+        <p class="text-muted small mb-3">Bạn có thể khai báo tiền bàn giao đầu ca để bắt đầu ca bán hàng mới ngay dưới đây:</p>
+        <form method="post" action="/Pos/MoCa" class="row g-2 align-items-end">
+            @Html.AntiForgeryToken()
+            <div class="col-md-4">
+                <label class="form-label fw-bold small">Tiền mặt bàn giao đầu ca (VNĐ)</label>
+                <input type="number" name="opening_cash" value="1000000" min="0" step="1000" class="form-control" required />
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary fw-bold">▶ Bắt đầu Mở Ca</button>
+            </div>
+        </form>
+    </div>
+}
+else if (Model.status == "open")
+{
+    <div class="row g-4 mb-4">
+        <div class="col-lg-6">
+            <div class="card-pos p-4 h-100">
+                <h5 class="fw-bold text-primary mb-3">📊 Tổng Hợp Số Liệu Ca Đang Mở: @Model.shift_code</h5>
+                <table class="table table-bordered mb-0">
+                    <tr>
+                        <th class="bg-light">Nhân viên trực ca</th>
+                        <td class="fw-semibold">@(Model.user != null ? Model.user.name : "Thu ngân")</td>
+                    </tr>
+                    <tr>
+                        <th class="bg-light">Thời điểm mở ca</th>
+                        <td>@Model.opened_at.ToString("dd/MM/yyyy HH:mm:ss")</td>
+                    </tr>
+                    <tr>
+                        <th class="bg-light">Tiền mặt bàn giao đầu ca</th>
+                        <td class="fw-bold">@string.Format("{0:N0}đ", Model.opening_cash)</td>
+                    </tr>
+                    <tr>
+                        <th class="bg-light">Doanh thu Tiền mặt trong ca</th>
+                        <td class="fw-bold text-success">+@string.Format("{0:N0}đ", Model.cash_sales)</td>
+                    </tr>
+                    <tr>
+                        <th class="bg-light">Doanh thu Chuyển khoản VietQR</th>
+                        <td class="fw-bold text-info">+@string.Format("{0:N0}đ", Model.transfer_sales)</td>
+                    </tr>
+                    <tr class="table-warning">
+                        <th>TIỀN MẶT HỆ THỐNG TÍNH TRONG KÉT</th>
+                        <td class="fs-5 fw-bolder text-danger">@string.Format("{0:N0}đ", Model.expected_cash)</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card-pos p-4 h-100 border-warning border-2">
+                <h5 class="fw-bold text-warning-emphasis mb-3">🔒 Kiểm Đếm Két Tiền &amp; Đóng Ca (Z-Report)</h5>
+                <form method="post" action="/Pos/KetCa">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="shift_id" value="@Model.id" />
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Tiền mặt THỰC TẾ kiểm đếm cuối ca (VNĐ) <span class="text-danger">*</span></label>
+                        <input type="number" name="actual_cash" value="@Model.expected_cash.ToString("0")" min="0" step="1000" class="form-control form-control-lg fw-bold text-primary" required />
+                        <div class="form-text">Hệ thống sẽ tự động tính chênh lệch thừa/thiếu so với @string.Format("{0:N0}đ", Model.expected_cash) sau khi bấm chốt.</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Ghi chú bàn giao / giải trình chênh lệch</label>
+                        <textarea name="notes" rows="3" class="form-control" placeholder="VD: Khớp tiền két, bàn giao ca tối..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-warning btn-lg w-100 fw-bold">
+                        ✓ Xác Nhận Chốt Két &amp; Xuất Z-Report
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    decimal diff = Model.difference ?? 0m;
+    <div class="card-pos p-4 mb-4 border-success border-2">
+        <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-3 flex-wrap gap-2">
+            <div>
+                <span class="badge bg-success mb-1">ĐÃ CHỐT CA (Z-REPORT)</span>
+                <h4 class="fw-bold mb-0">Biên Bản Bàn Giao Ca: @Model.shift_code</h4>
+            </div>
+            <div class="text-muted small">
+                Mở: @Model.opened_at.ToString("dd/MM/yyyy HH:mm")<br />
+                Đóng: @(Model.closed_at.HasValue ? Model.closed_at.Value.ToString("dd/MM/yyyy HH:mm") : "")
+            </div>
+        </div>
+
+        <div class="row g-3 mb-3">
+            <div class="col-md-3">
+                <div class="p-3 bg-light rounded border">
+                    <small class="text-muted d-block">Tiền đầu ca</small>
+                    <strong class="fs-5">@string.Format("{0:N0}đ", Model.opening_cash)</strong>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="p-3 bg-light rounded border">
+                    <small class="text-muted d-block">Bán Tiền mặt / QR</small>
+                    <strong class="text-success">@string.Format("{0:N0}đ", Model.cash_sales)</strong> /
+                    <strong class="text-primary">@string.Format("{0:N0}đ", Model.transfer_sales)</strong>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="p-3 bg-light rounded border">
+                    <small class="text-muted d-block">Dự kiến / Thực đếm</small>
+                    <strong>@string.Format("{0:N0}đ", Model.expected_cash)</strong> /
+                    <strong class="text-primary">@string.Format("{0:N0}đ", Model.actual_cash ?? 0)</strong>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="p-3 bg-light rounded border">
+                    <small class="text-muted d-block">Chênh lệch két tiền</small>
+                    @if (diff == 0)
+                    {
+                        <strong class="fs-5 text-success">✓ Khớp 100% (0đ)</strong>
+                    }
+                    else if (diff > 0)
+                    {
+                        <strong class="fs-5 text-info">+@string.Format("{0:N0}đ (Thừa)", diff)</strong>
+                    }
+                    else
+                    {
+                        <strong class="fs-5 text-danger">@string.Format("{0:N0}đ (Thiếu)", diff)</strong>
+                    }
+                </div>
+            </div>
+        </div>
+
+        @if (!string.IsNullOrEmpty(Model.notes))
+        {
+            <div class="small text-muted"><strong>Ghi chú bàn giao:</strong> @Model.notes</div>
+        }
+    </div>
+}
+
+@if (recentClosed.Count > 0)
+{
+    <div class="card-pos overflow-hidden">
+        <div class="p-3 bg-white border-bottom fw-bold">🕘 Các Ca Đã Kết Gần Đây</div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-3">Mã ca</th>
+                        <th>Thu ngân</th>
+                        <th>Thời gian ca</th>
+                        <th>Doanh thu TM</th>
+                        <th>Chuyển khoản</th>
+                        <th>Thực tế két</th>
+                        <th>Chênh lệch</th>
+                        <th class="text-end pe-3">Xem Z-Report</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var sh in recentClosed)
+                    {
+                        decimal d = sh.difference ?? 0m;
+                        <tr>
+                            <td class="ps-3 fw-bold text-primary">@sh.shift_code</td>
+                            <td>@(sh.user != null ? sh.user.name : "N/A")</td>
+                            <td class="small">@sh.opened_at.ToString("dd/MM HH:mm") - @(sh.closed_at.HasValue ? sh.closed_at.Value.ToString("HH:mm") : "")</td>
+                            <td>@string.Format("{0:N0}đ", sh.cash_sales)</td>
+                            <td>@string.Format("{0:N0}đ", sh.transfer_sales)</td>
+                            <td class="fw-bold">@string.Format("{0:N0}đ", sh.actual_cash ?? 0)</td>
+                            <td>
+                                <span class="badge @(d == 0 ? "bg-success" : d > 0 ? "bg-info text-dark" : "bg-danger")">
+                                    @(d == 0 ? "Khớp 0đ" : (d > 0 ? "+" + string.Format("{0:N0}đ", d) : string.Format("{0:N0}đ", d)))
+                                </span>
+                            </td>
+                            <td class="text-end pe-3">
+                                <a href="/Pos/KetCa?shiftId=@sh.id" class="btn btn-sm btn-outline-primary">Chi tiết</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

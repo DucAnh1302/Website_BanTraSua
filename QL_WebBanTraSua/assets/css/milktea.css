@@ -1,0 +1,888 @@
+﻿/* ==========================================================
+   TIỆM TRÀ SỮA - ĐẬM VỊ TRÀ, THƠM VỊ SỮA
+   CSS TẬP TRUNG DÙNG CHUNG CHO TOÀN BỘ WEBSITE (milktea.css)
+   ========================================================== */
+
+:root {
+  --primary-color: #df6743;
+  --primary-hover: #c85a3a;
+  --primary-rgb: 223, 103, 67;
+  --dark-bg: #121212;
+  --card-dark-bg: #1e1e1e;
+  --text-light: #f8f9fa;
+  --text-muted-custom: #adb5bd;
+}
+
+/* 1. Lớp tiện ích màu sắc thương hiệu */
+.text-primary {
+  color: var(--primary-color) !important;
+}
+
+.bg-primary {
+  background-color: var(--primary-color) !important;
+}
+
+.bg-black {
+  background-color: #000000 !important;
+}
+
+.border-primary {
+  border-color: var(--primary-color) !important;
+}
+
+/* 2. Tùy chỉnh Nút bấm (Buttons) */
+.btn-primary {
+  background-color: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+  color: #ffffff !important;
+  font-weight: 600;
+  transition: all 0.25s ease-in-out;
+}
+
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active {
+  background-color: var(--primary-hover) !important;
+  border-color: var(--primary-hover) !important;
+  color: #ffffff !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.3) !important;
+}
+
+.btn-outline-primary {
+  color: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--primary-color) !important;
+  color: #ffffff !important;
+}
+
+/* Form focus chung */
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--primary-color) !important;
+  box-shadow: 0 0 0 0.25rem rgba(var(--primary-rgb), 0.25) !important;
+}
+
+.form-check-input:checked {
+  background-color: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+}
+
+/* 3. Căn giữa Navbar trên Desktop */
+@media (min-width: 1200px) {
+  .navbar-center-absolute {
+    position: absolute !important;
+    left: 50%;
+    transform: translateX(-50%);
+    width: auto !important;
+    white-space: nowrap;
+  }
+}
+
+/* 4. Thẻ Sản Phẩm Trà Sữa (Product Card) */
+.product-card {
+  transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  border-radius: 14px;
+  overflow: hidden;
+  background-color: #ffffff;
+}
+
+.product-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 24px rgba(var(--primary-rgb), 0.18) !important;
+}
+
+.product-card .card-img-top {
+  border-radius: 14px 14px 0 0;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.product-card:hover .card-img-top {
+  transform: scale(1.03);
+}
+
+/* 5. Tùy chọn F&B trên trang Chi tiết món (Option Pills & Topping) */
+.option-pill {
+  border-radius: 20px;
+  padding: 6px 18px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  border: 1px solid #ced4da;
+  color: #495057;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.option-pill:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+.btn-check:checked + .option-pill {
+  background-color: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 6px rgba(var(--primary-rgb), 0.3);
+}
+
+.topping-card {
+  padding: 10px 14px;
+  border: 1px solid #e9ecef;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+  background-color: #fdfdfd;
+}
+
+.topping-card:hover {
+  border-color: var(--primary-color);
+  background-color: #fff9f7;
+}
+
+/* 6. Huy hiệu số lượng Giỏ Hàng (Cart Count Badge) */
+.cart-badge-wrap {
+  position: relative;
+  display: inline-block;
+}
+
+.cart-count-badge {
+  position: absolute;
+  top: -6px;
+  right: -8px;
+  background-color: var(--primary-color);
+  color: #ffffff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  border-radius: 50%;
+  min-width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  line-height: 1;
+}
+
+/* 7. Giỏ hàng Offcanvas */
+.offcanvas-cart-item {
+  transition: background-color 0.2s ease;
+}
+
+.offcanvas-cart-item:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* 8. Bộ lọc Sidebar Thực Đơn */
+.filter-category-list .filter-btn {
+  color: #495057;
+  display: block;
+  padding: 6px 10px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.filter-category-list .filter-btn:hover,
+.filter-category-list .filter-btn.active {
+  color: var(--primary-color);
+  background-color: rgba(var(--primary-rgb), 0.08);
+  font-weight: 700;
+  padding-left: 14px;
+}
+
+/* 9. Hiệu ứng Banner & Category Hover */
+.category-card {
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.category-card .category-img {
+  transition: transform 0.5s ease;
+}
+
+.category-card:hover .category-img {
+  transform: scale(1.08);
+}
+
+.category-overlay {
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.7) 100%);
+  transition: background 0.3s ease;
+}
+
+.category-card:hover .category-overlay {
+  background: linear-gradient(180deg, rgba(var(--primary-rgb), 0.2) 0%, rgba(0, 0, 0, 0.8) 100%);
+}
+
+/* ==========================================================
+   10. CÁC PHÂN ĐOẠN MỚI LẤY CẢM HỨNG TỪ WAO TEA COFFEE
+   ========================================================== */
+
+/* Top Announcement Bar */
+.top-announcement-bar {
+  background: linear-gradient(90deg, #161616 0%, #242424 50%, #161616 100%);
+  color: #e0e0e0;
+  font-size: 0.82rem;
+  padding: 8px 16px;
+  border-bottom: 1px solid rgba(223, 103, 67, 0.3);
+  letter-spacing: 0.5px;
+}
+
+.top-announcement-bar .badge-promo {
+  background-color: var(--primary-color);
+  color: #ffffff;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  letter-spacing: 1px;
+}
+
+.top-announcement-bar a {
+  color: #ffd8cc;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s;
+}
+
+.top-announcement-bar a:hover {
+  color: #ffffff;
+  text-decoration: underline;
+}
+
+/* ==========================================================
+   Phân Đoạn Triết Lý Vị Trà So Le (Editorial Zigzag Style)
+   ========================================================== */
+.tea-philosophy-section {
+  background-color: #faf7f4;
+  border-top: 1px solid #eee7e0;
+  border-bottom: 1px solid #eee7e0;
+}
+
+.editorial-tag {
+  font-size: 0.72rem;
+  letter-spacing: 2.5px;
+  font-weight: 700;
+  color: #8c7e75;
+  text-transform: uppercase;
+  display: inline-block;
+  margin-bottom: 12px;
+}
+
+.editorial-title {
+  font-size: 2.1rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: #24201e;
+  margin-bottom: 18px;
+  letter-spacing: -0.3px;
+}
+
+@media (max-width: 991px) {
+  .editorial-title {
+    font-size: 1.65rem;
+  }
+}
+
+.editorial-lead {
+  color: #5c5550;
+  font-size: 0.96rem;
+  line-height: 1.75;
+  margin-bottom: 20px;
+}
+
+.editorial-quote {
+  border-left: 2px solid #bdafa4;
+  padding-left: 16px;
+  font-style: italic;
+  color: #756c66;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.editorial-img-wrap {
+  position: relative;
+  border-radius: 22px;
+  overflow: hidden;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.08);
+  background-color: #f0ebe5;
+}
+
+.editorial-img {
+  width: 100%;
+  height: 380px;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+@media (max-width: 991px) {
+  .editorial-img {
+    height: 280px;
+  }
+}
+
+.editorial-img-wrap:hover .editorial-img {
+  transform: scale(1.04);
+}
+
+.editorial-caption {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  background-color: rgba(24, 21, 19, 0.78);
+  backdrop-filter: blur(8px);
+  color: #f2ece6;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  text-transform: uppercase;
+}
+
+/* Thẻ Gu Vị "Theo Nhu Cầu" (Inspired by WAO Application Cards) */
+.flavor-card {
+  position: relative;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  transition: transform 0.35s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.35s ease;
+  display: block;
+  text-decoration: none;
+}
+
+.flavor-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 16px 36px rgba(var(--primary-rgb), 0.22);
+}
+
+.flavor-card-img {
+  width: 100%;
+  height: 320px;
+  object-fit: cover;
+  transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.flavor-card:hover .flavor-card-img {
+  transform: scale(1.08);
+}
+
+.flavor-card-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.15) 0%, rgba(0, 0, 0, 0.4) 40%, rgba(15, 15, 15, 0.92) 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 24px;
+  color: #ffffff;
+}
+
+.flavor-badge {
+  background-color: var(--primary-color);
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-uppercase;
+  padding: 4px 10px;
+  border-radius: 20px;
+  width: fit-content;
+  margin-bottom: 8px;
+}
+
+/* ==========================================================
+   Phân Đoạn Video Chuyện Trà Cinematic (WAO Style)
+   ========================================================== */
+.tea-story-video-section {
+  position: relative;
+  min-height: 520px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background-color: #0c0c0c;
+  padding: 80px 0;
+}
+
+.tea-bg-video {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.tea-video-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(8, 8, 8, 0.68) 0%, rgba(8, 8, 8, 0.85) 100%);
+  z-index: 2;
+  backdrop-filter: blur(1.5px);
+}
+
+.tea-video-tag {
+  display: inline-block;
+  font-size: 0.75rem;
+  letter-spacing: 3px;
+  font-weight: 700;
+  color: #df9e82;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  border-bottom: 1px solid rgba(223, 158, 130, 0.4);
+  padding-bottom: 4px;
+}
+
+.tea-video-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  line-height: 1.25;
+  color: #ffffff;
+  margin-bottom: 18px;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
+}
+
+@media (max-width: 991px) {
+  .tea-video-title {
+    font-size: 1.75rem;
+  }
+}
+
+.tea-video-subtitle {
+  font-size: 1.02rem;
+  color: rgba(255, 255, 255, 0.85);
+  max-width: 660px;
+  margin: 0 auto 36px;
+  line-height: 1.7;
+}
+
+.tea-video-rows {
+  max-width: 680px;
+  margin: 0 auto 38px;
+}
+
+.tea-video-row-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 22px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  margin-bottom: 12px;
+  backdrop-filter: blur(8px);
+  transition: all 0.3s ease;
+  text-align: left;
+}
+
+.tea-video-row-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateX(6px);
+}
+
+.tea-video-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--primary-color);
+  flex-shrink: 0;
+  box-shadow: 0 0 8px rgba(var(--primary-rgb), 0.8);
+}
+
+.tea-video-row-text {
+  color: #f5f5f5;
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin-bottom: 0;
+}
+
+.btn-video-story {
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  padding: 12px 32px;
+  border-radius: 30px;
+  font-weight: 600;
+  font-size: 0.88rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  backdrop-filter: blur(6px);
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.btn-video-story:hover {
+  background: #ffffff;
+  color: #111111;
+  border-color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+/* ==========================================================
+   Dịch Vụ & Trải Nghiệm Tối Giản (Minimalist Services - Clean F&B)
+   ========================================================== */
+.services-minimal-section {
+  background-color: #faf9f6;
+  border-top: 1px solid #eeece8;
+  border-bottom: 1px solid #eeece8;
+}
+
+.service-minimal-item {
+  border-top: 2px solid #1a1a1a;
+  padding-top: 22px;
+  height: 100%;
+  transition: border-color 0.25s ease;
+}
+
+.service-minimal-item:hover {
+  border-top-color: var(--primary-color, #c86b43);
+}
+
+.service-minimal-num {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #8c827a;
+  margin-bottom: 14px;
+}
+
+.service-minimal-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  line-height: 1.35;
+  margin-bottom: 12px;
+  letter-spacing: -0.2px;
+}
+
+.service-minimal-desc {
+  font-size: 0.92rem;
+  color: #555555;
+  line-height: 1.65;
+  margin-bottom: 0;
+}
+
+.service-minimal-footer {
+  border-color: #e5e2dc !important;
+}
+
+.service-minimal-link {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  transition: color 0.2s ease;
+}
+
+.service-minimal-link:hover {
+  color: var(--primary-color, #c86b43);
+}
+
+/* Testimonial Cards */
+.testimonial-card {
+  background-color: #ffffff;
+  border-radius: 18px;
+  padding: 30px 26px;
+  border: 1px solid #efefef;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.04);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  height: 100%;
+}
+
+.testimonial-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.09);
+  border-color: rgba(var(--primary-rgb), 0.3);
+}
+
+.testimonial-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--primary-color);
+}
+
+/* FAQ Accordion */
+.faq-accordion .accordion-item {
+  border: 1px solid #e5e5e5;
+  border-radius: 14px !important;
+  margin-bottom: 14px;
+  overflow: hidden;
+  background-color: #ffffff;
+}
+
+.faq-accordion .accordion-button {
+  font-weight: 600;
+  font-size: 1.05rem;
+  padding: 20px 24px;
+  color: #212529;
+  background-color: #ffffff;
+}
+
+.faq-accordion .accordion-button:not(.collapsed) {
+  color: var(--primary-color);
+  background-color: #fff8f5;
+  box-shadow: none;
+}
+
+.faq-accordion .accordion-button:focus {
+  border-color: var(--primary-color);
+  box-shadow: none;
+}
+
+.faq-accordion .accordion-body {
+  padding: 16px 24px 24px;
+  color: #555555;
+  line-height: 1.7;
+}
+
+/* Delivery & Payment Partners */
+.partner-logo-item {
+  filter: grayscale(100%);
+  opacity: 0.6;
+  transition: all 0.3s ease;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #666;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 30px;
+  background-color: #f7f7f7;
+}
+
+.partner-logo-item:hover {
+  filter: grayscale(0%);
+  opacity: 1;
+  color: var(--primary-color);
+  background-color: #fff2ed;
+  transform: scale(1.04);
+}
+
+/* ==========================================================
+   11. CỤM NÚT TƯƠNG TÁC NỔI (FLOATING WIDGET - WAO STYLE)
+   ========================================================== */
+.floating-actions-wrap {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1040;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+}
+
+.btn-floating {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+  text-decoration: none;
+  transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+  position: relative;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-floating:hover {
+  transform: scale(1.1) translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+.btn-floating-hotline {
+  background-color: var(--primary-color);
+  color: #ffffff;
+}
+
+.btn-floating-hotline:hover {
+  background-color: var(--primary-hover);
+  color: #ffffff;
+}
+
+.btn-floating-zalo {
+  background-color: #0068ff;
+  color: #ffffff;
+}
+
+.btn-floating-zalo:hover {
+  background-color: #0052cc;
+  color: #ffffff;
+}
+
+.btn-floating-top {
+  background-color: #212529;
+  color: #ffffff;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.25s ease;
+}
+
+.btn-floating-top.show {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.btn-floating-top:hover {
+  background-color: #000000;
+  color: #ffffff;
+}
+
+/* Tooltip nhãn nổi */
+.btn-floating::before {
+  content: attr(data-tooltip);
+  position: absolute;
+  right: 58px;
+  white-space: nowrap;
+  background-color: rgba(30, 30, 30, 0.9);
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 6px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  transform: translateX(6px);
+}
+
+.btn-floating:hover::before {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* ==========================================================
+   12. TÌM KIẾM ĐỘNG TỨC THÌ (LIVE INSTANT SEARCH DROPDOWN)
+   ========================================================== */
+.live-search-results {
+  max-height: 380px;
+  overflow-y: auto;
+  border-radius: 12px;
+  background: #181818;
+  border: 1px solid #333333;
+  margin-top: 14px;
+}
+
+.live-search-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+  border-bottom: 1px solid #282828;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+
+.live-search-item:last-child {
+  border-bottom: none;
+}
+
+.live-search-item:hover {
+  background-color: #262626;
+}
+
+.live-search-thumb {
+  width: 50px;
+  height: 50px;
+  border-radius: 10px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.live-search-info {
+  flex-grow: 1;
+  min-width: 0;
+}
+
+.live-search-name {
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.live-search-price {
+  color: var(--primary-color);
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.live-search-cat {
+  color: #888888;
+  font-size: 0.75rem;
+  margin-left: 8px;
+}
+
+/* ==========================================================
+   13. BỘ SƯU TẬP THEO MÙA (WAO SEASONAL COLLECTIONS STYLE)
+   ========================================================== */
+.season-card {
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+  border: 1px solid #ededed;
+  background-color: #ffffff;
+  transition: all 0.3s ease;
+  height: 100%;
+}
+
+.season-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 36px rgba(var(--primary-rgb), 0.16);
+  border-color: rgba(var(--primary-rgb), 0.3);
+}
+
+.season-img-wrap {
+  position: relative;
+  overflow: hidden;
+  height: 240px;
+}
+
+.season-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.season-card:hover .season-img-wrap img {
+  transform: scale(1.06);
+}
+
+.season-tag {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  background-color: var(--primary-color);
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 20px;
+  letter-spacing: 0.5px;
+}
+

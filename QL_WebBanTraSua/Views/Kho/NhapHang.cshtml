@@ -1,0 +1,135 @@
+﻿@using QL_WebBanTraSua.Models
+@{
+    ViewBag.Title = "Nhập hàng";
+    Layout = "~/Views/Shared/_LayoutKho.cshtml";
+    var ds = ViewBag.DsNguyenLieu as List<ingredient> ?? new List<ingredient>();
+    long chonId = (ViewBag.ChonId as long?) ?? 0;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1">📥 Nhập Hàng Theo Phiếu Nhập</h3>
+        <p class="text-muted small mb-0">Nhập đúng theo hóa đơn của nhà cung cấp. Đơn giá mỗi lần nhập có thể khác nhau theo giá thị trường.</p>
+    </div>
+    <div>
+        <a href="/Kho/NhapCsv" class="btn btn-outline-primary">📄 Nhập nhanh bằng CSV</a>
+    </div>
+</div>
+
+<form method="post" action="/Kho/NhapHang">
+    @Html.AntiForgeryToken()
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card-custom">
+                <div class="card-header fw-bold">🧾 Thông Tin Phiếu</div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Số phiếu / hóa đơn</label>
+                            <input type="text" name="soPhieu" class="form-control" placeholder="Ví dụ: PN001" />
+                        </div>
+                        <div class="col-md-8">
+                            <label class="form-label fw-bold">Nhà cung cấp</label>
+                            <input type="text" name="nhaCungCap" class="form-control" placeholder="Tên nhà cung cấp" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-custom">
+                <div class="card-header fw-bold d-flex justify-content-between align-items-center">
+                    <span>📦 Các Mặt Hàng Nhập</span>
+                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="themDong(0)">➕ Thêm dòng</button>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Nguyên liệu</th>
+                                    <th style="width: 140px;">Số lượng</th>
+                                    <th style="width: 160px;">Đơn giá (đ)</th>
+                                    <th style="width: 150px;" class="text-end">Thành tiền</th>
+                                    <th style="width: 50px;"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="dongNhap"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="stat-card green">
+                <div class="stat-label">💰 Tổng Giá Trị Phiếu Nhập</div>
+                <div class="stat-number" id="tongTien">0 đ</div>
+                <div class="small mt-2 opacity-75"><span id="soMatHang">0</span> mặt hàng trong phiếu</div>
+            </div>
+            <div class="card-custom">
+                <div class="card-body">
+                    <button type="submit" class="btn btn-primary w-100 mb-2">💾 Lưu Phiếu Nhập</button>
+                    <a href="/Kho/Index" class="btn btn-outline-secondary w-100">Hủy bỏ</a>
+                </div>
+            </div>
+            <div class="card-custom">
+                <div class="card-body small text-muted">
+                    <div class="fw-bold text-dark mb-2">Lưu ý khi nhập</div>
+                    <div class="mb-1">• Dòng nào chưa chọn nguyên liệu sẽ được bỏ qua.</div>
+                    <div class="mb-1">• Số lượng phải lớn hơn 0, đơn giá không được âm.</div>
+                    <div>• Sau khi lưu, tồn kho được cộng ngay và ghi vào lịch sử nhập xuất.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script>
+    var chonId = @chonId;
+    var nguyenLieu = [
+        @foreach (var i in ds)
+        {
+            @:{ id: @i.id, ten: "@Html.Raw(HttpUtility.JavaScriptStringEncode(i.name))", dv: "@Html.Raw(HttpUtility.JavaScriptStringEncode(i.unit))" },
+        }
+    ];
+
+    function themDong(idChon) {
+        var opts = '<option value="0">-- Chọn nguyên liệu --</option>';
+        nguyenLieu.forEach(function (n) {
+            opts += '<option value="' + n.id + '"' + (n.id === idChon ? ' selected' : '') + '>' + n.ten + ' (' + n.dv + ')</option>';
+        });
+        var tr = document.createElement('tr');
+        tr.innerHTML =
+            '<td><select name="ingredient_id" class="form-select" onchange="tinh()">' + opts + '</select></td>' +
+            '<td><input type="number" name="quantity" class="form-control" value="0" min="0" step="any" oninput="tinh()" /></td>' +
+            '<td><input type="number" name="unit_cost" class="form-control" value="0" min="0" step="any" oninput="tinh()" /></td>' +
+            '<td class="text-end fw-bold thanhTien">0 đ</td>' +
+            '<td><button type="button" class="btn btn-sm btn-outline-danger" title="Xóa dòng" onclick="xoaDong(this)">&times;</button></td>';
+        document.getElementById('dongNhap').appendChild(tr);
+        tinh();
+    }
+
+    function xoaDong(btn) {
+        btn.closest('tr').remove();
+        tinh();
+    }
+
+    function tinh() {
+        var tong = 0, dem = 0;
+        document.querySelectorAll('#dongNhap tr').forEach(function (tr) {
+            var id = parseInt(tr.querySelector('[name=ingredient_id]').value) || 0;
+            var sl = parseFloat(tr.querySelector('[name=quantity]').value) || 0;
+            var gia = parseFloat(tr.querySelector('[name=unit_cost]').value) || 0;
+            var tt = sl * gia;
+            tong += tt;
+            if (id > 0 && sl > 0) dem++;
+            tr.querySelector('.thanhTien').textContent = tt.toLocaleString('vi-VN') + ' đ';
+        });
+        document.getElementById('tongTien').textContent = tong.toLocaleString('vi-VN') + ' đ';
+        document.getElementById('soMatHang').textContent = dem;
+    }
+
+    themDong(chonId);
+    themDong(0);
+    themDong(0);
+</script>

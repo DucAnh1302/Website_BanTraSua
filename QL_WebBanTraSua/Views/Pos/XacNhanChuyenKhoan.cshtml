@@ -1,0 +1,64 @@
+﻿@model QL_WebBanTraSua.Models.order
+@{
+    ViewBag.Title = "Chờ xác nhận Chuyển khoản VietQR #" + Model.id;
+    Layout = "~/Views/Shared/_LayoutPos.cshtml";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card-pos p-4 text-center border-primary border-2">
+            <h3 class="fw-bold text-primary mb-2">🏦 Quét Mã Chuyển Khoản VietQR - Đơn POS #@Model.id</h3>
+            <p class="text-muted small mb-4">Đưa mã QR dưới đây cho khách quét thanh toán trên ứng dụng ngân hàng, sau đó bấm nút Xác nhận đã nhận tiền để trừ kho &amp; xuất biên lai.</p>
+
+            <div class="row align-items-center g-4 text-start mb-4">
+                <div class="col-md-5 text-center">
+                    <div class="p-3 bg-white border rounded-3 d-inline-block shadow-sm">
+                        <img src="@ViewBag.QrUrl" alt="VietQR @ViewBag.Memo" class="img-fluid" style="max-height: 250px;" />
+                    </div>
+                </div>
+                <div class="col-md-7">
+                    <table class="table table-bordered mb-0">
+                        <tr>
+                            <th class="bg-light">Ngân hàng</th>
+                            <td class="fw-bold">@ViewBag.BankId (MB Bank)</td>
+                        </tr>
+                        <tr>
+                            <th class="bg-light">Số tài khoản</th>
+                            <td class="fw-bold text-primary">@ViewBag.AccountNo</td>
+                        </tr>
+                        <tr>
+                            <th class="bg-light">Chủ tài khoản</th>
+                            <td class="fw-bold">@ViewBag.AccountName</td>
+                        </tr>
+                        <tr>
+                            <th class="bg-light">Nội dung CK</th>
+                            <td class="fw-bold text-danger">@ViewBag.Memo</td>
+                        </tr>
+                        <tr>
+                            <th class="bg-light">Số tiền thanh toán</th>
+                            <td class="fs-4 fw-bolder text-danger">@string.Format("{0:N0}đ", Model.final_total)</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-center gap-3 flex-wrap">
+                <form method="post" action="/Pos/XacNhanChuyenKhoanPost" class="mb-0">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@Model.id" />
+                    <button type="submit" class="btn btn-success btn-lg fw-bold px-4">
+                        ✓ Đã Nhận Tiền &amp; Hoàn Tất Đơn
+                    </button>
+                </form>
+
+                <form method="post" action="/Pos/HuyGiaoDichCho" class="mb-0">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@Model.id" />
+                    <button type="submit" class="btn btn-outline-danger btn-lg px-4">
+                        ✕ Hủy giao dịch chờ
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,71 @@
+﻿@{
+    ViewBag.Title = "Nhập nhanh bằng CSV";
+    Layout = "~/Views/Shared/_LayoutKho.cshtml";
+    var dsLoi = ViewBag.DanhSachLoi as List<string>;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1">📄 Nhập Nhanh Bằng File CSV</h3>
+        <p class="text-muted small mb-0">Dùng khi phiếu nhập có nhiều mặt hàng, thay cho việc gõ tay từng dòng</p>
+    </div>
+    <div>
+        <a href="/Kho/NhapHang" class="btn btn-outline-secondary">📥 Nhập tay theo phiếu</a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="card-custom">
+            <div class="card-header fw-bold">⬆️ Tải File Lên</div>
+            <div class="card-body p-4">
+                <form method="post" action="/Kho/NhapCsv" enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Chọn file .csv (tối đa 1 MB)</label>
+                        <input type="file" name="file" class="form-control" accept=".csv" required />
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary px-4">📥 Nhập Vào Kho</button>
+                        <a href="/Kho/TaiMauCsv" class="btn btn-outline-secondary">⬇️ Tải file mẫu</a>
+                    </div>
+                </form>
+
+                @if (dsLoi != null && dsLoi.Count > 0)
+                {
+                    <div class="alert alert-warning mt-4 mb-0">
+                        <div class="fw-bold mb-2">⚠️ Các dòng cần sửa trong file:</div>
+                        <ul class="mb-0">
+                            @foreach (var l in dsLoi)
+                            {
+                                <li>@l</li>
+                            }
+                        </ul>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card-custom">
+            <div class="card-header fw-bold">📝 Cách Chuẩn Bị File</div>
+            <div class="card-body p-4">
+                <p class="small">Dòng đầu tiên là tiêu đề, các dòng sau là dữ liệu. Lưu file dạng CSV (UTF-8) từ Excel hoặc Google Sheets.</p>
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle">
+                        <thead><tr><th>Cột</th><th>Ý nghĩa</th><th>Bắt buộc</th></tr></thead>
+                        <tbody>
+                            <tr><td class="fw-bold">ten_nguyen_lieu</td><td>Tên đúng như trong kho</td><td><span class="badge bg-danger">Có</span></td></tr>
+                            <tr><td class="fw-bold">so_luong</td><td>Số lượng nhập, lớn hơn 0</td><td><span class="badge bg-danger">Có</span></td></tr>
+                            <tr><td class="fw-bold">don_gia</td><td>Giá nhập mỗi đơn vị</td><td><span class="badge bg-danger">Có</span></td></tr>
+                            <tr><td class="fw-bold">don_vi</td><td>Chỉ cần khi nguyên liệu chưa có trong kho, hệ thống sẽ tạo mới</td><td><span class="badge bg-secondary">Không</span></td></tr>
+                            <tr><td class="fw-bold">ghi_chu</td><td>Số phiếu, nhà cung cấp...</td><td><span class="badge bg-secondary">Không</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="small text-muted mb-0">Chỉ cần một dòng sai là hệ thống không nhập dòng nào để tồn kho không bị nhập dở. Sửa file theo danh sách lỗi rồi tải lại.</p>
+            </div>
+        </div>
+    </div>
+</div>

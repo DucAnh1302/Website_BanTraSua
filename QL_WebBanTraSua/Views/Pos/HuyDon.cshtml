@@ -1,0 +1,93 @@
+﻿@model QL_WebBanTraSua.Models.order
+@{
+    ViewBag.Title = "Quản lý duyệt hủy đơn POS #" + Model.id;
+    Layout = "~/Views/Shared/_LayoutPos.cshtml";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold text-danger mb-1">🔒 Quản Lý Duyệt Hủy Đơn POS #@Model.id</h3>
+        <p class="text-muted small mb-0">Cơ chế Manager Override chống gian lận thu ngân — mọi lượt duyệt hay nhập sai đều ghi nhật ký kiểm toán</p>
+    </div>
+    <a href="/Pos/Index" class="btn btn-outline-secondary btn-sm">&larr; Quay lại Quầy POS</a>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="card-pos p-4">
+            <h5 class="fw-bold mb-3">🧾 Chi Tiết Đơn Hàng #@Model.id</h5>
+            <div class="mb-2 small"><strong>Khách hàng:</strong> @(string.IsNullOrEmpty(Model.shipping_name) ? "Khách lẻ" : Model.shipping_name)</div>
+            <div class="mb-2 small"><strong>Thanh toán:</strong> @(Model.payment_method == "transfer" ? "Chuyển khoản VietQR" : "Tiền mặt") (@Model.payment_status)</div>
+            <div class="mb-3 small"><strong>Tổng tiền:</strong> <span class="fs-5 fw-bold text-danger">@string.Format("{0:N0}đ", Model.final_total)</span></div>
+
+            <table class="table table-sm table-bordered mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Món</th>
+                        <th>Size</th>
+                        <th>SL</th>
+                        <th class="text-end">Đơn giá</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var oi in Model.order_items)
+                    {
+                        <tr>
+                            <td>
+                                @(oi.product_variants != null && oi.product_variants.product != null ? oi.product_variants.product.name : "Thức uống")
+                                @if (oi.order_item_toppings != null && oi.order_item_toppings.Count > 0)
+                                {
+                                    <br /><small class="text-muted">+ @string.Join(", ", oi.order_item_toppings.Select(t => t.topping_name))</small>
+                                }
+                            </td>
+                            <td>@(oi.product_variants != null ? oi.product_variants.size : "M")</td>
+                            <td>@oi.quantity</td>
+                            <td class="text-end">@string.Format("{0:N0}đ", oi.unit_price)</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card-pos p-4 border-danger border-2">
+            <div class="alert alert-danger small mb-3">
+                ⚠️ Thu ngân không được tự ý hủy đơn đã thu tiền. Hệ thống sẽ <strong>hoàn trả nguyên liệu về kho</strong>, trừ lại doanh thu ca (nếu thuộc ca hiện tại) và trừ điểm khách hàng (nếu có).
+            </div>
+
+            @if (Model.order_status == "cancelled")
+            {
+                <div class="alert alert-secondary fw-bold">Đơn hàng này đã bị hủy trước đó.</div>
+                <a href="/Pos/Index" class="btn btn-primary">Quay lại Quầy POS</a>
+            }
+            else
+            {
+                <form method="post" action="/Pos/HuyDon">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@Model.id" />
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Email Quản lý (Admin) <span class="text-danger">*</span></label>
+                        <input type="email" name="manager_email" class="form-control" required placeholder="admin@trasua.test" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Mật khẩu xác nhận Quản lý <span class="text-danger">*</span></label>
+                        <input type="password" name="manager_password" class="form-control" required placeholder="••••••••" />
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Lý do hủy đơn <span class="text-danger">*</span></label>
+                        <input type="text" name="cancel_reason" class="form-control" required placeholder="VD: Khách đổi món, pha nhầm, thu nhầm..." />
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-danger fw-bold px-4">🔒 Quản Lý Xác Nhận Hủy &amp; Hoàn Kho</button>
+                        <a href="/Pos/Index" class="btn btn-outline-secondary">Hủy bỏ</a>
+                    </div>
+                </form>
+            }
+        </div>
+    </div>
+</div>

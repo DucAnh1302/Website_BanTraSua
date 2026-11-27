@@ -1,0 +1,90 @@
+﻿@using QL_WebBanTraSua.Models
+@{
+    ViewBag.Title = "Xuất hàng";
+    Layout = "~/Views/Shared/_LayoutKho.cshtml";
+    var ds = ViewBag.DsNguyenLieu as List<ingredient> ?? new List<ingredient>();
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1">📤 Xuất Hàng Khỏi Kho</h3>
+        <p class="text-muted small mb-0">Dùng khi hàng hao hụt, hết hạn, hư hỏng hoặc cần điều chỉnh sau kiểm kê</p>
+    </div>
+    <div>
+        <a href="/Kho/LichSu?loai=xuat" class="btn btn-outline-secondary">🕒 Xem lịch sử xuất</a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="card-custom">
+            <div class="card-header fw-bold">Phiếu Xuất Kho</div>
+            <div class="card-body p-4">
+                <form method="post" action="/Kho/XuatHang">
+                    @Html.AntiForgeryToken()
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Nguyên liệu <span class="text-danger">*</span></label>
+                        <select name="ingredient_id" id="selNguyenLieu" class="form-select" required onchange="capNhatTon()">
+                            <option value="">-- Chọn nguyên liệu --</option>
+                            @foreach (var i in ds)
+                            {
+                                <option value="@i.id" data-ton="@i.stock_quantity.ToString(System.Globalization.CultureInfo.InvariantCulture)" data-dv="@i.unit">@i.name</option>
+                            }
+                        </select>
+                        <div class="form-text" id="tonHienTai">Chọn nguyên liệu để xem số lượng tồn hiện tại.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Số lượng xuất <span class="text-danger">*</span></label>
+                        <input type="number" name="quantity" id="inpSoLuong" class="form-control" min="0" step="any" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Lý do xuất</label>
+                        <select name="lyDo" class="form-select">
+                            <option>Hao hụt</option>
+                            <option>Hết hạn sử dụng</option>
+                            <option>Hư hỏng</option>
+                            <option>Điều chỉnh sau kiểm kê</option>
+                            <option>Khác</option>
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Ghi chú</label>
+                        <input type="text" name="note" class="form-control" placeholder="Mô tả thêm nếu cần" />
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-danger px-4">📤 Xác Nhận Xuất Kho</button>
+                        <a href="/Kho/Index" class="btn btn-outline-secondary">Hủy bỏ</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="card-custom">
+            <div class="card-header fw-bold">ℹ️ Lưu ý khi xuất kho</div>
+            <div class="card-body small text-muted">
+                <div class="mb-2">• Số lượng xuất không được vượt quá tồn kho hiện tại.</div>
+                <div class="mb-2">• Mỗi lần xuất đều được ghi vào lịch sử với lý do và thời gian.</div>
+                <div>• Nguyên liệu bị trừ theo đơn hàng bán ra sẽ do hệ thống tự ghi, không cần xuất tay ở đây.</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function capNhatTon() {
+        var sel = document.getElementById('selNguyenLieu');
+        var opt = sel.options[sel.selectedIndex];
+        var box = document.getElementById('tonHienTai');
+        var inp = document.getElementById('inpSoLuong');
+        if (!opt || !opt.value) {
+            box.textContent = 'Chọn nguyên liệu để xem số lượng tồn hiện tại.';
+            inp.removeAttribute('max');
+            return;
+        }
+        var ton = parseFloat(opt.getAttribute('data-ton')) || 0;
+        var dv = opt.getAttribute('data-dv');
+        box.textContent = 'Tồn hiện tại: ' + ton.toLocaleString('vi-VN') + ' ' + dv;
+        inp.setAttribute('max', ton);
+    }
+</script>
