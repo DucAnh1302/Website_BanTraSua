@@ -171,6 +171,45 @@
           <Property Name="created_at" Type="datetime" />
           <Property Name="updated_at" Type="datetime" />
         </EntityType>
+        <EntityType Name="audit_logs">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="user_id" Type="bigint" />
+          <Property Name="user_email" Type="nvarchar" MaxLength="255" />
+          <Property Name="user_role" Type="nvarchar" MaxLength="50" />
+          <Property Name="action" Type="nvarchar" MaxLength="255" Nullable="false" />
+          <Property Name="description" Type="nvarchar(max)" />
+          <Property Name="target_type" Type="nvarchar" MaxLength="255" />
+          <Property Name="target_id" Type="nvarchar" MaxLength="255" />
+          <Property Name="old_values" Type="nvarchar(max)" />
+          <Property Name="new_values" Type="nvarchar(max)" />
+          <Property Name="ip_address" Type="nvarchar" MaxLength="45" />
+          <Property Name="user_agent" Type="nvarchar(max)" />
+          <Property Name="created_at" Type="datetime" />
+          <Property Name="updated_at" Type="datetime" />
+        </EntityType>
+        <EntityType Name="pos_shifts">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="shift_code" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="staff_id" Type="bigint" Nullable="false" />
+          <Property Name="opening_cash" Type="decimal" Precision="12" Scale="0" Nullable="false" />
+          <Property Name="cash_sales" Type="decimal" Precision="12" Scale="0" Nullable="false" />
+          <Property Name="transfer_sales" Type="decimal" Precision="12" Scale="0" Nullable="false" />
+          <Property Name="expected_cash" Type="decimal" Precision="12" Scale="0" Nullable="false" />
+          <Property Name="actual_cash" Type="decimal" Precision="12" Scale="0" />
+          <Property Name="difference" Type="decimal" Precision="12" Scale="0" />
+          <Property Name="status" Type="nvarchar" MaxLength="20" Nullable="false" />
+          <Property Name="opened_at" Type="datetime" Nullable="false" />
+          <Property Name="closed_at" Type="datetime" />
+          <Property Name="notes" Type="nvarchar(max)" />
+          <Property Name="created_at" Type="datetime" />
+          <Property Name="updated_at" Type="datetime" />
+        </EntityType>
         <Association Name="fk_inv_trans_ingredient_id">
           <End Role="ingredients" Type="Self.ingredients" Multiplicity="1" />
           <End Role="inventory_transactions" Type="Self.inventory_transactions" Multiplicity="*" />
@@ -327,6 +366,30 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="fk_audit_logs_user_id">
+          <End Role="users" Type="Self.users" Multiplicity="0..1" />
+          <End Role="audit_logs" Type="Self.audit_logs" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="users">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="audit_logs">
+              <PropertyRef Name="user_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="fk_pos_shifts_staff_id">
+          <End Role="users" Type="Self.users" Multiplicity="1" />
+          <End Role="pos_shifts" Type="Self.pos_shifts" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="users">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="pos_shifts">
+              <PropertyRef Name="staff_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <EntityContainer Name="db_trasuaModelStoreContainer">
           <EntitySet Name="categories" EntityType="Self.categories" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ingredients" EntityType="Self.ingredients" Schema="dbo" store:Type="Tables" />
@@ -340,6 +403,8 @@
           <EntitySet Name="toppings" EntityType="Self.toppings" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="users" EntityType="Self.users" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="vouchers" EntityType="Self.vouchers" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="audit_logs" EntityType="Self.audit_logs" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="pos_shifts" EntityType="Self.pos_shifts" Schema="dbo" store:Type="Tables" />
           <AssociationSet Name="fk_inv_trans_ingredient_id" Association="Self.fk_inv_trans_ingredient_id">
             <End Role="ingredients" EntitySet="ingredients" />
             <End Role="inventory_transactions" EntitySet="inventory_transactions" />
@@ -391,6 +456,14 @@
           <AssociationSet Name="fk_toppings_ingredient_id" Association="Self.fk_toppings_ingredient_id">
             <End Role="ingredients" EntitySet="ingredients" />
             <End Role="toppings" EntitySet="toppings" />
+          </AssociationSet>
+          <AssociationSet Name="fk_audit_logs_user_id" Association="Self.fk_audit_logs_user_id">
+            <End Role="users" EntitySet="users" />
+            <End Role="audit_logs" EntitySet="audit_logs" />
+          </AssociationSet>
+          <AssociationSet Name="fk_pos_shifts_staff_id" Association="Self.fk_pos_shifts_staff_id">
+            <End Role="users" EntitySet="users" />
+            <End Role="pos_shifts" EntitySet="pos_shifts" />
           </AssociationSet>
         </EntityContainer>
       </Schema>
@@ -570,6 +643,8 @@
           <Property Name="updated_at" Type="DateTime" Precision="3" />
           <NavigationProperty Name="orders" Relationship="Self.fk_orders_customer_id" FromRole="users" ToRole="orders" />
           <NavigationProperty Name="orders1" Relationship="Self.fk_orders_staff_id" FromRole="users" ToRole="orders" />
+          <NavigationProperty Name="audit_logs" Relationship="Self.fk_audit_logs_user_id" FromRole="users" ToRole="audit_logs" />
+          <NavigationProperty Name="pos_shifts" Relationship="Self.fk_pos_shifts_staff_id" FromRole="users" ToRole="pos_shifts" />
         </EntityType>
         <EntityType Name="voucher">
           <Key>
@@ -589,6 +664,47 @@
           <Property Name="is_active" Type="Boolean" Nullable="false" />
           <Property Name="created_at" Type="DateTime" Precision="3" />
           <Property Name="updated_at" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="audit_logs">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="user_id" Type="Int64" />
+          <Property Name="user_email" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="user_role" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="action" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="description" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="target_type" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="target_id" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="old_values" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="new_values" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="ip_address" Type="String" MaxLength="45" FixedLength="false" Unicode="true" />
+          <Property Name="user_agent" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="created_at" Type="DateTime" Precision="3" />
+          <Property Name="updated_at" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="user" Relationship="Self.fk_audit_logs_user_id" FromRole="audit_logs" ToRole="users" />
+        </EntityType>
+        <EntityType Name="pos_shifts">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="shift_code" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="staff_id" Type="Int64" Nullable="false" />
+          <Property Name="opening_cash" Type="Decimal" Precision="12" Scale="0" Nullable="false" />
+          <Property Name="cash_sales" Type="Decimal" Precision="12" Scale="0" Nullable="false" />
+          <Property Name="transfer_sales" Type="Decimal" Precision="12" Scale="0" Nullable="false" />
+          <Property Name="expected_cash" Type="Decimal" Precision="12" Scale="0" Nullable="false" />
+          <Property Name="actual_cash" Type="Decimal" Precision="12" Scale="0" />
+          <Property Name="difference" Type="Decimal" Precision="12" Scale="0" />
+          <Property Name="status" Type="String" MaxLength="20" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="opened_at" Type="DateTime" Precision="3" Nullable="false" />
+          <Property Name="closed_at" Type="DateTime" Precision="3" />
+          <Property Name="notes" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="created_at" Type="DateTime" Precision="3" />
+          <Property Name="updated_at" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="user" Relationship="Self.fk_pos_shifts_staff_id" FromRole="pos_shifts" ToRole="users" />
         </EntityType>
         <Association Name="fk_products_category_id">
           <End Role="categories" Type="Self.category" Multiplicity="1" />
@@ -746,6 +862,30 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="fk_audit_logs_user_id">
+          <End Role="users" Type="Self.user" Multiplicity="0..1" />
+          <End Role="audit_logs" Type="Self.audit_logs" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="users">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="audit_logs">
+              <PropertyRef Name="user_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="fk_pos_shifts_staff_id">
+          <End Role="users" Type="Self.user" Multiplicity="1" />
+          <End Role="pos_shifts" Type="Self.pos_shifts" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="users">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="pos_shifts">
+              <PropertyRef Name="staff_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <EntityContainer Name="db_trasuaEntities" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="categories" EntityType="Self.category" />
           <EntitySet Name="ingredients" EntityType="Self.ingredient" />
@@ -759,6 +899,8 @@
           <EntitySet Name="toppings" EntityType="Self.topping" />
           <EntitySet Name="users" EntityType="Self.user" />
           <EntitySet Name="vouchers" EntityType="Self.voucher" />
+          <EntitySet Name="audit_logs" EntityType="Self.audit_logs" />
+          <EntitySet Name="pos_shifts" EntityType="Self.pos_shifts" />
           <AssociationSet Name="fk_products_category_id" Association="Self.fk_products_category_id">
             <End Role="categories" EntitySet="categories" />
             <End Role="products" EntitySet="products" />
@@ -810,6 +952,14 @@
           <AssociationSet Name="fk_recipe_details_variant_id" Association="Self.fk_recipe_details_variant_id">
             <End Role="product_variants" EntitySet="product_variants" />
             <End Role="recipe_details" EntitySet="recipe_details" />
+          </AssociationSet>
+          <AssociationSet Name="fk_audit_logs_user_id" Association="Self.fk_audit_logs_user_id">
+            <End Role="users" EntitySet="users" />
+            <End Role="audit_logs" EntitySet="audit_logs" />
+          </AssociationSet>
+          <AssociationSet Name="fk_pos_shifts_staff_id" Association="Self.fk_pos_shifts_staff_id">
+            <End Role="users" EntitySet="users" />
+            <End Role="pos_shifts" EntitySet="pos_shifts" />
           </AssociationSet>
         </EntityContainer>
       </Schema>
@@ -990,6 +1140,47 @@
                 <ScalarProperty Name="used_count" ColumnName="used_count" />
                 <ScalarProperty Name="expires_at" ColumnName="expires_at" />
                 <ScalarProperty Name="is_active" ColumnName="is_active" />
+                <ScalarProperty Name="created_at" ColumnName="created_at" />
+                <ScalarProperty Name="updated_at" ColumnName="updated_at" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="audit_logs">
+            <EntityTypeMapping TypeName="db_trasuaModel.audit_logs">
+              <MappingFragment StoreEntitySet="audit_logs">
+                <ScalarProperty Name="id" ColumnName="id" />
+                <ScalarProperty Name="user_id" ColumnName="user_id" />
+                <ScalarProperty Name="user_email" ColumnName="user_email" />
+                <ScalarProperty Name="user_role" ColumnName="user_role" />
+                <ScalarProperty Name="action" ColumnName="action" />
+                <ScalarProperty Name="description" ColumnName="description" />
+                <ScalarProperty Name="target_type" ColumnName="target_type" />
+                <ScalarProperty Name="target_id" ColumnName="target_id" />
+                <ScalarProperty Name="old_values" ColumnName="old_values" />
+                <ScalarProperty Name="new_values" ColumnName="new_values" />
+                <ScalarProperty Name="ip_address" ColumnName="ip_address" />
+                <ScalarProperty Name="user_agent" ColumnName="user_agent" />
+                <ScalarProperty Name="created_at" ColumnName="created_at" />
+                <ScalarProperty Name="updated_at" ColumnName="updated_at" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="pos_shifts">
+            <EntityTypeMapping TypeName="db_trasuaModel.pos_shifts">
+              <MappingFragment StoreEntitySet="pos_shifts">
+                <ScalarProperty Name="id" ColumnName="id" />
+                <ScalarProperty Name="shift_code" ColumnName="shift_code" />
+                <ScalarProperty Name="staff_id" ColumnName="staff_id" />
+                <ScalarProperty Name="opening_cash" ColumnName="opening_cash" />
+                <ScalarProperty Name="cash_sales" ColumnName="cash_sales" />
+                <ScalarProperty Name="transfer_sales" ColumnName="transfer_sales" />
+                <ScalarProperty Name="expected_cash" ColumnName="expected_cash" />
+                <ScalarProperty Name="actual_cash" ColumnName="actual_cash" />
+                <ScalarProperty Name="difference" ColumnName="difference" />
+                <ScalarProperty Name="status" ColumnName="status" />
+                <ScalarProperty Name="opened_at" ColumnName="opened_at" />
+                <ScalarProperty Name="closed_at" ColumnName="closed_at" />
+                <ScalarProperty Name="notes" ColumnName="notes" />
                 <ScalarProperty Name="created_at" ColumnName="created_at" />
                 <ScalarProperty Name="updated_at" ColumnName="updated_at" />
               </MappingFragment>

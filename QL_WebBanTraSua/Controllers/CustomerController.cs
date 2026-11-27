@@ -1,10 +1,10 @@
+﻿using QL_WebBanTraSua.Helpers;
 using QL_WebBanTraSua.Models;
-using iTextSharp.text;
-using iTextSharp.text.pdf;
+using QL_WebBanTraSua.Services;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Web.Mvc;
@@ -317,6 +317,21 @@ namespace QL_WebBanTraSua.Controllers
                 return RedirectToAction("Products");
             }
 
+            if (Session["UserId"] != null)
+            {
+                long uid;
+                if (long.TryParse(Session["UserId"].ToString(), out uid))
+                {
+                    var u = data.users.Find(uid);
+                    if (u != null)
+                    {
+                        if (string.IsNullOrWhiteSpace(Session["CustomerName"] as string)) Session["CustomerName"] = u.name;
+                        if (string.IsNullOrWhiteSpace(Session["CustomerPhone"] as string)) Session["CustomerPhone"] = u.phone;
+                        if (string.IsNullOrWhiteSpace(Session["CustomerEmail"] as string)) Session["CustomerEmail"] = u.email;
+                    }
+                }
+            }
+
             decimal subtotal = cart.Sum(item => item.TotalPrice);
             decimal discount = (decimal)(Session[DiscountSessionKey] ?? 0m);
             decimal shipping = 15000m;
@@ -345,51 +360,24 @@ namespace QL_WebBanTraSua.Controllers
             var cart = GetCart();
             decimal subtotal = cart.Sum(i => i.TotalPrice);
 
-            if (string.IsNullOrWhiteSpace(voucherCode))
+            string customerTier = null;
+            if (Session["UserId"] != null)
             {
-                TempData["VoucherError"] = "Vui lòng nhập mã giảm giá.";
-                return RedirectToAction("Checkout");
-            }
-
-            string code = voucherCode.Trim();
-            var v = data.vouchers.FirstOrDefault(x => x.code.ToLower() == code.ToLower() && x.is_active);
-
-            if (v == null)
-            {
-                TempData["VoucherError"] = "Mã giảm giá không tồn tại hoặc đã hết hiệu lực.";
-                return RedirectToAction("Checkout");
-            }
-
-            if (v.expires_at.HasValue && v.expires_at.Value < DateTime.Now)
-            {
-                TempData["VoucherError"] = "Mã giảm giá đã hết hạn sử dụng.";
-                return RedirectToAction("Checkout");
-            }
-
-            if (v.usage_limit.HasValue && v.used_count >= v.usage_limit.Value)
-            {
-                TempData["VoucherError"] = "Mã giảm giá đã hết lượt sử dụng.";
-                return RedirectToAction("Checkout");
-            }
-
-            if (subtotal < v.min_order_value)
-            {
-                TempData["VoucherError"] = $"Đơn hàng tối thiểu phải từ {v.min_order_value:N0}đ để áp dụng mã này.";
-                return RedirectToAction("Checkout");
-            }
-
-            decimal discount = 0;
-            if (v.discount_type == "percent")
-            {
-                discount = (subtotal * v.discount_value) / 100m;
-                if (v.max_discount.HasValue && discount > v.max_discount.Value)
+                long uid;
+                if (long.TryParse(Session["UserId"].ToString(), out uid))
                 {
-                    discount = v.max_discount.Value;
+                    var u = data.users.Find(uid);
+                    if (u != null) customerTier = u.tier;
                 }
             }
-            else
+
+            decimal discount;
+            string err;
+            var v = InventoryService.EvaluateVoucher(data, voucherCode, subtotal, customerTier, out discount, out err);
+            if (v == null)
             {
-                discount = v.discount_value;
+                TempData["VoucherError"] = err;
+                return RedirectToAction("Checkout");
             }
 
             Session[VoucherSessionKey] = v;
@@ -438,10 +426,19 @@ namespace QL_WebBanTraSua.Controllers
             if (finalTotal < 0) finalTotal = 0;
 
             var voucher = Session[VoucherSessionKey] as voucher;
+            long? loggedInCustomerId = null;
+            if (Session["UserId"] != null)
+            {
+                long uid;
+                if (long.TryParse(Session["UserId"].ToString(), out uid))
+                {
+                    loggedInCustomerId = uid;
+                }
+            }
 
             var newOrder = new order
             {
-                customer_id = null,
+                customer_id = loggedInCustomerId,
                 staff_id = null,
                 subtotal = subtotal,
                 shipping_fee = shipping,
@@ -507,6 +504,10 @@ namespace QL_WebBanTraSua.Controllers
 
             data.SaveChanges();
 
+            // Dong bo tru kho nguyen lieu theo cong thuc & ty le Duong/Da/Topping
+            InventoryService.DeductStockForOrder(data, newOrder.id, allowShortage: true, notePrefix: "Trừ kho đơn Online #");
+            data.SaveChanges();
+
             Session["CustomerName"] = shippingName.Trim();
             Session["CustomerPhone"] = shippingPhone.Trim();
             if (!string.IsNullOrWhiteSpace(shippingEmail)) Session["CustomerEmail"] = shippingEmail.Trim();
@@ -541,15 +542,39 @@ namespace QL_WebBanTraSua.Controllers
                 keyword = Session["CustomerPhone"] as string;
             }
 
-            List<order> orders = new List<order>();
-            if (!string.IsNullOrWhiteSpace(keyword))
+            long? loggedInUid = null;
+            if (Session["UserId"] != null)
             {
-                string clean = keyword.Trim().TrimStart('#');
+                long uid;
+                if (long.TryParse(Session["UserId"].ToString(), out uid)) loggedInUid = uid;
+            }
+
+            List<order> orders = new List<order>();
+            if (!string.IsNullOrWhiteSpace(phone))
+            {
+                string clean = phone.Trim().TrimStart('#');
                 long orderId;
                 bool isOrderId = long.TryParse(clean, out orderId);
 
                 orders = data.orders
-                    .Where(o => o.shipping_phone == keyword.Trim() || (isOrderId && o.id == orderId))
+                    .Where(o => o.shipping_phone == phone.Trim() || (isOrderId && o.id == orderId))
+                    .OrderByDescending(o => o.created_at)
+                    .ToList();
+                ViewBag.Phone = phone;
+            }
+            else if (loggedInUid.HasValue)
+            {
+                string userPhone = Session["UserPhone"] as string ?? "";
+                orders = data.orders
+                    .Where(o => o.customer_id == loggedInUid.Value || (!string.IsNullOrEmpty(userPhone) && o.shipping_phone == userPhone))
+                    .OrderByDescending(o => o.created_at)
+                    .ToList();
+                ViewBag.Phone = keyword;
+            }
+            else if (!string.IsNullOrWhiteSpace(keyword))
+            {
+                orders = data.orders
+                    .Where(o => o.shipping_phone == keyword.Trim())
                     .OrderByDescending(o => o.created_at)
                     .ToList();
                 ViewBag.Phone = keyword;
@@ -583,167 +608,20 @@ namespace QL_WebBanTraSua.Controllers
         // ==========================================
         public ActionResult XuatHoaDonPDF(long id)
         {
-            var order = data.orders.FirstOrDefault(o => o.id == id);
+            var order = data.orders
+                .Include(o => o.user)
+                .Include(o => o.order_items.Select(oi => oi.product_variants.product))
+                .Include(o => o.order_items.Select(oi => oi.order_item_toppings))
+                .FirstOrDefault(o => o.id == id);
+
             if (order == null)
             {
                 return HttpNotFound();
             }
 
-            using (MemoryStream ms = new MemoryStream())
-            {
-                Document document = new Document(PageSize.A4, 36f, 36f, 36f, 36f);
-                PdfWriter writer = PdfWriter.GetInstance(document, ms);
-                document.Open();
-
-                BaseFont bf;
-                try
-                {
-                    string fontPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Fonts), "arial.ttf");
-                    if (!System.IO.File.Exists(fontPath))
-                    {
-                        fontPath = @"C:\Windows\Fonts\arial.ttf";
-                    }
-                    bf = BaseFont.CreateFont(fontPath, BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
-                }
-                catch
-                {
-                    bf = BaseFont.CreateFont(BaseFont.HELVETICA, BaseFont.WINANSI, BaseFont.NOT_EMBEDDED);
-                }
-
-                Font titleFont = new Font(bf, 20, Font.BOLD, new BaseColor(24, 24, 27));
-                Font subTitleFont = new Font(bf, 12, Font.ITALIC, new BaseColor(113, 113, 122));
-                Font sectionTitleFont = new Font(bf, 13, Font.BOLD, new BaseColor(225, 29, 72));
-                Font headerTableFont = new Font(bf, 10, Font.BOLD, BaseColor.WHITE);
-                Font boldFont = new Font(bf, 10, Font.BOLD, new BaseColor(39, 39, 42));
-                Font normalFont = new Font(bf, 10, Font.NORMAL, new BaseColor(63, 63, 70));
-                Font smallFont = new Font(bf, 9, Font.NORMAL, new BaseColor(113, 113, 122));
-
-                Paragraph title = new Paragraph("TIỆM TRÀ SỮA", titleFont);
-                title.Alignment = Element.ALIGN_CENTER;
-                document.Add(title);
-
-                Paragraph slogan = new Paragraph("Đậm vị trà, Thơm vị sữa - 140 Lê Trọng Tấn, Q. Tân Phú, TP. HCM", subTitleFont);
-                slogan.Alignment = Element.ALIGN_CENTER;
-                slogan.SpacingAfter = 15f;
-                document.Add(slogan);
-
-                Paragraph invoiceHeader = new Paragraph($"HÓA ĐƠN BÁN HÀNG #{order.id}", sectionTitleFont);
-                invoiceHeader.Alignment = Element.ALIGN_CENTER;
-                invoiceHeader.SpacingAfter = 20f;
-                document.Add(invoiceHeader);
-
-                PdfPTable infoTable = new PdfPTable(2);
-                infoTable.WidthPercentage = 100;
-                infoTable.SetWidths(new float[] { 50f, 50f });
-                infoTable.SpacingAfter = 15f;
-
-                PdfPCell c1 = new PdfPCell();
-                c1.Border = Rectangle.NO_BORDER;
-                c1.AddElement(new Paragraph($"Khách hàng: {order.shipping_name ?? "Khách hàng"}", normalFont));
-                c1.AddElement(new Paragraph($"Số điện thoại: {order.shipping_phone ?? "N/A"}", normalFont));
-                c1.AddElement(new Paragraph($"Địa chỉ nhận hàng: {order.shipping_address ?? "Tại quán"}", normalFont));
-                infoTable.AddCell(c1);
-
-                PdfPCell c2 = new PdfPCell();
-                c2.Border = Rectangle.NO_BORDER;
-                c2.AddElement(new Paragraph($"Mã đơn: #{order.id}", normalFont));
-                c2.AddElement(new Paragraph($"Thời gian: {(order.created_at.HasValue ? order.created_at.Value.ToString("dd/MM/yyyy HH:mm") : DateTime.Now.ToString("dd/MM/yyyy HH:mm"))}", normalFont));
-                string ptThanhToan = order.payment_method == "transfer" ? "Chuyển khoản (VietQR)" : "Tiền mặt (COD)";
-                c2.AddElement(new Paragraph($"Thanh toán: {ptThanhToan} ({order.payment_status})", normalFont));
-                infoTable.AddCell(c2);
-
-                document.Add(infoTable);
-
-                PdfPTable itemTable = new PdfPTable(6);
-                itemTable.WidthPercentage = 100;
-                itemTable.SetWidths(new float[] { 8f, 35f, 12f, 15f, 12f, 18f });
-                itemTable.SpacingAfter = 15f;
-
-                string[] headers = { "STT", "Tên thức uống", "Size", "Tùy chọn", "SL", "Thành tiền" };
-                foreach (var h in headers)
-                {
-                    PdfPCell hCell = new PdfPCell(new Phrase(h, headerTableFont));
-                    hCell.BackgroundColor = new BaseColor(30, 41, 59);
-                    hCell.Padding = 6f;
-                    hCell.HorizontalAlignment = Element.ALIGN_CENTER;
-                    itemTable.AddCell(hCell);
-                }
-
-                int stt = 1;
-                foreach (var oi in order.order_items)
-                {
-                    var variant = oi.product_variants;
-                    string productName = variant != null && variant.product != null ? variant.product.name : "Thức uống";
-                    string size = variant != null ? variant.size : "M";
-
-                    string toppingsStr = "";
-                    if (oi.order_item_toppings != null && oi.order_item_toppings.Count > 0)
-                    {
-                        toppingsStr = " + " + string.Join(", ", oi.order_item_toppings.Select(t => t.topping_name));
-                    }
-                    string optionsStr = $"Đường {oi.sugar_level}%, Đá {oi.ice_option}{toppingsStr}";
-
-                    decimal itemToppingsTotal = oi.order_item_toppings != null ? oi.order_item_toppings.Sum(t => t.price) : 0;
-                    decimal lineTotal = (oi.unit_price + itemToppingsTotal) * oi.quantity;
-
-                    PdfPCell cellStt = new PdfPCell(new Phrase(stt.ToString(), normalFont)) { HorizontalAlignment = Element.ALIGN_CENTER, Padding = 6f };
-                    PdfPCell cellName = new PdfPCell(new Phrase(productName, normalFont)) { Padding = 6f };
-                    PdfPCell cellSize = new PdfPCell(new Phrase(size, normalFont)) { HorizontalAlignment = Element.ALIGN_CENTER, Padding = 6f };
-                    PdfPCell cellOpt = new PdfPCell(new Phrase(optionsStr, smallFont)) { Padding = 6f };
-                    PdfPCell cellQty = new PdfPCell(new Phrase(oi.quantity.ToString(), normalFont)) { HorizontalAlignment = Element.ALIGN_CENTER, Padding = 6f };
-                    PdfPCell cellTotal = new PdfPCell(new Phrase($"{lineTotal:N0} đ", normalFont)) { HorizontalAlignment = Element.ALIGN_RIGHT, Padding = 6f };
-
-                    itemTable.AddCell(cellStt);
-                    itemTable.AddCell(cellName);
-                    itemTable.AddCell(cellSize);
-                    itemTable.AddCell(cellOpt);
-                    itemTable.AddCell(cellQty);
-                    itemTable.AddCell(cellTotal);
-
-                    stt++;
-                }
-
-                document.Add(itemTable);
-
-                PdfPTable summaryTable = new PdfPTable(2);
-                summaryTable.WidthPercentage = 45;
-                summaryTable.HorizontalAlignment = Element.ALIGN_RIGHT;
-                summaryTable.SetWidths(new float[] { 50f, 50f });
-                summaryTable.SpacingAfter = 20f;
-
-                summaryTable.AddCell(new PdfPCell(new Phrase("Tạm tính:", normalFont)) { Border = Rectangle.NO_BORDER, Padding = 4f });
-                summaryTable.AddCell(new PdfPCell(new Phrase($"{order.subtotal:N0} đ", normalFont)) { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_RIGHT, Padding = 4f });
-
-                summaryTable.AddCell(new PdfPCell(new Phrase("Phí vận chuyển:", normalFont)) { Border = Rectangle.NO_BORDER, Padding = 4f });
-                summaryTable.AddCell(new PdfPCell(new Phrase($"{order.shipping_fee:N0} đ", normalFont)) { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_RIGHT, Padding = 4f });
-
-                if (order.discount_amount > 0)
-                {
-                    summaryTable.AddCell(new PdfPCell(new Phrase("Giảm giá:", normalFont)) { Border = Rectangle.NO_BORDER, Padding = 4f });
-                    summaryTable.AddCell(new PdfPCell(new Phrase($"-{order.discount_amount:N0} đ", normalFont)) { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_RIGHT, Padding = 4f });
-                }
-
-                PdfPCell totalLabel = new PdfPCell(new Phrase("TỔNG THANH TOÁN:", boldFont)) { Border = Rectangle.TOP_BORDER, PaddingTop = 8f };
-                PdfPCell totalVal = new PdfPCell(new Phrase($"{order.final_total:N0} đ", new Font(bf, 13, Font.BOLD, new BaseColor(225, 29, 72)))) { Border = Rectangle.TOP_BORDER, HorizontalAlignment = Element.ALIGN_RIGHT, PaddingTop = 8f };
-                summaryTable.AddCell(totalLabel);
-                summaryTable.AddCell(totalVal);
-
-                document.Add(summaryTable);
-
-                Paragraph thankYou = new Paragraph("Cảm ơn quý khách đã tin dùng và ủng hộ Tiệm Trà Sữa!", normalFont);
-                thankYou.Alignment = Element.ALIGN_CENTER;
-                thankYou.SpacingBefore = 20f;
-                document.Add(thankYou);
-
-                Paragraph footerNote = new Paragraph("Hotline hỗ trợ & Khiếu nại: 1900 1234 - cskh@trasua.vn", smallFont);
-                footerNote.Alignment = Element.ALIGN_CENTER;
-                document.Add(footerNote);
-
-                document.Close();
-                byte[] bytes = ms.ToArray();
-                Response.AppendHeader("Content-Disposition", $"inline; filename=HoaDon_{order.id}.pdf");
-                return File(bytes, "application/pdf");
-            }
+            byte[] bytes = InvoicePdfHelper.BuildOrderInvoicePdf(order);
+            Response.AppendHeader("Content-Disposition", $"inline; filename=HoaDon_{order.id}.pdf");
+            return File(bytes, "application/pdf");
         }
 
         // ==========================================

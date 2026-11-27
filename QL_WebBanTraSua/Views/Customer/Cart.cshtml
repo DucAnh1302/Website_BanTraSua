@@ -12,21 +12,7 @@
 
 @helper GetProductImage(string image)
 {
-    if (!string.IsNullOrEmpty(image))
-    {
-        if (image.StartsWith("http://") || image.StartsWith("https://"))
-        {
-            <text>@image</text>
-        }
-        else
-        {
-            <text>@Url.Content("~/assets/img/" + image.TrimStart('/'))</text>
-        }
-    }
-    else
-    {
-        <text>https://images.unsplash.com/photo-1541658016709-82535e94bc69?q=80&w=200&auto=format&fit=crop</text>
-    }
+    <text>@QL_WebBanTraSua.Helpers.ProductImageHelper.Resolve(Context, image)</text>
 }
 
 <main class="container py-5 mt-3">

@@ -7,11 +7,13 @@ using System.Linq;
 using System.Text;
 using System.Web;
 using System.Web.Mvc;
+using QL_WebBanTraSua.Filters;
 using QL_WebBanTraSua.Models;
 
 namespace QL_WebBanTraSua.Controllers
 {
     // Phân hệ NHÂN VIÊN KHO (Thương): quản lý nguyên liệu, nhập/xuất hàng, nhập nhanh bằng CSV
+    [RoleAuthorize("kho", "admin")]
     public class KhoController : Controller
     {
         private db_trasuaEntities db = new db_trasuaEntities();

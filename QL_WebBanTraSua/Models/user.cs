@@ -18,6 +18,8 @@ namespace QL_WebBanTraSua.Models
         {
             this.orders = new HashSet<order>();
             this.orders1 = new HashSet<order>();
+            this.audit_logs = new HashSet<audit_logs>();
+            this.pos_shifts = new HashSet<pos_shifts>();
         }
     
         public long id { get; set; }
@@ -36,5 +38,7 @@ namespace QL_WebBanTraSua.Models
     
         public virtual ICollection<order> orders { get; set; }
         public virtual ICollection<order> orders1 { get; set; }
+        public virtual ICollection<audit_logs> audit_logs { get; set; }
+        public virtual ICollection<pos_shifts> pos_shifts { get; set; }
     }
 }

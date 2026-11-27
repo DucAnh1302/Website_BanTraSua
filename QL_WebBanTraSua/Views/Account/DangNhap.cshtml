@@ -1,0 +1,155 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Đăng nhập Hệ thống - TeaBloom</title>
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            color: #1e293b;
+        }
+        .auth-topbar {
+            background: rgba(15, 23, 42, 0.9);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 14px 32px;
+        }
+        .auth-card {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+        }
+        .demo-table th, .demo-table td {
+            font-size: 0.84rem;
+            padding: 8px 10px;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-topbar d-flex justify-content-between align-items-center">
+        <a href="/Customer/Index" class="text-decoration-none fw-bold fs-4 text-info">
+            🧋 TeaBloom Milk Tea
+        </a>
+        <div class="d-flex gap-2">
+            <a href="/Customer/Index" class="btn btn-sm btn-outline-light">Về trang khách hàng</a>
+            <a href="/Account/DangKy" class="btn btn-sm btn-info fw-semibold text-dark">Đăng ký khách hàng</a>
+        </div>
+    </div>
+
+    <div class="container-fluid px-4 py-5">
+        <div class="row justify-content-center g-4 align-items-start">
+            <div class="col-lg-5 col-xl-4">
+                <div class="auth-card p-4 p-md-5">
+                    <div class="text-center mb-4">
+                        <div class="fs-1 mb-2">🔐</div>
+                        <h3 class="fw-bold mb-1">Đăng Nhập Hệ Thống</h3>
+                        <p class="text-muted small mb-0">Dùng cho Khách hàng, Thu ngân POS, Thủ kho &amp; Quản trị viên</p>
+                    </div>
+
+                    @if (ViewBag.CurrentUserName != null)
+                    {
+                        <div class="alert alert-info small">
+                            Bạn đang đăng nhập với tài khoản <strong>@ViewBag.CurrentUserName</strong> (Vai trò: <strong>@ViewBag.CurrentUserRole</strong>).
+                            <div class="mt-2 d-flex gap-2">
+                                <a href="/Account/VaoKhuVucCuaToi" class="btn btn-sm btn-primary">Vào khu vực của tôi</a>
+                                <form method="post" action="/Account/DangXuat" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Đăng xuất</button>
+                                </form>
+                            </div>
+                        </div>
+                    }
+
+                    @if (TempData["Success"] != null)
+                    {
+                        <div class="alert alert-success small">@TempData["Success"]</div>
+                    }
+                    @if (TempData["Error"] != null)
+                    {
+                        <div class="alert alert-danger small">@TempData["Error"]</div>
+                    }
+
+                    <form method="post" action="/Account/DangNhap">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="returnUrl" value="@ViewBag.ReturnUrl" />
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Email đăng nhập <span class="text-danger">*</span></label>
+                            <input type="email" name="email" value="@ViewBag.InputEmail" class="form-control form-control-lg" required autofocus placeholder="vd: pos@trasua.test" />
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">Mật khẩu <span class="text-danger">*</span></label>
+                            <input type="password" name="password" class="form-control form-control-lg" required placeholder="••••••••" />
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold mb-3">
+                            Đăng Nhập
+                        </button>
+
+                        <div class="text-center small text-muted">
+                            Khách hàng chưa có tài khoản?
+                            <a href="/Account/DangKy" class="fw-bold text-decoration-none">Đăng ký ngay</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="col-lg-5 col-xl-4">
+                <div class="auth-card p-4">
+                    <h5 class="fw-bold mb-2">📌 Tài Khoản Kiểm Thử Nhanh</h5>
+                    <p class="text-muted small mb-3">
+                        Khách hàng đăng nhập <strong>1 bước</strong>. Các vai trò nội bộ (<strong>Admin, POS, Thủ kho</strong>) sẽ qua bước nhập mã <strong>OTP 6 chữ số</strong> (hiển thị ngay trên màn hình OTP để thuận tiện kiểm thử).
+                    </p>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-sm demo-table mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Vai trò</th>
+                                    <th>Email</th>
+                                    <th>Mật khẩu</th>
+                                    <th>Bảo mật</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="badge bg-danger">Admin</span></td>
+                                    <td><code>admin@trasua.test</code></td>
+                                    <td><code>password</code></td>
+                                    <td>Email + MK + OTP</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge bg-primary">POS</span></td>
+                                    <td><code>pos@trasua.test</code></td>
+                                    <td><code>password</code></td>
+                                    <td>Email + MK + OTP</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge bg-success">Kho</span></td>
+                                    <td><code>kho@trasua.test</code></td>
+                                    <td><code>password</code></td>
+                                    <td>Email + MK + OTP</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge bg-secondary">Khách</span></td>
+                                    <td><code>customer@trasua.test</code></td>
+                                    <td><code>password</code></td>
+                                    <td>1 bước vào ngay</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

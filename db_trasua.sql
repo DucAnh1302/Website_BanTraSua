@@ -153,6 +153,41 @@ CREATE TABLE [inventory_transactions] (
   [note] NVARCHAR(255) DEFAULT NULL,
   [created_at] DATETIME NULL DEFAULT GETDATE()
 );
+
+CREATE TABLE [pos_shifts] (
+  [id] BIGINT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+  [shift_code] NVARCHAR(50) NOT NULL UNIQUE,
+  [staff_id] BIGINT NOT NULL,
+  [opening_cash] DECIMAL(12,0) NOT NULL DEFAULT 0,
+  [cash_sales] DECIMAL(12,0) NOT NULL DEFAULT 0,
+  [transfer_sales] DECIMAL(12,0) NOT NULL DEFAULT 0,
+  [expected_cash] DECIMAL(12,0) NOT NULL DEFAULT 0,
+  [actual_cash] DECIMAL(12,0) DEFAULT NULL,
+  [difference] DECIMAL(12,0) DEFAULT NULL,
+  [status] NVARCHAR(20) NOT NULL DEFAULT 'open',
+  [opened_at] DATETIME NOT NULL DEFAULT GETDATE(),
+  [closed_at] DATETIME DEFAULT NULL,
+  [notes] NVARCHAR(MAX) DEFAULT NULL,
+  [created_at] DATETIME NULL DEFAULT GETDATE(),
+  [updated_at] DATETIME NULL DEFAULT GETDATE()
+);
+
+CREATE TABLE [audit_logs] (
+  [id] BIGINT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+  [user_id] BIGINT DEFAULT NULL,
+  [user_email] NVARCHAR(255) DEFAULT NULL,
+  [user_role] NVARCHAR(50) DEFAULT NULL,
+  [action] NVARCHAR(255) NOT NULL,
+  [description] NVARCHAR(MAX) DEFAULT NULL,
+  [target_type] NVARCHAR(255) DEFAULT NULL,
+  [target_id] NVARCHAR(255) DEFAULT NULL,
+  [old_values] NVARCHAR(MAX) DEFAULT NULL,
+  [new_values] NVARCHAR(MAX) DEFAULT NULL,
+  [ip_address] NVARCHAR(45) DEFAULT NULL,
+  [user_agent] NVARCHAR(MAX) DEFAULT NULL,
+  [created_at] DATETIME NULL DEFAULT GETDATE(),
+  [updated_at] DATETIME NULL DEFAULT GETDATE()
+);
 GO
 
 -- ========================================================
@@ -212,6 +247,14 @@ ALTER TABLE [toppings]
   ADD CONSTRAINT [fk_toppings_ingredient_id] FOREIGN KEY ([ingredient_id]) REFERENCES [ingredients] ([id]);
 GO
 
+ALTER TABLE [pos_shifts]
+  ADD CONSTRAINT [fk_pos_shifts_staff_id] FOREIGN KEY ([staff_id]) REFERENCES [users] ([id]);
+GO
+
+ALTER TABLE [audit_logs]
+  ADD CONSTRAINT [fk_audit_logs_user_id] FOREIGN KEY ([user_id]) REFERENCES [users] ([id]);
+GO
+
 -- ========================================================
 -- 4. THÊM DỮ LIỆU
 -- ========================================================
@@ -253,10 +296,10 @@ SET IDENTITY_INSERT [ingredients] OFF;
 -- --- USERS ---
 SET IDENTITY_INSERT [users] ON;
 INSERT INTO [users] ([id], [name], [email], [phone], [role], [status], [points], [tier], [email_verified_at], [password], [remember_token], [created_at], [updated_at]) VALUES
-(1, N'Quản trị viên', 'admin@trasua.test', '0900000001', 'admin', 1, 0, N'Đồng', NULL, '$2y$12$q2Uqh9gS0CFU5ydRnZjcOOp6Juklp.mtflL292EU/QWXLJ1.P0LaG', NULL, '2026-09-16 20:32:50', '2026-09-16 20:32:50'),
-(2, N'Nhân viên Bán hàng', 'pos@trasua.test', '0900000002', 'pos', 1, 0, N'Đồng', NULL, '$2y$12$wmBqjDnQz1L8jVSXCc8sYubF3MHavvP0VeZETyV4twOLwRC.wuAvi', NULL, '2026-09-16 20:32:51', '2026-09-16 20:32:51'),
-(3, N'Nhân viên Kho', 'kho@trasua.test', '0900000003', 'kho', 1, 0, N'Đồng', NULL, '$2y$12$v63nN.4lFI6uWQhDLbiWe.W/Fr0Kb.GsyqhlZmSaShBJiRyAYz89W', NULL, '2026-09-16 20:32:51', '2026-09-16 20:32:51'),
-(4, N'Khách hàng Demo', 'customer@trasua.test', '0900000004', 'customer', 1, 16, N'Đồng', NULL, '$2y$12$IyEoZKbYlp7iTr3NNLhfR.sIVwEhKMUtBR2JJNjHJ3A0Jr6TqVBYG', NULL, '2026-09-16 20:32:51', '2026-09-25 03:19:29'),
+(1, N'Quản trị viên', 'admin@trasua.test', '0900000001', 'admin', 1, 0, N'Đồng', NULL, N'password', NULL, '2026-09-16 20:32:50', '2026-09-16 20:32:50'),
+(2, N'Nhân viên Bán hàng', 'pos@trasua.test', '0900000002', 'pos', 1, 0, N'Đồng', NULL, N'password', NULL, '2026-09-16 20:32:51', '2026-09-16 20:32:51'),
+(3, N'Nhân viên Kho', 'kho@trasua.test', '0900000003', 'kho', 1, 0, N'Đồng', NULL, N'password', NULL, '2026-09-16 20:32:51', '2026-09-16 20:32:51'),
+(4, N'Khách hàng Demo', 'customer@trasua.test', '0900000004', 'customer', 1, 16, N'Đồng', NULL, N'password', NULL, '2026-09-16 20:32:51', '2026-09-25 03:19:29'),
 (5, N'Clyde Schinner', 'natasha.brown@example.net', NULL, 'customer', 1, 0, N'Đồng', '2026-09-16 20:32:51', '$2y$12$oMqEdszB9XCENWZT75N0T.UYwFzgvQwSaFs9ykXdf.PEGUX5YCoG6', 'C0fYiR7ukX', '2026-09-16 20:32:51', '2026-09-16 20:32:51'),
 (6, N'Audrey Friesen', 'ocarter@example.org', NULL, 'customer', 1, 0, N'Đồng', '2026-09-16 20:32:51', '$2y$12$oMqEdszB9XCENWZT75N0T.UYwFzgvQwSaFs9ykXdf.PEGUX5YCoG6', 'wi2aDvWhng', '2026-09-16 20:32:52', '2026-09-16 20:32:52'),
 (7, N'Dr. Federico D''Amore', 'kayden94@example.com', NULL, 'customer', 1, 0, N'Đồng', '2026-09-16 20:32:51', '$2y$12$oMqEdszB9XCENWZT75N0T.UYwFzgvQwSaFs9ykXdf.PEGUX5YCoG6', 'yzXBBHqlWj', '2026-09-16 20:32:52', '2026-09-16 20:32:52'),

@@ -109,9 +109,33 @@
                         <li class="nav-item">
                             <a class="nav-link text-white" href="@Url.Action("Contact", "Customer")">LIÊN HỆ</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-warning fw-bold" href="@Url.Action("Index", "Admin")">⚙️ QUẢN TRỊ</a>
-                        </li>
+                        @{
+                            string currentRoleNav = (Session["UserRole"] as string ?? "").Trim().ToLower();
+                        }
+                        @if (currentRoleNav == "admin")
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-warning fw-bold" href="@Url.Action("Index", "Admin")">⚙️ QUẢN TRỊ</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-info fw-bold" href="@Url.Action("Index", "Pos")">💼 POS</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-success fw-bold" href="@Url.Action("Index", "Kho")">📦 KHO</a>
+                            </li>
+                        }
+                        else if (currentRoleNav == "pos" || currentRoleNav == "staff")
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-warning fw-bold" href="@Url.Action("Index", "Pos")">💼 QUẦY POS</a>
+                            </li>
+                        }
+                        else if (currentRoleNav == "kho")
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-success fw-bold" href="@Url.Action("Index", "Kho")">📦 QUẢN LÝ KHO</a>
+                            </li>
+                        }
                     </ul>
                 </div>
 
@@ -125,27 +149,55 @@
                         <i class="bi bi-search fs-5"></i>
                     </a>
 
-                    <div class="nav-item dropdown d-inline-block">
-                        <a href="#"
-                           class="text-white text-decoration-none icon-link-hover"
-                           id="userDropdown"
-                           role="button"
-                           data-bs-toggle="dropdown">
-                            <i class="bi bi-person fs-5"></i>
+                    @if (Session["UserId"] == null)
+                    {
+                        <a href="@Url.Action("DangNhap", "Account")" class="btn btn-sm btn-outline-light rounded-pill px-3 fw-semibold">
+                            Đăng nhập
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end border-secondary rounded-0 shadow-sm">
-                            <li>
-                                <a class="dropdown-item py-2" href="@Url.Action("OrderHistory", "Customer")">
-                                    <i class="bi bi-clock-history me-2"></i>Lịch sử đơn hàng
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item py-2" href="@Url.Action("Cart", "Customer")">
-                                    <i class="bi bi-bag me-2"></i>Giỏ hàng của tôi
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
+                    }
+                    else
+                    {
+                        <div class="nav-item dropdown d-inline-block">
+                            <a href="#"
+                               class="text-white text-decoration-none icon-link-hover d-inline-flex align-items-center gap-1"
+                               id="userDropdown"
+                               role="button"
+                               data-bs-toggle="dropdown">
+                                <i class="bi bi-person-circle fs-5"></i>
+                                <span class="d-none d-xl-inline small fw-semibold">@Session["UserName"]</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end border-secondary rounded-0 shadow-sm">
+                                <li class="px-3 py-2 small text-white-50 border-bottom border-secondary">
+                                    Vai trò: <strong class="text-white">@((Session["UserRole"] as string ?? "").ToUpper())</strong>
+                                </li>
+                                @if (currentRoleNav == "admin" || currentRoleNav == "pos" || currentRoleNav == "staff" || currentRoleNav == "kho")
+                                {
+                                    <li>
+                                        <a class="dropdown-item py-2 text-warning fw-semibold" href="@Url.Action("VaoKhuVucCuaToi", "Account")">
+                                            <i class="bi bi-speedometer2 me-2"></i>Khu vực làm việc
+                                        </a>
+                                    </li>
+                                }
+                                <li>
+                                    <a class="dropdown-item py-2" href="@Url.Action("OrderHistory", "Customer")">
+                                        <i class="bi bi-clock-history me-2"></i>Lịch sử đơn hàng
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item py-2" href="@Url.Action("Cart", "Customer")">
+                                        <i class="bi bi-bag me-2"></i>Giỏ hàng của tôi
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider border-secondary" /></li>
+                                <li>
+                                    <form method="post" action="@Url.Action("DangXuat", "Account")" class="px-3 py-1 mb-0">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-danger w-100 fw-semibold">Đăng xuất</button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                    }
 
                     @{
                         var cart = Session["GioHang_Session"] as List<QL_WebBanTraSua.Models.CartItem>;

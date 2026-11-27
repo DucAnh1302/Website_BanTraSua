@@ -37,5 +37,7 @@ namespace QL_WebBanTraSua.Models
         public DbSet<topping> toppings { get; set; }
         public DbSet<user> users { get; set; }
         public DbSet<voucher> vouchers { get; set; }
+        public DbSet<pos_shifts> pos_shifts { get; set; }
+        public DbSet<audit_logs> audit_logs { get; set; }
     }
 }

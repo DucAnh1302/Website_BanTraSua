@@ -5,10 +5,13 @@ using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using QL_WebBanTraSua.Filters;
 using QL_WebBanTraSua.Models;
+using QL_WebBanTraSua.Services;
 
 namespace QL_WebBanTraSua.Controllers
 {
+    [RoleAuthorize("admin")]
     public class AdminController : Controller
     {
         private db_trasuaEntities db = new db_trasuaEntities();
@@ -591,8 +594,7 @@ namespace QL_WebBanTraSua.Controllers
         public ActionResult CapNhatTrangThaiDonHang(long id, string order_status, string payment_status)
         {
             var order = db.orders
-                .Include(o => o.order_items.Select(oi => oi.product_variants.recipe_details.Select(rd => rd.ingredient)))
-                .Include(o => o.order_items.Select(oi => oi.order_item_toppings.Select(oit => oit.topping.ingredient)))
+                .Include(o => o.user)
                 .FirstOrDefault(o => o.id == id);
 
             if (order == null)
@@ -606,58 +608,29 @@ namespace QL_WebBanTraSua.Controllers
             order.payment_status = payment_status;
             order.updated_at = DateTime.Now;
 
-            // Xử lý hoàn kho tự động theo đặc tả UC06 nếu hủy đơn
+            // Xử lý hoàn kho & điểm thành viên chuẩn xác khi hủy / hoàn thành đơn
             if (oldStatus != "cancelled" && order_status == "cancelled")
             {
-                foreach (var item in order.order_items)
+                InventoryService.RefundOrderStock(db, order);
+                if (oldStatus == "completed" && order.customer_id.HasValue && order.user != null)
                 {
-                    // Hoàn trả nguyên liệu của ly nước
-                    if (item.product_variants != null && item.product_variants.recipe_details != null)
-                    {
-                        foreach (var rd in item.product_variants.recipe_details)
-                        {
-                            if (rd.ingredient != null)
-                            {
-                                double refundQty = rd.amount * item.quantity;
-                                rd.ingredient.stock_quantity += refundQty;
-
-                                db.inventory_transactions.Add(new inventory_transactions
-                                {
-                                    ingredient_id = rd.ingredient_id,
-                                    order_id = order.id,
-                                    quantity_changed = refundQty,
-                                    transaction_type = "import_cancel",
-                                    note = "Hoàn kho tự động từ hủy đơn hàng #" + order.id,
-                                    created_at = DateTime.Now
-                                });
-                            }
-                        }
-                    }
-
-                    // Hoàn trả nguyên liệu của topping
-                    if (item.order_item_toppings != null)
-                    {
-                        foreach (var oit in item.order_item_toppings)
-                        {
-                            if (oit.topping != null && oit.topping.ingredient != null && oit.topping.amount_per_serving.HasValue)
-                            {
-                                double toppingRefund = oit.topping.amount_per_serving.Value * item.quantity;
-                                oit.topping.ingredient.stock_quantity += toppingRefund;
-
-                                db.inventory_transactions.Add(new inventory_transactions
-                                {
-                                    ingredient_id = oit.topping.ingredient.id,
-                                    order_id = order.id,
-                                    quantity_changed = toppingRefund,
-                                    transaction_type = "import_cancel",
-                                    note = "Hoàn kho topping từ hủy đơn #" + order.id,
-                                    created_at = DateTime.Now
-                                });
-                            }
-                        }
-                    }
+                    InventoryService.SubtractLoyaltyPoints(order.user, order.final_total);
                 }
             }
+            else if (oldStatus != "completed" && order_status == "completed" && order.customer_id.HasValue && order.user != null)
+            {
+                InventoryService.AddLoyaltyPoints(order.user, order.final_total);
+            }
+
+            long? uid = Session["UserId"] != null ? (long?)Convert.ToInt64(Session["UserId"]) : null;
+            InventoryService.WriteAuditLog(
+                db, Request, uid,
+                Session["UserEmail"] as string,
+                Session["UserRole"] as string,
+                "ADMIN_UPDATE_ORDER_STATUS",
+                string.Format("Admin cập nhật đơn #{0}: {1} -> {2}", order.id, oldStatus, order_status),
+                "Order", order.id.ToString()
+            );
 
             db.SaveChanges();
             TempData["Success"] = "Đã cập nhật trạng thái đơn hàng #" + id + " thành công!";
@@ -1221,6 +1194,37 @@ namespace QL_WebBanTraSua.Controllers
                 TempData["Success"] = (u.status ? "Đã mở khóa tài khoản: " : "Đã khóa tài khoản: ") + u.name;
             }
             return RedirectToAction("QuanLyNguoiDung");
+        }
+
+        // ========================================================
+        // 9. NHẬT KÝ KIỂM TOÁN HỆ THỐNG (AUDIT LOGS)
+        // ========================================================
+        public ActionResult NhatKyHeThong(string actionFilter, string search)
+        {
+            ViewBag.ActiveMenu = "NhatKy";
+            ViewBag.ActionFilter = actionFilter;
+            ViewBag.Search = search;
+
+            var query = db.audit_logs.Include(a => a.user).AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(actionFilter))
+            {
+                string af = actionFilter.Trim().ToUpper();
+                query = query.Where(a => a.action != null && a.action.ToUpper().StartsWith(af));
+            }
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                string s = search.Trim().ToLower();
+                query = query.Where(a =>
+                    (a.user_email != null && a.user_email.ToLower().Contains(s)) ||
+                    (a.description != null && a.description.ToLower().Contains(s)) ||
+                    (a.action != null && a.action.ToLower().Contains(s)) ||
+                    (a.target_id != null && a.target_id.Contains(s)));
+            }
+
+            var logs = query.OrderByDescending(a => a.id).Take(150).ToList();
+            return View(logs);
         }
     }
 }

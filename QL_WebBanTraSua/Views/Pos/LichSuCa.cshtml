@@ -1,0 +1,75 @@
+﻿@model List<QL_WebBanTraSua.Models.pos_shifts>
+@{
+    ViewBag.Title = "Lịch sử các ca làm việc";
+    Layout = "~/Views/Shared/_LayoutPos.cshtml";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1">📋 Lịch Sử Các Ca Làm Việc POS</h3>
+        <p class="text-muted small mb-0">Toàn bộ danh sách mở/đóng ca két tiền thu ngân</p>
+    </div>
+    <a href="/Pos/Index" class="btn btn-primary btn-sm">&larr; Về Quầy POS</a>
+</div>
+
+<div class="card-pos overflow-hidden">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th class="ps-3">Mã ca</th>
+                    <th>Thu ngân</th>
+                    <th>Mở ca</th>
+                    <th>Đóng ca</th>
+                    <th>Đầu ca</th>
+                    <th>Tiền mặt</th>
+                    <th>Chuyển khoản</th>
+                    <th>Dự kiến két</th>
+                    <th>Thực đếm</th>
+                    <th>Chênh lệch</th>
+                    <th>Trạng thái</th>
+                    <th class="text-end pe-3">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var s in Model)
+                {
+                    decimal diff = s.difference ?? 0m;
+                    <tr>
+                        <td class="ps-3 fw-bold text-primary">@s.shift_code</td>
+                        <td>@(s.user != null ? s.user.name : "N/A")</td>
+                        <td class="small">@s.opened_at.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td class="small">@(s.closed_at.HasValue ? s.closed_at.Value.ToString("dd/MM/yyyy HH:mm") : "--")</td>
+                        <td>@string.Format("{0:N0}đ", s.opening_cash)</td>
+                        <td class="text-success fw-semibold">@string.Format("{0:N0}đ", s.cash_sales)</td>
+                        <td class="text-info fw-semibold">@string.Format("{0:N0}đ", s.transfer_sales)</td>
+                        <td class="fw-bold">@string.Format("{0:N0}đ", s.expected_cash)</td>
+                        <td>@(s.actual_cash.HasValue ? string.Format("{0:N0}đ", s.actual_cash.Value) : "--")</td>
+                        <td>
+                            @if (s.difference.HasValue)
+                            {
+                                <span class="badge @(diff == 0 ? "bg-success" : diff > 0 ? "bg-info text-dark" : "bg-danger")">
+                                    @(diff > 0 ? "+" : "")@string.Format("{0:N0}đ", diff)
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">--</span>
+                            }
+                        </td>
+                        <td>
+                            <span class="badge @(s.status == "open" ? "bg-warning text-dark" : "bg-success")">
+                                @(s.status == "open" ? "Đang mở" : "Đã chốt")
+                            </span>
+                        </td>
+                        <td class="text-end pe-3">
+                            <a href="/Pos/KetCa?shiftId=@s.id" class="btn btn-sm btn-outline-primary">
+                                @(s.status == "open" ? "Kết ca" : "Xem Z-Report")
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

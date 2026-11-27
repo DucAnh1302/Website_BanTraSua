@@ -1,0 +1,160 @@
+﻿@using QL_WebBanTraSua.Models
+@{
+    ViewBag.Title = "Quầy bán hàng POS";
+    Layout = "~/Views/Shared/_LayoutPos.cshtml";
+
+    var currentShift = ViewBag.CurrentShift as pos_shifts;
+    var selectedProduct = ViewBag.SelectedProduct as product;
+    string panel = ViewBag.Panel as string ?? "";
+    var todayOrders = ViewBag.TodayOrders as List<order> ?? new List<order>();
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <div>
+        <h3 class="fw-bold mb-1">🧾 Màn Hình Bán Hàng Tại Quầy (POS)</h3>
+        <p class="text-muted small mb-0">Thao tác thuần Server-Side ASP.NET MVC • Hỗ trợ tùy biến ly nước, tích điểm SĐT, Z-Report &amp; Manager Override</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="/Pos/DonOnline" class="btn btn-outline-primary btn-sm fw-semibold">
+            🛵 Đơn Online chờ (@(ViewBag.PendingOnlineCount ?? 0))
+        </a>
+        @if (currentShift == null)
+        {
+            <a href="/Pos/Index?panel=moca" class="btn btn-primary btn-sm fw-bold">▶ Mở Ca Thu Ngân</a>
+        }
+        else
+        {
+            <a href="/Pos/KetCa" class="btn btn-warning btn-sm fw-bold">💰 Bàn giao / Kết ca</a>
+        }
+    </div>
+</div>
+
+@if (currentShift == null && (panel == "moca" || todayOrders.Count == 0))
+{
+    <div class="card-pos p-4 mb-4 border-primary bg-white">
+        <div class="row align-items-center g-3">
+            <div class="col-md-7">
+                <h5 class="fw-bold text-primary mb-1">🔓 Mở Ca Làm Việc Thu Ngân Mới</h5>
+                <p class="text-muted small mb-0">
+                    Theo quy tắc kiểm soát két tiền, bạn phải khai báo số tiền mặt thối lẻ ban đầu trong két trước khi lập hóa đơn thanh toán.
+                </p>
+            </div>
+            <div class="col-md-5">
+                <form method="post" action="/Pos/MoCa" class="d-flex gap-2 align-items-end">
+                    @Html.AntiForgeryToken()
+                    <div class="flex-grow-1">
+                        <label class="form-label small fw-bold mb-1">Tiền đầu ca (VNĐ)</label>
+                        <input type="number" name="opening_cash" value="1000000" min="0" step="1000" class="form-control" required />
+                    </div>
+                    <button type="submit" class="btn btn-primary fw-bold px-4">Xác nhận Mở Ca</button>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
+<div class="row g-4 align-items-start">
+    <!-- CỘT TRÁI: TÙY BIẾN (NẾU CHỌN) + THỰC ĐƠN POS -->
+    <div class="col-lg-7">
+        @if (selectedProduct != null)
+        {
+            @Html.Partial("_TuyBienMon")
+        }
+        @Html.Partial("_MenuPos")
+    </div>
+
+    <!-- CỘT PHẢI: GIỎ HÀNG POS, KHÁCH HÀNG SĐT & THANH TOÁN -->
+    <div class="col-lg-5">
+        @Html.Partial("_GioHangPos")
+    </div>
+</div>
+
+<!-- KHU VỰC ĐƠN TẠI QUẦY HÔM NAY & CHỐNG GIAN LẬN (MANAGER OVERRIDE) -->
+<div class="card-pos mt-4 overflow-hidden">
+    <div class="p-3 bg-white border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div>
+            <h5 class="fw-bold mb-0">🛡️ Lịch Sử Đơn Tại Quầy Hôm Nay &amp; Kiểm Soát Hủy Đơn</h5>
+            <small class="text-muted">Thu ngân không tự ý hủy đơn đã thu tiền — mọi yêu cầu hủy đều phải có Quản lý (Admin) nhập mật khẩu phê duyệt.</small>
+        </div>
+        <span class="badge bg-dark">@todayOrders.Count đơn hôm nay</span>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th class="ps-3">Mã đơn</th>
+                    <th>Thời gian</th>
+                    <th>Khách hàng</th>
+                    <th>Hình thức</th>
+                    <th>Tổng tiền</th>
+                    <th>Trạng thái</th>
+                    <th class="text-end pe-3">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (todayOrders.Count == 0)
+                {
+                    <tr>
+                        <td colspan="7" class="text-center py-4 text-muted">Chưa có đơn hàng tại quầy nào trong ngày hôm nay.</td>
+                    </tr>
+                }
+                else
+                {
+                    foreach (var ro in todayOrders)
+                    {
+                        <tr>
+                            <td class="ps-3 fw-bold text-primary">#@ro.id</td>
+                            <td class="small text-muted">@(ro.created_at.HasValue ? ro.created_at.Value.ToString("HH:mm") : "")</td>
+                            <td>
+                                <div class="fw-semibold">@(string.IsNullOrEmpty(ro.shipping_name) ? "Khách lẻ" : ro.shipping_name)</div>
+                                @if (!string.IsNullOrEmpty(ro.shipping_phone))
+                                {
+                                    <small class="text-muted">@ro.shipping_phone</small>
+                                }
+                            </td>
+                            <td>
+                                @if (ro.payment_method == "transfer")
+                                {
+                                    <span class="badge bg-info text-dark">Chuyển khoản QR</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-success">Tiền mặt</span>
+                                }
+                            </td>
+                            <td class="fw-bold text-danger">@string.Format("{0:N0}đ", ro.final_total)</td>
+                            <td>
+                                @if (ro.order_status == "completed")
+                                {
+                                    <span class="badge bg-success">Hoàn thành</span>
+                                }
+                                else if (ro.order_status == "cancelled")
+                                {
+                                    <span class="badge bg-danger">Đã hủy &amp; hoàn kho</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning text-dark">Chờ thanh toán</span>
+                                }
+                            </td>
+                            <td class="text-end pe-3">
+                                <div class="d-inline-flex gap-1">
+                                    @if (ro.payment_status == "unpaid" && ro.order_type == "in_store" && ro.order_status == "pending")
+                                    {
+                                        <a href="/Pos/XacNhanChuyenKhoan/@ro.id" class="btn btn-sm btn-primary">Quét QR</a>
+                                    }
+                                    <a href="/Pos/InHoaDon/@ro.id" class="btn btn-sm btn-outline-secondary">In bill</a>
+                                    <a href="/Pos/XuatHoaDonPdf/@ro.id" target="_blank" class="btn btn-sm btn-outline-dark">PDF</a>
+                                    @if (ro.order_status == "completed")
+                                    {
+                                        <a href="/Pos/HuyDon/@ro.id" class="btn btn-sm btn-outline-danger fw-semibold">🔒 Duyệt hủy</a>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

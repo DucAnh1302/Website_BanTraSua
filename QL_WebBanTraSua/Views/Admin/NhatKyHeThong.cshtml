@@ -1,0 +1,107 @@
+﻿@model List<QL_WebBanTraSua.Models.audit_logs>
+@{
+    ViewBag.Title = "Nhật ký kiểm toán hệ thống (Audit Logs)";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    string actionFilter = ViewBag.ActionFilter as string ?? "";
+    string search = ViewBag.Search as string ?? "";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h3 class="fw-bold mb-1">🛡️ Nhật Ký Kiểm Toán Hệ Thống (Audit Trail)</h3>
+        <p class="text-muted small mb-0">Theo dõi toàn bộ hoạt động đăng nhập, OTP, mở/kết ca POS, duyệt hủy đơn &amp; thay đổi dữ liệu</p>
+    </div>
+    <span class="badge bg-dark px-3 py-2">Hiển thị @Model.Count bản ghi gần nhất</span>
+</div>
+
+<div class="card-custom mb-4">
+    <div class="card-body p-3">
+        <form method="get" action="/Admin/NhatKyHeThong" class="row g-2 align-items-center">
+            <div class="col-md-5">
+                <input type="text" name="search" value="@search" class="form-control" placeholder="Tìm theo email, mô tả hành động, mã đối tượng..." />
+            </div>
+            <div class="col-md-4">
+                <select name="actionFilter" class="form-select">
+                    <option value="">-- Tất cả nhóm sự kiện --</option>
+                    <option value="AUTH" @(actionFilter == "AUTH" ? "selected" : "")>🔐 Bảo mật &amp; Đăng nhập / OTP (AUTH_*)</option>
+                    <option value="POS" @(actionFilter == "POS" ? "selected" : "")>💼 Thu ngân &amp; Ca két tiền (POS_*)</option>
+                    <option value="ADMIN" @(actionFilter == "ADMIN" ? "selected" : "")>⚙️ Quản trị viên (ADMIN_*)</option>
+                </select>
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-primary flex-grow-1 fw-semibold">Lọc nhật ký</button>
+                <a href="/Admin/NhatKyHeThong" class="btn btn-outline-secondary">Đặt lại</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card-custom overflow-hidden">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th class="ps-3">ID</th>
+                    <th>Thời gian</th>
+                    <th>Tác nhân</th>
+                    <th>Mã hành động</th>
+                    <th>Mô tả chi tiết</th>
+                    <th>Đối tượng</th>
+                    <th class="pe-3">IP</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Count == 0)
+                {
+                    <tr>
+                        <td colspan="7" class="text-center py-4 text-muted">Chưa có bản ghi nhật ký nào phù hợp.</td>
+                    </tr>
+                }
+                else
+                {
+                    foreach (var log in Model)
+                    {
+                        string act = log.action ?? "";
+                        string badgeClass = "bg-secondary";
+                        if (act.Contains("FAIL") || act.Contains("BLOCK") || act.Contains("UNAUTHORIZED"))
+                        {
+                            badgeClass = "bg-danger";
+                        }
+                        else if (act.Contains("SUCCESS") || act.Contains("CREATED") || act.Contains("CONFIRMED"))
+                        {
+                            badgeClass = "bg-success";
+                        }
+                        else if (act.Contains("SHIFT") || act.Contains("2FA"))
+                        {
+                            badgeClass = "bg-primary";
+                        }
+                        else if (act.Contains("CANCEL"))
+                        {
+                            badgeClass = "bg-warning text-dark";
+                        }
+
+                        <tr>
+                            <td class="ps-3 text-muted small">#@log.id</td>
+                            <td class="small">@(log.created_at.HasValue ? log.created_at.Value.ToString("dd/MM/yyyy HH:mm:ss") : "")</td>
+                            <td>
+                                <div class="fw-semibold small">@(log.user != null ? log.user.name : "Khách / Hệ thống")</div>
+                                <div class="text-muted" style="font-size: 0.78rem;">@log.user_email (@log.user_role)</div>
+                            </td>
+                            <td>
+                                <span class="badge @badgeClass">@log.action</span>
+                            </td>
+                            <td class="small">@log.description</td>
+                            <td class="small text-muted">
+                                @if (!string.IsNullOrEmpty(log.target_type))
+                                {
+                                    @log.target_type <text>#</text>@log.target_id
+                                }
+                            </td>
+                            <td class="small text-muted pe-3">@log.ip_address</td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

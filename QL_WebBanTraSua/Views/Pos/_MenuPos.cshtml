@@ -1,0 +1,104 @@
+﻿@using QL_WebBanTraSua.Models
+@using QL_WebBanTraSua.Helpers
+@{
+    var products = ViewBag.Products as List<product> ?? new List<product>();
+    var categories = ViewBag.Categories as List<category> ?? new List<category>();
+    var outOfStockProducts = ViewBag.OutOfStockProducts as HashSet<long> ?? new HashSet<long>();
+    var outOfStockVariants = ViewBag.OutOfStockVariants as HashSet<long> ?? new HashSet<long>();
+    long? currentCat = ViewBag.CategoryId as long?;
+    string search = ViewBag.Search as string ?? "";
+}
+
+<div class="card-pos p-3 mb-3">
+    <form method="get" action="/Pos/Index" class="row g-2 align-items-center mb-3">
+        <div class="col-md-5">
+            <input type="text" name="search" value="@search" class="form-control form-control-sm" placeholder="Tìm tên thức uống..." />
+        </div>
+        <div class="col-md-4">
+            <select name="categoryId" class="form-select form-select-sm">
+                <option value="">-- Tất cả danh mục --</option>
+                @foreach (var cat in categories)
+                {
+                    <option value="@cat.id" @(currentCat == cat.id ? "selected" : "")>@cat.name</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-3 d-flex gap-1">
+            <button type="submit" class="btn btn-sm btn-primary flex-grow-1 fw-semibold">🔍 Lọc món</button>
+            <a href="/Pos/Index" class="btn btn-sm btn-outline-secondary">Xóa</a>
+        </div>
+    </form>
+
+    <div class="d-flex flex-wrap gap-1">
+        <a href="/Pos/Index?search=@Url.Encode(search)" class="btn btn-sm @(!currentCat.HasValue ? "btn-dark" : "btn-outline-dark")">Tất cả</a>
+        @foreach (var cat in categories)
+        {
+            <a href="/Pos/Index?categoryId=@cat.id&search=@Url.Encode(search)"
+               class="btn btn-sm @(currentCat == cat.id ? "btn-dark" : "btn-outline-dark")">
+                @cat.name
+            </a>
+        }
+    </div>
+</div>
+
+@if (products.Count == 0)
+{
+    <div class="card-pos p-5 text-center text-muted">
+        Không tìm thấy món nước nào phù hợp với bộ lọc hiện tại.
+    </div>
+}
+else
+{
+    foreach (var p in products)
+    {
+        bool isAllOut = outOfStockProducts.Contains(p.id);
+        string imgUrl = ProductImageHelper.Resolve(Context, p.image, p.category != null ? p.category.name : null);
+        var variants = p.product_variants != null ? p.product_variants.OrderBy(v => v.price).ToList() : new List<product_variants>();
+
+        <div class="card-pos p-3 mb-3">
+            <div class="d-flex gap-3 align-items-start">
+                <img src="@imgUrl" alt="@p.name" class="rounded-3 border" style="width: 78px; height: 78px; object-fit: cover; flex-shrink: 0;" />
+
+                <div class="flex-grow-1">
+                    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-2">
+                        <div>
+                            <h6 class="fw-bold mb-0">
+                                @p.name
+                                @if (isAllOut)
+                                {
+                                    <span class="badge bg-danger ms-1" style="font-size: 0.7rem;">Hết NL kho</span>
+                                }
+                            </h6>
+                            <small class="text-muted">@(p.category != null ? p.category.name : "")</small>
+                        </div>
+                        <a href="/Pos/Index?chonMonId=@p.id&search=@Url.Encode(search)&categoryId=@currentCat"
+                           class="btn btn-sm btn-outline-secondary fw-semibold">
+                            🎛️ Tùy biến (Topping / Đường / Đá)
+                        </a>
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-2">
+                        @foreach (var v in variants)
+                        {
+                            bool vOut = outOfStockVariants.Contains(v.id);
+                            <form method="post" action="/Pos/ThemMonVaoDon" class="mb-0">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="variant_id" value="@v.id" />
+                                <input type="hidden" name="quantity" value="1" />
+                                <input type="hidden" name="sugar_level" value="100" />
+                                <input type="hidden" name="ice_option" value="normal" />
+                                <input type="hidden" name="search" value="@search" />
+                                <input type="hidden" name="categoryId" value="@currentCat" />
+                                <button type="submit"
+                                        class="btn btn-sm @(vOut ? "btn-outline-danger" : "btn-outline-primary") fw-semibold"
+                                        @(vOut ? "disabled" : "")>
+                                    + Size @v.size — @string.Format("{0:N0}đ", v.price)@(vOut ? " (Hết NL)" : "")
+                                </button>
+                            </form>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}

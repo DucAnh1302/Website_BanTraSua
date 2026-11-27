@@ -1,0 +1,131 @@
+﻿@model QL_WebBanTraSua.Models.order
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <title>Hóa Đơn POS #@Model.id - TeaBloom</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f8fafc; color: #1e293b; }
+        .invoice-box { max-width: 680px; margin: auto; padding: 28px; border: 1px solid #e2e8f0; background-color: #ffffff; border-radius: 8px; }
+        .header { text-align: center; border-bottom: 2px dashed #cbd5e1; padding-bottom: 16px; margin-bottom: 16px; }
+        .brand { font-size: 24px; font-weight: bold; color: #0284c7; margin-bottom: 4px; }
+        .subtitle { font-size: 13px; color: #64748b; }
+        .invoice-title { font-size: 19px; font-weight: bold; text-align: center; margin: 12px 0 4px 0; text-transform: uppercase; }
+        .meta-table { width: 100%; margin-bottom: 16px; font-size: 14px; }
+        .meta-table td { padding: 3px 0; vertical-align: top; }
+        .item-table { width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 14px; }
+        .item-table th, .item-table td { border-bottom: 1px solid #e2e8f0; padding: 9px 7px; text-align: left; }
+        .item-table th { background-color: #f1f5f9; font-weight: bold; }
+        .text-center { text-align: center; }
+        .text-end { text-align: right; }
+        .total-section { width: 100%; margin-top: 8px; font-size: 14px; }
+        .total-section td { padding: 4px 0; }
+        .final-row { font-size: 18px; font-weight: bold; color: #dc2626; border-top: 2px solid #334155; }
+        .footer { margin-top: 24px; text-align: center; font-size: 13px; color: #64748b; border-top: 2px dashed #cbd5e1; padding-top: 14px; }
+        .no-print-bar { max-width: 680px; margin: 0 auto 14px auto; display: flex; justify-content: space-between; align-items: center; background: #e0f2fe; padding: 10px 15px; border-radius: 6px; font-size: 14px; color: #0369a1; }
+        @@media print {
+            body { background: #fff; padding: 0; }
+            .invoice-box { border: none; padding: 0; max-width: 100%; }
+            .no-print-bar { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="no-print-bar">
+        <span>💡 Bấm phím tắt <strong>Ctrl + P</strong> để in biên lai hoặc lưu PDF.</span>
+        <a href="/Pos/Index" style="color: #0284c7; text-decoration: none; font-weight: bold;">&larr; Về Quầy POS</a>
+    </div>
+
+    <div class="invoice-box">
+        <div class="header">
+            <div class="brand">🧋 TEABLOOM MILK TEA</div>
+            <div class="subtitle">140 Lê Trọng Tấn, Q. Tân Phú, TP. HCM | Hotline: 1900 1234</div>
+        </div>
+
+        <div class="invoice-title">HÓA ĐƠN BÁN HÀNG TẠI QUẦY</div>
+        <div class="text-center" style="font-size: 13px; color: #64748b; margin-bottom: 14px;">
+            Mã hóa đơn: <strong>#@Model.id</strong> | Kênh: @(Model.order_type == "in_store" ? "Bán tại quầy (POS)" : "Đặt Online")
+        </div>
+
+        <table class="meta-table">
+            <tr>
+                <td style="width: 55%;">
+                    <strong>Khách hàng:</strong> @(string.IsNullOrEmpty(Model.shipping_name) ? "Khách lẻ tại quầy" : Model.shipping_name)<br />
+                    <strong>Số điện thoại:</strong> @(string.IsNullOrEmpty(Model.shipping_phone) ? "N/A" : Model.shipping_phone)<br />
+                    <strong>Thu ngân:</strong> @(Model.user1 != null ? Model.user1.name : "Thu ngân POS")
+                </td>
+                <td style="width: 45%;" class="text-end">
+                    <strong>Thời gian:</strong> @(Model.created_at.HasValue ? Model.created_at.Value.ToString("dd/MM/yyyy HH:mm") : DateTime.Now.ToString("dd/MM/yyyy HH:mm"))<br />
+                    <strong>Thanh toán:</strong> @(Model.payment_method == "transfer" ? "Chuyển khoản VietQR" : "Tiền mặt")<br />
+                    <strong>Trạng thái:</strong> @(Model.payment_status == "paid" ? "Đã thanh toán" : "Chưa thanh toán")
+                </td>
+            </tr>
+        </table>
+
+        <table class="item-table">
+            <thead>
+                <tr>
+                    <th>STT</th>
+                    <th>Thức uống</th>
+                    <th class="text-center">Size</th>
+                    <th class="text-center">SL</th>
+                    <th class="text-end">Đơn giá</th>
+                    <th class="text-end">Thành tiền</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{ int stt = 1; }
+                @foreach (var oi in Model.order_items)
+                {
+                    decimal topSum = oi.order_item_toppings != null ? oi.order_item_toppings.Sum(t => t.price) : 0m;
+                    decimal lineTotal = (oi.unit_price + topSum) * oi.quantity;
+                    <tr>
+                        <td>@stt</td>
+                        <td>
+                            <strong>@(oi.product_variants != null && oi.product_variants.product != null ? oi.product_variants.product.name : "Thức uống")</strong><br />
+                            <small style="color: #64748b;">
+                                Đường @oi.sugar_level% | Đá @oi.ice_option
+                                @if (oi.order_item_toppings != null && oi.order_item_toppings.Count > 0)
+                                {
+                                    @: | + @string.Join(", ", oi.order_item_toppings.Select(t => t.topping_name))
+                                }
+                            </small>
+                        </td>
+                        <td class="text-center">@(oi.product_variants != null ? oi.product_variants.size : "M")</td>
+                        <td class="text-center">@oi.quantity</td>
+                        <td class="text-end">@string.Format("{0:N0}đ", oi.unit_price + topSum)</td>
+                        <td class="text-end"><strong>@string.Format("{0:N0}đ", lineTotal)</strong></td>
+                    </tr>
+                    stt++;
+                }
+            </tbody>
+        </table>
+
+        <table class="total-section">
+            <tr>
+                <td class="text-end" style="width: 75%;">Tạm tính:</td>
+                <td class="text-end" style="width: 25%;">@string.Format("{0:N0}đ", Model.subtotal)</td>
+            </tr>
+            @if (Model.discount_amount > 0)
+            {
+                <tr>
+                    <td class="text-end">Giảm giá Voucher:</td>
+                    <td class="text-end">-@string.Format("{0:N0}đ", Model.discount_amount)</td>
+                </tr>
+            }
+            <tr class="final-row">
+                <td class="text-end" style="padding-top: 8px;">TỔNG THANH TOÁN:</td>
+                <td class="text-end" style="padding-top: 8px;">@string.Format("{0:N0}đ", Model.final_total)</td>
+            </tr>
+        </table>
+
+        <div class="footer">
+            Cảm ơn quý khách đã ghé thăm TeaBloom Milk Tea!<br />
+            Hẹn gặp lại quý khách lần sau.
+        </div>
+    </div>
+</body>
+</html>

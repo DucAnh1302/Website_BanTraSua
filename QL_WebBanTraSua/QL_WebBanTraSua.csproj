@@ -133,9 +133,16 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\AdminController.cs" />
+    <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\CustomerController.cs" />
     <Compile Include="Controllers\KhoController.cs" />
+    <Compile Include="Controllers\PosController.cs" />
+    <Compile Include="Filters\RoleAuthorizeAttribute.cs" />
+    <Compile Include="Helpers\InvoicePdfHelper.cs" />
+    <Compile Include="Helpers\ProductImageHelper.cs" />
     <Compile Include="Models\CartItem.cs" />
+    <Compile Include="Models\PosViewModel.cs" />
+    <Compile Include="Services\InventoryService.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -189,6 +196,12 @@
       <DependentUpon>QuanLyHeThongBanTraSuaModels.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\voucher.cs">
+      <DependentUpon>QuanLyHeThongBanTraSuaModels.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\audit_logs.cs">
+      <DependentUpon>QuanLyHeThongBanTraSuaModels.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\pos_shifts.cs">
       <DependentUpon>QuanLyHeThongBanTraSuaModels.tt</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -283,19 +296,24 @@
     <Content Include="Views\Admin\QuanLyNguoiDung.cshtml" />
     <Content Include="Views\Admin\ThemNhanVien.cshtml" />
     <Content Include="Views\Admin\SuaNguoiDung.cshtml" />
-    <Content Include="Views\Shared\LayoutKhachHang.cshtml" />
-    <Content Include="Views\Customer\About.cshtml" />
-    <Content Include="Views\Customer\Cart.cshtml" />
-    <Content Include="Views\Customer\Checkout.cshtml" />
-    <Content Include="Views\Customer\Contact.cshtml" />
-    <Content Include="Views\Customer\Details.cshtml" />
-    <Content Include="Views\Customer\Index.cshtml" />
-    <Content Include="Views\Customer\OrderDetail.cshtml" />
-    <Content Include="Views\Customer\OrderHistory.cshtml" />
-    <Content Include="Views\Customer\OrderSuccess.cshtml" />
-    <Content Include="Views\Customer\Products.cshtml" />
-    <Content Include="Views\Customer\Tips.cshtml" />
-    <Content Include="Views\Customer\_CategoryMenu.cshtml" />
+    <Content Include="Views\Admin\NhatKyHeThong.cshtml" />
+    <Content Include="Views\Account\DangNhap.cshtml" />
+    <Content Include="Views\Account\DangKy.cshtml" />
+    <Content Include="Views\Account\XacThucOtp.cshtml" />
+    <Content Include="Views\Account\KhongCoQuyen.cshtml" />
+    <Content Include="Views\Shared\_LayoutPos.cshtml" />
+    <Content Include="Views\Pos\Index.cshtml" />
+    <Content Include="Views\Pos\_MenuPos.cshtml" />
+    <Content Include="Views\Pos\_TuyBienMon.cshtml" />
+    <Content Include="Views\Pos\_GioHangPos.cshtml" />
+    <Content Include="Views\Pos\KetCa.cshtml" />
+    <Content Include="Views\Pos\LichSuCa.cshtml" />
+    <Content Include="Views\Pos\HuyDon.cshtml" />
+    <Content Include="Views\Pos\XacNhanChuyenKhoan.cshtml" />
+    <Content Include="Views\Pos\ThanhToanThanhCong.cshtml" />
+    <Content Include="Views\Pos\InHoaDon.cshtml" />
+    <Content Include="Views\Pos\DonOnline.cshtml" />
+    <Content Include="Views\Pos\ChiTietDonOnline.cshtml" />
     <Content Include="Views\Shared\LayoutKhachHang.cshtml" />
     <Content Include="Views\Customer\About.cshtml" />
     <Content Include="Views\Customer\Cart.cshtml" />

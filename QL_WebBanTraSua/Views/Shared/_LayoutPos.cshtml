@@ -1,0 +1,197 @@
+﻿@using QL_WebBanTraSua.Models
+@{
+    string activeMenu = ViewBag.ActiveMenu as string ?? "BanHang";
+    string userName = Session["UserName"] as string ?? "Nhân viên POS";
+    string userRole = Session["UserRole"] as string ?? "pos";
+    bool isAdmin = string.Equals(userRole, "admin", StringComparison.OrdinalIgnoreCase);
+    var currentShift = ViewBag.CurrentShift as pos_shifts;
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewBag.Title - TeaBloom POS</title>
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        body {
+            background-color: #f4f6f9;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            color: #1e293b;
+        }
+        .pos-sidebar {
+            background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+            min-height: 100vh;
+            color: #e2e8f0;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .pos-brand {
+            padding: 20px 18px;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #38bdf8;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+        .pos-brand:hover { color: #7dd3fc; }
+        .sidebar-section-title {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #94a3b8;
+            padding: 16px 20px 6px;
+            font-weight: 600;
+        }
+        .pos-nav-link {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 11px 20px;
+            color: #cbd5e1;
+            text-decoration: none;
+            font-size: 0.92rem;
+            font-weight: 500;
+            border-left: 3px solid transparent;
+        }
+        .pos-nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.06);
+            color: #ffffff;
+            border-left-color: #f59e0b;
+        }
+        .pos-nav-link.active {
+            background-color: rgba(245, 158, 11, 0.14);
+            color: #fbbf24;
+            font-weight: 600;
+            border-left-color: #f59e0b;
+        }
+        .pos-topbar {
+            background-color: #ffffff;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+        }
+        .pos-main {
+            padding: 22px 24px;
+        }
+        .card-pos {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            background-color: #ffffff;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid p-0">
+        <div class="row g-0">
+            <!-- Sidebar POS -->
+            <div class="col-md-3 col-lg-2 pos-sidebar">
+                <a href="/Pos/Index" class="pos-brand">
+                    <span>🧋 TeaBloom</span>
+                    <span class="badge bg-warning text-dark" style="font-size: 0.68rem;">POS</span>
+                </a>
+
+                <div class="sidebar-section-title">Quầy thu ngân</div>
+                <nav class="nav flex-column">
+                    <a class="pos-nav-link @(activeMenu == "BanHang" ? "active" : "")" href="/Pos/Index">
+                        <span>🧾 Bán hàng tại quầy</span>
+                    </a>
+                    <a class="pos-nav-link @(activeMenu == "DonOnline" ? "active" : "")" href="/Pos/DonOnline">
+                        <span>🛵 Tiếp nhận Đơn Online</span>
+                        @if (ViewBag.PendingOnlineCount != null && (int)ViewBag.PendingOnlineCount > 0)
+                        {
+                            <span class="badge bg-danger rounded-pill">@ViewBag.PendingOnlineCount</span>
+                        }
+                    </a>
+                </nav>
+
+                <div class="sidebar-section-title">Ca làm việc (Z-Report)</div>
+                <nav class="nav flex-column">
+                    <a class="pos-nav-link @(activeMenu == "KetCa" ? "active" : "")" href="/Pos/KetCa">
+                        <span>💰 Bàn giao / Kết ca</span>
+                    </a>
+                    <a class="pos-nav-link" href="/Pos/LichSuCa">
+                        <span>📋 Lịch sử ca làm việc</span>
+                    </a>
+                </nav>
+
+                <div class="sidebar-section-title">Điều hướng hệ thống</div>
+                <nav class="nav flex-column mb-4">
+                    @if (isAdmin)
+                    {
+                        <a class="pos-nav-link" href="/Admin/Index">
+                            <span>⚙️ Khu vực Admin</span>
+                        </a>
+                        <a class="pos-nav-link" href="/Kho/Index">
+                            <span>📦 Khu vực Kho</span>
+                        </a>
+                    }
+                    <a class="pos-nav-link" href="/Customer/Index">
+                        <span>🌐 Trang Khách hàng</span>
+                    </a>
+                </nav>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10">
+                <div class="pos-topbar">
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        @if (currentShift != null)
+                        {
+                            <span class="badge bg-success-subtle text-success border border-success px-3 py-2">
+                                🟢 Ca đang mở: <strong>@currentShift.shift_code</strong>
+                                | Đầu ca: @string.Format("{0:N0}đ", currentShift.opening_cash)
+                                | Tiền mặt két: @string.Format("{0:N0}đ", currentShift.expected_cash)
+                            </span>
+                            <a href="/Pos/KetCa" class="btn btn-sm btn-warning fw-semibold">Kết ca (Z-Report)</a>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger-subtle text-danger border border-danger px-3 py-2">
+                                🔴 Chưa mở ca làm việc
+                            </span>
+                            <a href="/Pos/Index?panel=moca" class="btn btn-sm btn-primary fw-semibold">▶ Mở ca ngay</a>
+                        }
+                    </div>
+
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        <span class="badge bg-light text-dark border px-3 py-2">
+                            👤 <strong>@userName</strong> (@userRole.ToUpper())
+                        </span>
+                        <form method="post" action="/Account/DangXuat" class="mb-0">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-sm btn-outline-danger fw-semibold">Đăng xuất</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="pos-main">
+                    @if (TempData["Success"] != null)
+                    {
+                        <div class="alert alert-success border-0 shadow-sm mb-3">
+                            <strong>Thành công!</strong> @TempData["Success"]
+                        </div>
+                    }
+                    @if (TempData["Error"] != null)
+                    {
+                        <div class="alert alert-danger border-0 shadow-sm mb-3">
+                            <strong>Thông báo lỗi!</strong> @TempData["Error"]
+                        </div>
+                    }
+
+                    @RenderBody()
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

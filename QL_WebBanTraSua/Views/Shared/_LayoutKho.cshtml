@@ -170,6 +170,22 @@
                         <span>🕘</span> Lịch sử nhập xuất
                     </a>
                 </nav>
+
+                <div class="sidebar-section-title">Điều hướng</div>
+                <nav class="nav flex-column mb-4">
+                    @if (string.Equals(Session["UserRole"] as string, "admin", StringComparison.OrdinalIgnoreCase))
+                    {
+                        <a class="admin-nav-link" href="/Admin/Index">
+                            <span>⚙️</span> Khu vực Admin
+                        </a>
+                        <a class="admin-nav-link" href="/Pos/Index">
+                            <span>💼</span> Quầy Bán Hàng (POS)
+                        </a>
+                    }
+                    <a class="admin-nav-link" href="/Customer/Index">
+                        <span>🌐</span> Trang Khách Hàng
+                    </a>
+                </nav>
             </div>
 
             <!-- Content Area -->
@@ -179,13 +195,17 @@
                     <div>
                         <span class="text-muted small">Khu vực nhân viên kho TeaBloom</span>
                     </div>
-                    <div class="d-flex align-items-center gap-3">
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
                         <span class="badge bg-light text-dark border p-2">
-                            👤 Vai trò: <strong>Nhân viên kho</strong>
+                            👤 <strong>@(Session["UserName"] ?? "Nhân viên kho")</strong> (@((Session["UserRole"] as string ?? "kho").ToUpper()))
                         </span>
-                        <a href="/Customer/Index" class="btn btn-sm btn-outline-secondary" target="_blank">
+                        <a href="/Customer/Index" class="btn btn-sm btn-outline-secondary">
                             Về trang khách hàng
                         </a>
+                        <form method="post" action="/Account/DangXuat" class="mb-0">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-sm btn-outline-danger fw-semibold">Đăng xuất</button>
+                        </form>
                     </div>
                 </div>
 

@@ -1,0 +1,33 @@
+﻿@{
+    Layout = null;
+    string userRole = ViewBag.UserRole as string ?? "khách";
+    string userName = ViewBag.UserName as string ?? "Người dùng";
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Không có quyền truy cập - TeaBloom</title>
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body class="bg-light">
+    <div class="container-fluid py-5 px-4">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
+                <div class="card border-danger shadow-sm p-4 text-center">
+                    <div class="fs-1 mb-2">⛔</div>
+                    <h3 class="fw-bold text-danger mb-2">Không Có Quyền Truy Cập (403)</h3>
+                    <p class="text-muted mb-3">
+                        Tài khoản <strong>@userName</strong> (Vai trò: <span class="badge bg-dark">@userRole</span>) không được phép truy cập khu vực bạn vừa yêu cầu.
+                    </p>
+                    <div class="d-flex justify-content-center gap-2 flex-wrap">
+                        <a href="/Account/VaoKhuVucCuaToi" class="btn btn-primary fw-semibold">Về đúng khu vực của tôi</a>
+                        <a href="/Account/DangNhap" class="btn btn-outline-secondary">Đổi tài khoản khác</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

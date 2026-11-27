@@ -1,0 +1,120 @@
+﻿@model QL_WebBanTraSua.Models.order
+@{
+    ViewBag.Title = "Chi tiết Đơn Online #" + Model.id;
+    Layout = "~/Views/Shared/_LayoutPos.cshtml";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1">📦 Chi Tiết Đơn Online #@Model.id</h3>
+        <p class="text-muted small mb-0">Ngày đặt: @(Model.created_at.HasValue ? Model.created_at.Value.ToString("dd/MM/yyyy HH:mm") : "")</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="/Pos/InHoaDon/@Model.id" class="btn btn-outline-dark btn-sm">🖨️ In bill</a>
+        <a href="/Pos/XuatHoaDonPdf/@Model.id" target="_blank" class="btn btn-outline-danger btn-sm">📄 Xuất PDF</a>
+        <a href="/Pos/DonOnline" class="btn btn-outline-secondary btn-sm">&larr; Danh sách Đơn Online</a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card-pos p-4 mb-3">
+            <h5 class="fw-bold mb-3">🧋 Danh Sách Món Đặt</h5>
+            <table class="table table-bordered align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Sản phẩm</th>
+                        <th>Size</th>
+                        <th class="text-center">SL</th>
+                        <th class="text-end">Đơn giá</th>
+                        <th class="text-end">Thành tiền</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var oi in Model.order_items)
+                    {
+                        decimal topSum = oi.order_item_toppings != null ? oi.order_item_toppings.Sum(t => t.price) : 0m;
+                        decimal lineTotal = (oi.unit_price + topSum) * oi.quantity;
+                        <tr>
+                            <td>
+                                <strong>@(oi.product_variants != null && oi.product_variants.product != null ? oi.product_variants.product.name : "Thức uống")</strong>
+                                <div class="small text-muted">
+                                    Đường @oi.sugar_level%, Đá @oi.ice_option
+                                    @if (oi.order_item_toppings != null && oi.order_item_toppings.Count > 0)
+                                    {
+                                        <span class="text-primary"> + @string.Join(", ", oi.order_item_toppings.Select(t => t.topping_name))</span>
+                                    }
+                                    @if (!string.IsNullOrEmpty(oi.note))
+                                    {
+                                        <br /><span class="text-danger">Note: @oi.note</span>
+                                    }
+                                </div>
+                            </td>
+                            <td>@(oi.product_variants != null ? oi.product_variants.size : "M")</td>
+                            <td class="text-center">@oi.quantity</td>
+                            <td class="text-end">@string.Format("{0:N0}đ", oi.unit_price + topSum)</td>
+                            <td class="text-end fw-bold">@string.Format("{0:N0}đ", lineTotal)</td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="4" class="text-end">Phí giao hàng:</td>
+                        <td class="text-end">@string.Format("{0:N0}đ", Model.shipping_fee)</td>
+                    </tr>
+                    @if (Model.discount_amount > 0)
+                    {
+                        <tr>
+                            <td colspan="4" class="text-end text-success">Giảm giá:</td>
+                            <td class="text-end text-success">-@string.Format("{0:N0}đ", Model.discount_amount)</td>
+                        </tr>
+                    }
+                    <tr>
+                        <td colspan="4" class="text-end fw-bold">TỔNG THU:</td>
+                        <td class="text-end fw-bolder text-danger fs-5">@string.Format("{0:N0}đ", Model.final_total)</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card-pos p-4 mb-3">
+            <h6 class="fw-bold mb-2">📍 Thông Tin Giao Hàng</h6>
+            <div class="small mb-1"><strong>Người nhận:</strong> @Model.shipping_name</div>
+            <div class="small mb-1"><strong>Điện thoại:</strong> @Model.shipping_phone</div>
+            <div class="small mb-0"><strong>Địa chỉ:</strong> @Model.shipping_address</div>
+        </div>
+
+        <div class="card-pos p-4 border-primary">
+            <h6 class="fw-bold mb-3">🔄 Cập Nhật Trạng Thái Đơn</h6>
+            <form method="post" action="/Pos/CapNhatTrangThaiOnline">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" value="@Model.id" />
+
+                <div class="mb-3">
+                    <label class="form-label small fw-bold">Trạng thái xử lý</label>
+                    <select name="order_status" class="form-select">
+                        <option value="pending" @(Model.order_status == "pending" ? "selected" : "")>Chờ duyệt (pending)</option>
+                        <option value="preparing" @(Model.order_status == "preparing" ? "selected" : "")>Đang pha chế (preparing)</option>
+                        <option value="shipping" @(Model.order_status == "shipping" ? "selected" : "")>Đang giao hàng (shipping)</option>
+                        <option value="completed" @(Model.order_status == "completed" ? "selected" : "")>Hoàn thành (completed)</option>
+                        <option value="cancelled" @(Model.order_status == "cancelled" ? "selected" : "")>Hủy đơn &amp; Hoàn kho (cancelled)</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label small fw-bold">Trạng thái thanh toán</label>
+                    <select name="payment_status" class="form-select">
+                        <option value="unpaid" @(Model.payment_status == "unpaid" ? "selected" : "")>Chưa thanh toán (unpaid)</option>
+                        <option value="paid" @(Model.payment_status == "paid" ? "selected" : "")>Đã thanh toán (paid)</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 fw-bold">
+                    ✓ Lưu Trạng Thái Đơn Hàng
+                </button>
+            </form>
+        </div>
+    </div>
+</div>

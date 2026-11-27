@@ -174,13 +174,26 @@
                     </a>
                 </nav>
 
-                <div class="sidebar-section-title">Người dùng & Tài khoản</div>
-                <nav class="nav flex-column mb-4">
+                <div class="sidebar-section-title">Người dùng &amp; An ninh</div>
+                <nav class="nav flex-column">
                     <a class="admin-nav-link @(ViewBag.ActiveMenu == "NguoiDung" ? "active" : "")" href="/Admin/QuanLyNguoiDung">
                         <span>👥</span> Quản lý Người dùng
                     </a>
-                    <a class="admin-nav-link" href="/Customer/Index" target="_blank">
-                        <span>🌐</span> Xem ngoài Website (Khách hàng)
+                    <a class="admin-nav-link @(ViewBag.ActiveMenu == "NhatKy" ? "active" : "")" href="/Admin/NhatKyHeThong">
+                        <span>🛡️</span> Nhật ký Kiểm toán
+                    </a>
+                </nav>
+
+                <div class="sidebar-section-title">Phân hệ liên thông</div>
+                <nav class="nav flex-column mb-4">
+                    <a class="admin-nav-link" href="/Pos/Index">
+                        <span>💼</span> Quầy Bán Hàng (POS)
+                    </a>
+                    <a class="admin-nav-link" href="/Kho/Index">
+                        <span>📦</span> Phân hệ Thủ Kho
+                    </a>
+                    <a class="admin-nav-link" href="/Customer/Index">
+                        <span>🌐</span> Trang Khách Hàng
                     </a>
                 </nav>
             </div>
@@ -192,13 +205,17 @@
                     <div>
                         <span class="text-muted small">Khu vực quản trị hệ thống quán trà sữa TeaBloom</span>
                     </div>
-                    <div class="d-flex align-items-center gap-3">
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
                         <span class="badge bg-light text-dark border p-2">
-                            👤 Vai trò: <strong>Administrator</strong>
+                            👤 <strong>@(Session["UserName"] ?? "Administrator")</strong> (Admin)
                         </span>
-                        <a href="/Customer/Index" class="btn btn-sm btn-outline-secondary" target="_blank">
-                            Về trang khách hàng
-                        </a>
+                        <a href="/Pos/Index" class="btn btn-sm btn-warning fw-semibold">Quầy POS</a>
+                        <a href="/Kho/Index" class="btn btn-sm btn-success fw-semibold">Phân hệ Kho</a>
+                        <a href="/Customer/Index" class="btn btn-sm btn-outline-secondary">Về trang khách hàng</a>
+                        <form method="post" action="/Account/DangXuat" class="mb-0">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-sm btn-outline-danger fw-semibold">Đăng xuất</button>
+                        </form>
                     </div>
                 </div>
 

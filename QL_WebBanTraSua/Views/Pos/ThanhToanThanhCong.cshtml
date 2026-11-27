@@ -1,0 +1,111 @@
+﻿@model QL_WebBanTraSua.Models.order
+@{
+    ViewBag.Title = "Thanh toán POS thành công #" + Model.id;
+    Layout = "~/Views/Shared/_LayoutPos.cshtml";
+    decimal? cashGiven = TempData["CashGiven"] as decimal?;
+    decimal? cashChange = TempData["CashChange"] as decimal?;
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+        <div class="card-pos p-4 mb-4 border-success border-2">
+            <div class="text-center mb-4">
+                <div class="fs-1 mb-1">✅</div>
+                <h2 class="fw-bold text-success mb-1">Đã Hoàn Tất Đơn Tại Quầy!</h2>
+                <p class="text-muted mb-0">
+                    Mã hóa đơn: <strong class="text-dark fs-5">#@Model.id</strong> |
+                    Thời gian: @(Model.created_at.HasValue ? Model.created_at.Value.ToString("dd/MM/yyyy HH:mm") : "")
+                </p>
+            </div>
+
+            <div class="row g-3 mb-3 p-3 bg-light rounded border">
+                <div class="col-md-4">
+                    <small class="text-muted d-block">Khách hàng</small>
+                    <strong>@(string.IsNullOrEmpty(Model.shipping_name) ? "Khách lẻ tại quầy" : Model.shipping_name)</strong>
+                    @if (!string.IsNullOrEmpty(Model.shipping_phone))
+                    {
+                        <div class="small text-muted">@Model.shipping_phone</div>
+                    }
+                    @if (Model.user != null)
+                    {
+                        <div class="small text-primary fw-semibold">Điểm hiện tại: @Model.user.points (@Model.user.tier)</div>
+                    }
+                </div>
+                <div class="col-md-4">
+                    <small class="text-muted d-block">Thanh toán</small>
+                    <strong>@(Model.payment_method == "transfer" ? "Chuyển khoản VietQR" : "Tiền mặt")</strong>
+                    <div class="small text-success fw-semibold">Đã thanh toán &amp; trừ kho tự động</div>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <small class="text-muted d-block">Tổng thanh toán</small>
+                    <strong class="fs-4 text-danger">@string.Format("{0:N0}đ", Model.final_total)</strong>
+                    @if (cashGiven.HasValue && cashChange.HasValue)
+                    {
+                        <div class="small text-muted">
+                            Khách đưa: @string.Format("{0:N0}đ", cashGiven.Value) |
+                            <strong class="text-success">Thối lại: @string.Format("{0:N0}đ", cashChange.Value)</strong>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <table class="table table-bordered align-middle mb-3">
+                <thead class="table-light">
+                    <tr>
+                        <th>Sản phẩm</th>
+                        <th>Size</th>
+                        <th class="text-center">SL</th>
+                        <th class="text-end">Đơn giá</th>
+                        <th class="text-end">Thành tiền</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var oi in Model.order_items)
+                    {
+                        decimal topSum = oi.order_item_toppings != null ? oi.order_item_toppings.Sum(t => t.price) : 0m;
+                        decimal lineTotal = (oi.unit_price + topSum) * oi.quantity;
+                        <tr>
+                            <td>
+                                <strong>@(oi.product_variants != null && oi.product_variants.product != null ? oi.product_variants.product.name : "Thức uống")</strong>
+                                <div class="small text-muted">
+                                    Đường @oi.sugar_level%, Đá @oi.ice_option
+                                    @if (oi.order_item_toppings != null && oi.order_item_toppings.Count > 0)
+                                    {
+                                        <span class="text-primary"> + @string.Join(", ", oi.order_item_toppings.Select(t => t.topping_name))</span>
+                                    }
+                                </div>
+                            </td>
+                            <td><span class="badge bg-secondary">@(oi.product_variants != null ? oi.product_variants.size : "M")</span></td>
+                            <td class="text-center fw-bold">@oi.quantity</td>
+                            <td class="text-end">@string.Format("{0:N0}đ", oi.unit_price + topSum)</td>
+                            <td class="text-end fw-bold text-primary">@string.Format("{0:N0}đ", lineTotal)</td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="4" class="text-end">Tạm tính:</td>
+                        <td class="text-end fw-semibold">@string.Format("{0:N0}đ", Model.subtotal)</td>
+                    </tr>
+                    @if (Model.discount_amount > 0)
+                    {
+                        <tr>
+                            <td colspan="4" class="text-end text-success">Giảm giá Voucher:</td>
+                            <td class="text-end fw-semibold text-success">-@string.Format("{0:N0}đ", Model.discount_amount)</td>
+                        </tr>
+                    }
+                    <tr>
+                        <td colspan="4" class="text-end fw-bold fs-5">TỔNG CỘNG:</td>
+                        <td class="text-end fw-bolder fs-5 text-danger">@string.Format("{0:N0}đ", Model.final_total)</td>
+                    </tr>
+                </tfoot>
+            </table>
+
+            <div class="d-flex gap-2 justify-content-center flex-wrap">
+                <a href="/Pos/InHoaDon/@Model.id" class="btn btn-warning fw-bold px-4">🖨️ In Hóa Đơn (HTML)</a>
+                <a href="/Pos/XuatHoaDonPdf/@Model.id" target="_blank" class="btn btn-danger fw-bold px-4">📄 Xuất Hóa Đơn PDF</a>
+                <a href="/Pos/Index" class="btn btn-primary fw-bold px-4">➕ Tạo Đơn Mới</a>
+            </div>
+        </div>
+    </div>
+</div>
